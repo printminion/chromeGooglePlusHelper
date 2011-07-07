@@ -1,0 +1,14 @@
+{
+	"ext_name": {
+		"message": "Helper for Google+"
+	},
+	"ext_description": {
+		"message": "Add extra functions the Google+"
+	},
+	"ext_page_action_badge": {
+		"message": "Helper for Google+"
+	},
+	"some_text": {
+		"message": "Some text"
+	}
+}

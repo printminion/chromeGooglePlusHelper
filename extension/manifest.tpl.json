@@ -1,0 +1,26 @@
+{
+	"name": "__MSG_ext_name__",
+	"version": "@VERSION@",
+	"description": "__MSG_ext_description__",
+	"default_locale": "en",
+	"icons": {
+		"256": "images/icon256.png",
+		"128": "images/icon128.png",
+		"24": "images/icon24.png",
+		"19": "images/icon19.png"
+	},
+	"content_scripts": [
+    {
+      "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
+      "js": ["js/chromeExtensionsCode.min.js"]
+    }
+  ],
+	"background_page": "background.min.html",
+	"permissions": [
+		"tabs"
+	],
+	"page_action": {
+		"default_name": "__MSG_ext_page_action_badge__",
+		"default_icon": "images/icon19.png"
+	}
+}
