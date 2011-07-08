@@ -12,12 +12,12 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/chromeExtensionsCode.min.js"]
+      "js": ["js/chromeExtensionsCode.js"]
     }
   ],
-	"background_page": "background.min.html",
+	"background_page": "background.html",
 	"permissions": [
-		"tabs"
+		"tabs", "notifications"
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

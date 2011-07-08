@@ -4,6 +4,60 @@ var status = STATUS_READY;
 var STATUS_LOADING = 1;
 var STATUS_READY = 2;
 
+var container = undefined;
+
+function GPlusHelper() {
+
+	this.init = function() {
+
+		var container = document.querySelector("div.a-b-f-i-oa");
+		if (container.addEventListener) {
+			container.addEventListener('DOMNodeInserted', function(e){ 
+				
+				//console.log('DOMNodeInserted', e.target.id); 
+				
+				var idBegin = e.target.id.substring(0, 7);
+				if (idBegin == 'update-') {
+					console.log(e.target.innerHTML);
+					
+					 port.postMessage({
+					 message : "onNewPost",
+					 id : e.target.id,
+				     html: e.target.innerHTML
+					 });
+					
+					return;
+				}
+
+
+			}, false);
+		}
+
+	};
+}
+
+
+/*
+container.addEventListener('DOMNodeInserted', function(e){ 
+	
+	console.log('DOMNodeInserted', e.target.id); 
+	
+	var idBegin = e.target.id.substring(0, 7);
+	if (idBegin == 'update-') {
+		console.log(e.target.innerHTML);
+		return;
+	}
+
+
+}, false);
+*/
+
+function DOMNodeInserted (e) {
+    console.log('DOMNodeInserted', e);
+}
+
+var gplushelper = new GPlusHelper();
+gplushelper.init();
 
 // In a content script
 var port = chrome.extension.connect({
@@ -20,25 +74,25 @@ port.onMessage.addListener(function(msg) {
 		fetchTabInfo('update');
 	} else if (msg.message = 'checkForUpdate') {
 		fetchTabInfo('checkForUpdate');
-		
+
 		if (status == STATUS_LOADING) {
 			fetchTabInfo('checkForUpdate2');
-			
+
 			return;
 		}
 		fetchTabInfo('checkForUpdate3');
-		
+
 		checkForUpdate();
 	} else {
-		fetchTabInfo('...nothing to do');		
+		fetchTabInfo('...nothing to do');
 	}
 
 });
 
-//port.postMessage({
-//	message : "Hello!",
-//	values : [ 1, 2, 3 ]
-//});
+// port.postMessage({
+// message : "Hello!",
+// values : [ 1, 2, 3 ]
+// });
 
 chrome.extension.sendRequest({
 	'action' : 'fetchTabInfo'
@@ -55,14 +109,14 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 function checkForUpdate() {
 	console.log('checkForUpdate...');
-	
+
 	status = STATUS_LOADING;
-	xmlhttpPost('GET', 'https://plus.google.com/u/0/_/n/guc?_reqid=680986&rt=j');	
+	xmlhttpPost('GET', 'https://plus.google.com/u/0/_/n/guc?_reqid=680986&rt=j');
 }
 
 function xmlhttpPost(type, strURL) {
 	console.log('xmlhttpPost', type, strURL);
-	
+
 	var xmlHttpReq = false;
 	// Mozilla/Safari
 	xmlHttpReq = new XMLHttpRequest();
@@ -108,9 +162,12 @@ function fetchTabInfo(selectedPacketName) {
 				attrClass.nodeValue = 'true';
 				postObj.setAttributeNode(attrClass);
 				extendPostArea(postObj);
-			};
-		};
-	};
+			}
+			;
+		}
+		;
+	}
+	;
 };
 
 function extendPostArea(o) {
@@ -172,9 +229,11 @@ function parsePostData(o) {
 			if (idBegin == 'update-') {
 				updateDiv = currentElement;
 				break;
-			};
+			}
+			;
 
-		};
+		}
+		;
 
 	}
 
@@ -204,7 +263,8 @@ function parsePostData(o) {
 			author : ''
 		};
 
-	};
+	}
+	;
 }
 
 function doTweet(data) {
@@ -218,7 +278,8 @@ function doTweet(data) {
 				+ encodeURIComponent(data.url));
 	} catch (e) {
 		alert('failed open window');
-	};
+	}
+	;
 }
 
 function doTranslate(data) {
@@ -231,5 +292,6 @@ function doTranslate(data) {
 				+ encodeURIComponent(data.text + ' #googleplus '));
 	} catch (e) {
 		alert('failed open window');
-	};
+	}
+	;
 };

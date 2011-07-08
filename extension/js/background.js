@@ -2,6 +2,7 @@
  * collection of active ports
  */
 var ports = {};
+var notificationsArr = {};
 
 var animationFrames = 36;
 var animationSpeed = 50; // ms
@@ -22,27 +23,34 @@ chrome.extension.onConnect.addListener(function(port) {
 	ports[port.tab.id] = port;
 
 	port.onMessage.addListener(function(data) {
-		
+
 		console.log("The content script said: " + data.message
-				+ " with values: " + data.values);
-		
+				+ " with values: ", data);
+
 		if (data.message == 'doTweet') {
-			_gaq.push(['_trackPageview','/tweet']);
+			_gaq.push([ '_trackPageview', '/tweet' ]);
 		}
-		
+
 		if (data.message == 'doTranslate') {
-			_gaq.push(['_trackPageview','/translate']);
+			_gaq.push([ '_trackPageview', '/translate' ]);
+		}
+
+		if (data.message == 'onNewPost') {
+			_gaq.push([ '_trackPageview', '/notify' ]);
+			doNotify(data);
 		}
 		
-		
+		if (data.message == 'doOpenLink') {
+			_gaq.push([ '_trackPageview', '/openLink' ]);
+			doOpenLink(data);
+		}
+
 	});
 
 	/*
-	port.postMessage({
-		message : "Greetings, tab " + port.tab.id,
-		values : [ true, false, null ]
-	});
-	*/
+	 * port.postMessage({ message : "Greetings, tab " + port.tab.id, values : [
+	 * true, false, null ] });
+	 */
 
 });
 
@@ -114,7 +122,7 @@ function beforeUpdateTab(tabId) {
 		}
 
 		/*
-		 * check if we are in the market
+		 * check if we are on google plus
 		 */
 		var result = tab.url.search(/plus.google.com/);
 		if (result != -1) {
@@ -175,6 +183,48 @@ function onInitialisation() {
 	}
 }
 
+function doOpenLink(data) {
+
+	chrome.tabs.create({url: data.url });
+
+}
+
+
+function doNotify(data) {
+
+	if (data.html == undefined) {
+		return;
+	}
+
+	if (data.html == '') {
+		return;
+	}
+
+	if (notificationsArr.hasOwnProperty(data.id)) {
+		console.log('skip notification [' + data.id + ']');
+		return;
+	}
+
+	/*
+	 * create an HTML notification:
+	 */
+	var notification = webkitNotifications
+			.createHTMLNotification("notification_helper.html?id=" + data.id
+					+ "&html=" + encodeURIComponent(data.html));
+
+	console.log("notification_helper.html?id=" + data.id
+					+ "&html=" + encodeURIComponent(data.html));
+	/*
+	 * add notidication to the stack
+	 */
+	notificationsArr[data.id] = true;
+
+	/*
+	 * Then show the notification.
+	 */
+	notification.show();
+}
+
 var REFRESH_RATE = 5000;
 
 var t = 0;// setTimeout("checkUpdate()", REFRESH_RATE);
@@ -206,22 +256,6 @@ function checkUpdate() {
 	}
 }
 
-function deleteme() {
-	var req = new XMLHttpRequest();
-	req.onreadystatechange = function(data) {
-		if (req.readyState == 4) {
-			if (req.status == 200) {
-				callback(req.responseText);
-			} else {
-				callback(null);
-			}
-		}
-	};
-	var url = 'http://foo/bar.php';
-	req.open('GET', url, true);
-	req.send();
-};
-
 function animateFlip(tabId) {
 	rotation += 1 / animationFrames;
 	drawIconAtRotation(tabId);
@@ -234,7 +268,7 @@ function animateFlip(tabId) {
 	}
 };
 
-function drawIconAtRotation(tabId ) {
+function drawIconAtRotation(tabId) {
 	canvasContext.save();
 	canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 	canvasContext.translate(Math.ceil(canvas.width / 2), Math

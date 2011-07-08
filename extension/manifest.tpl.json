@@ -17,7 +17,7 @@
   ],
 	"background_page": "background.min.html",
 	"permissions": [
-		"tabs"
+		"tabs", "notifications"
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>New Message</title>
+<link rel="stylesheet" href="css/notification.css" type="text/css"
+	media="all" />
+<base href="https://plus.google.com/" />
+<style type="text/css">
+body {
+	font: normal 13px arial, sans-serif;
+	visibility: visible;
+	padding: 0px;
+}
+
+.a-f-i-bg,.a-f-i-Ia-D-h {
+	display: none;
+}
+
+a {
+	cursor: pointer!important;
+}
+</style>
+
+
+<script type="text/javascript">
+	var bg = chrome.extension.getBackgroundPage();
+	function init() {
+
+		var query = {};
+		var search = window.location.search;
+
+		search = search.substring(1, search.length);
+
+		search = search.split('&');
+
+		for (part in search) {
+			part = search[part].split('=');
+			query[part[0]] = decodeURIComponent(part[1]);
+		}
+
+		console.log(query);
+
+		var container = document.querySelector(".a-b-f-i-oa");
+
+		container.innerHTML = query.html;
+
+		var containers = document.querySelectorAll("a");
+
+		for (i in containers) {
+
+			if (containers[i].addEventListener) {
+				containers[i].addEventListener('click', function(e) {
+
+					console.log(e)
+					bg.doOpenLink({
+						url : this.href
+					});
+					return;
+
+				}, false);
+			}
+
+		}
+
+	}
+</script>
+
+</head>
+
+
+<body id="body" onload="init()">
+	<div class="a-b-f-i-oa"></div>
+
+
+</body>
+</html>
