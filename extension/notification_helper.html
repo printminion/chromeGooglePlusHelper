@@ -3,9 +3,12 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>New Message</title>
+<title>Notification</title>
 <link rel="stylesheet" href="css/notification.css" type="text/css"
 	media="all" />
+
+<script src="js/notification.js"></script>
+
 <base href="https://plus.google.com/" />
 <style type="text/css">
 body {
@@ -19,58 +22,32 @@ body {
 }
 
 a {
-	cursor: pointer!important;
+	cursor: pointer !important;
+}
+
+.selected {
+	background: -o-linear-gradient(top, #EEE, #E0E0E0);
+	background: -webkit-gradient(linear, left top, left bottom, from(#EEE),
+		to(#E0E0E0) );
+	background: -moz-linear-gradient(top, #EEE, #E0E0E0);
+	background: -o-linear-gradient(top, #EEE, #E0E0E0);
+	border-color: #BBB;
+	box-shadow: inset 0 1px 5px #ccc;
+	-moz-box-shadow: inset 0 1px 5px #ccc;
+	-webkit-box-shadow: inset 0 1px 5px #ccc;
+	z-index: 2;
+}
+
+.a-f-i-q {
+	border-radius: 0px 0px 5px 0px;
+	-moz-border-radius: 0px 0px 5px 0px;
+	-webkit-border-bottom-right-radius: 5px;
+	border-bottom: 1px solid #EBEBEB;
+	border-right: 1px solid #EBEBEB;
 }
 </style>
+<body id="body" onload="notify.init();" class="cl">
 
-
-<script type="text/javascript">
-	var bg = chrome.extension.getBackgroundPage();
-	function init() {
-
-		var query = {};
-		var search = window.location.search;
-
-		search = search.substring(1, search.length);
-
-		search = search.split('&');
-
-		for (part in search) {
-			part = search[part].split('=');
-			query[part[0]] = decodeURIComponent(part[1]);
-		}
-
-		console.log(query);
-
-		var container = document.querySelector(".a-b-f-i-oa");
-
-		container.innerHTML = query.html;
-
-		var containers = document.querySelectorAll("a");
-
-		for (i in containers) {
-
-			if (containers[i].addEventListener) {
-				containers[i].addEventListener('click', function(e) {
-
-					console.log(e)
-					bg.doOpenLink({
-						url : this.href
-					});
-					return;
-
-				}, false);
-			}
-
-		}
-
-	}
-</script>
-
-</head>
-
-
-<body id="body" onload="init()">
 	<div class="a-b-f-i-oa"></div>
 
 
