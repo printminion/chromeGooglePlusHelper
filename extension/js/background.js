@@ -15,6 +15,7 @@ var requestFailureCount = 0; // used for exponential backoff
 var requestTimeout = 1000 * 2; // 5 seconds
 var rotation = 0;
 
+
 chrome.extension.onConnect.addListener(function(port) {
 	// Only accept connections with a port.name we expect.
 	if (port.name != 'chrome-google-plus-helper')
@@ -27,30 +28,47 @@ chrome.extension.onConnect.addListener(function(port) {
 		console.log("The content script said: " + data.message
 				+ " with values: ", data);
 
-		if (data.message == 'doTweet') {
+		switch (data.message) {
+		case 'fetchTabInfo':
+			checkTab(data.callback, sender);
+			break;
+		case 'doTweet':
 			_gaq.push([ '_trackPageview', '/tweet' ]);
-		}
-
-		if (data.message == 'doTranslate') {
+			break;
+		case 'doTranslate':
 			_gaq.push([ '_trackPageview', '/translate' ]);
-		}
-
-		if (data.message == 'onNewPost') {
+			break;
+		case 'doBookmark':
+			_gaq.push([ '_trackPageview', '/bookmark' ]);
+			break;
+		case 'doChromeBookmark':
+			_gaq.push([ '_trackPageview', '/bookmark-chrome' ]);
+			
+			
+			
+			
+			
+			
+			break;
+		case 'onActivatePageAction':
+			chrome.pageAction.show(port.tab.id);
+			break;
+		case 'onNewPost':
 			_gaq.push([ '_trackPageview', '/notify' ]);
 			doNotify(data);
-		}
-		
-		if (data.message == 'doOpenLink') {
+			break;
+		case 'doOpenLink':
 			_gaq.push([ '_trackPageview', '/openLink' ]);
 			doOpenLink(data);
+			break;
+		case 'registerPort':
+			break;
+		default:
+			console.log('unknown message', data.message, data);
+			break;
 		}
 
 	});
-
-	/*
-	 * port.postMessage({ message : "Greetings, tab " + port.tab.id, values : [
-	 * true, false, null ] });
-	 */
 
 });
 
@@ -132,6 +150,7 @@ function beforeUpdateTab(tabId) {
 				chrome.pageAction.show(tab.id);
 
 				ports[tab.id].postMessage({
+					message : 'update',
 					update : true
 				});
 
@@ -159,6 +178,7 @@ chrome.pageAction.onClicked.addListener(function(tab) {
 		chrome.pageAction.show(tab.id);
 		animateFlip(tab.id);
 		ports[tab.id].postMessage({
+			message : 'update',
 			update : true
 		});
 
@@ -185,10 +205,11 @@ function onInitialisation() {
 
 function doOpenLink(data) {
 
-	chrome.tabs.create({url: data.url });
+	chrome.tabs.create({
+		url : data.url
+	});
 
 }
-
 
 function doNotify(data) {
 
@@ -212,10 +233,12 @@ function doNotify(data) {
 			.createHTMLNotification("notification_helper.html?id=" + data.id
 					+ "&html=" + encodeURIComponent(data.html));
 
-	console.log("notification_helper.html?id=" + data.id
-					+ "&html=" + encodeURIComponent(data.html));
+	console.log("notification_helper.html?" 
+			+ "id=" + data.id 
+			+ "&url=" + encodeURIComponent(data.html),
+			+ "&html=" + encodeURIComponent(data.html));
 	/*
-	 * add notidication to the stack
+	 * add notification to the stack
 	 */
 	notificationsArr[data.id] = true;
 
@@ -247,7 +270,7 @@ function checkUpdate() {
 
 		ports[port].postMessage({
 			message : 'checkForUpdate',
-			values : [ true, false, null ]
+			values : []
 		});
 
 		t = setTimeout("checkUpdate()", REFRESH_RATE);

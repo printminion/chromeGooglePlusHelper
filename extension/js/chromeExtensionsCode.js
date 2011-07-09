@@ -1,152 +1,267 @@
-//var probeManager = chrome.extension.getBackgroundPage();
+/**
+ * you can't use here the background page
+ */
 
-var status = STATUS_READY;
+// In a content script
+var port = undefined;
+// chrome.extension.connect({
+// name : 'chrome-google-plus-helper'
+// });
+
+getPort().postMessage({
+	message : "registerPort",
+});
+
 var STATUS_LOADING = 1;
 var STATUS_READY = 2;
 
+var status = STATUS_READY;
+
 var container = undefined;
+
+var actions = new Actions();
+
+var gplushelper = new GPlusHelper();
+gplushelper.init();
+
+function getPort() {
+
+	if (!port) {
+
+		console.log('create port');
+
+		port = chrome.extension.connect({
+			name : 'chrome-google-plus-helper'
+		});
+	}
+	return port;
+}
 
 function GPlusHelper() {
 
 	this.init = function() {
 
+		/*
+		 * this.addNotifier();
+		 * 
+		 * this.extendUI();
+		 */
+
+		var url = this.getFullUrlByLocation(window.location);
+
+		var result = url.search(/plus.google.com/);
+		if (result == -1) {
+			return;
+		}
+
+		/*
+		 * check if user post
+		 */
+		data = this.analyzePage(url);
+
+		getPort().postMessage({
+			message : "onActivatePageAction",
+		});
+
+		this.initHomePage(data.notificationOn);
+
+	};
+	
+	
+	this.analyzePage = function(url) {
+		// https://plus.google.com/
+		// https://plus.google.com/104512463398531242371/posts
+		// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
+
+		var pageInfo = {
+			url : url,
+			type : undefined,
+			notificationOn : false
+		};
+
+		var qRe = new RegExp(
+				"^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
+		var test = qRe.exec(url);
+
+		/*
+		 * check if user page
+		 */
+		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
+		test = qRe.exec(url);
+
+		/*
+		 * check home
+		 */
+		qRe = new RegExp("^https://plus.google.com/u/0/$");
+		test = qRe.exec(url);
+		pageInfo.notificationOn = (test || pageInfo.notificationOn) ? true
+				: false;
+
+		// https://plus.google.com/u/0/104512463398531242371/posts
+
+		/*
+		 * check home
+		 */
+		qRe = new RegExp("^https://plus.google.com/$");
+		test = qRe.exec(url);
+		pageInfo.notificationOn = (test || pageInfo.notificationOn) ? true
+				: false;
+
+		return pageInfo;
+
+	};
+
+	this.initHomePage = function(bNotificationOn) {
+
 		var container = document.querySelector("div.a-b-f-i-oa");
-		if (container.addEventListener) {
-			container.addEventListener('DOMNodeInserted', function(e){ 
-				
-				//console.log('DOMNodeInserted', e.target.id); 
-				
+		if (container == undefined) {
+			return;
+		}
+
+		if (!container.addEventListener) {
+			return;
+		}
+
+		(function(bNotificationOn) {
+			container.addEventListener('DOMNodeInserted', function(e) {
+
+				console.log('DOMNodeInserted', e.target.id);
+
 				var idBegin = e.target.id.substring(0, 7);
 				if (idBegin == 'update-') {
-					console.log(e.target.innerHTML);
-					
-					 port.postMessage({
-					 message : "onNewPost",
-					 id : e.target.id,
-				     html: e.target.innerHTML
-					 });
-					
+
+					if (bNotificationOn) {
+						console.log(e.target.innerHTML);
+						getPort().postMessage({
+							message : "onNewPost",
+							id : e.target.id,
+							html : e.target.innerHTML
+						});
+					}
+
+					fetchTabInfo("fetchOnUpdate");
+
 					return;
 				}
 
-
 			}, false);
-		}
+
+		})(bNotificationOn);
+
+	};
+
+	this.getFullUrlByLocation = function(location) {
+
+		var url = location.href;
+
+		return url;
 
 	};
 }
 
-
 /*
-container.addEventListener('DOMNodeInserted', function(e){ 
-	
-	console.log('DOMNodeInserted', e.target.id); 
-	
-	var idBegin = e.target.id.substring(0, 7);
-	if (idBegin == 'update-') {
-		console.log(e.target.innerHTML);
-		return;
-	}
+ * container.addEventListener('DOMNodeInserted', function(e){
+ * 
+ * console.log('DOMNodeInserted', e.target.id);
+ * 
+ * var idBegin = e.target.id.substring(0, 7); if (idBegin == 'update-') {
+ * console.log(e.target.innerHTML); return; } }, false);
+ * 
+ * 
+ * function DOMNodeInserted(e) { console.log('DOMNodeInserted', e); }
+ */
 
-
-}, false);
-*/
-
-function DOMNodeInserted (e) {
-    console.log('DOMNodeInserted', e);
-}
-
-var gplushelper = new GPlusHelper();
-gplushelper.init();
-
-// In a content script
-var port = chrome.extension.connect({
-	name : 'chrome-google-plus-helper'
-});
-
-port.onMessage.addListener(function(msg) {
+getPort().onMessage.addListener(function(msg) {
 	console.log("The extension said: " + msg.message + " with values: "
-			+ msg.values);
+			+ msg.values, msg);
 
 	console.log('onMessage', msg);
 
-	if (msg.message == 'update') {
+	switch (msg.message) {
+	case 'update':
 		fetchTabInfo('update');
-	} else if (msg.message = 'checkForUpdate') {
-		fetchTabInfo('checkForUpdate');
-
-		if (status == STATUS_LOADING) {
-			fetchTabInfo('checkForUpdate2');
-
-			return;
-		}
-		fetchTabInfo('checkForUpdate3');
-
-		checkForUpdate();
-	} else {
-		fetchTabInfo('...nothing to do');
-	}
-
-});
-
-// port.postMessage({
-// message : "Hello!",
-// values : [ 1, 2, 3 ]
-// });
-
-chrome.extension.sendRequest({
-	'action' : 'fetchTabInfo'
-}, fetchTabInfo);
-
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	console.log('extension.onRequest');
-
-	if (request.action == 'updateTabInfo') {
+		break;
+	case 'checkForUpdate':
+		/*
+		 * fetchTabInfo('checkForUpdate');
+		 * 
+		 * if (status == STATUS_LOADING) { fetchTabInfo('checkForUpdate2');
+		 * 
+		 * return; } fetchTabInfo('checkForUpdate3');
+		 * 
+		 * checkForUpdate();
+		 */
+	case 'updateTabInfo':
 		fetchTabInfo('updateTabInfo');
+		break;
+	default:
+		// fetchTabInfo('...nothing to do');
+		console.log('unknow messade:', msg);
+		break;
 	}
 
 });
 
-function checkForUpdate() {
-	console.log('checkForUpdate...');
+/*
+ * chrome.extension.sendRequest({ 'action' : 'fetchTabInfo' }, fetchTabInfo);
+ * 
+ * chrome.extension.onRequest.addListener(function(request, sender,
+ * sendResponse) { console.log('extension.onRequest');
+ * 
+ * if (request.action == 'updateTabInfo') { fetchTabInfo('updateTabInfo'); }
+ * 
+ * });
+ */
 
-	status = STATUS_LOADING;
-	xmlhttpPost('GET', 'https://plus.google.com/u/0/_/n/guc?_reqid=680986&rt=j');
+/*
+ * 
+ * function checkForUpdate() { console.log('checkForUpdate...');
+ * 
+ * status = STATUS_LOADING; xmlhttpPost('GET',
+ * 'https://plus.google.com/u/0/_/n/guc?_reqid=680986&rt=j'); }
+ * 
+ * function xmlhttpPost(type, strURL) { console.log('xmlhttpPost', type,
+ * strURL);
+ * 
+ * var xmlHttpReq = false; // Mozilla/Safari xmlHttpReq = new XMLHttpRequest();
+ * 
+ * xmlHttpReq.open(type, strURL, true);
+ * xmlHttpReq.setRequestHeader('Content-Type',
+ * 'application/x-www-form-urlencoded'); xmlHttpReq.onreadystatechange =
+ * function() { if (xmlHttpReq.readyState == 4) { status = STATUS_READY;
+ * updatepage(xmlHttpReq.responseText); } };
+ * 
+ * xmlHttpReq.send(strURL); }
+ * 
+ * 
+ * function updatepage(response) { console.log('updatepage', response); }
+ */
+
+function UIExtender() {
+
 }
 
-function xmlhttpPost(type, strURL) {
-	console.log('xmlhttpPost', type, strURL);
-
-	var xmlHttpReq = false;
-	// Mozilla/Safari
-	xmlHttpReq = new XMLHttpRequest();
-
-	xmlHttpReq.open(type, strURL, true);
-	xmlHttpReq.setRequestHeader('Content-Type',
-			'application/x-www-form-urlencoded');
-	xmlHttpReq.onreadystatechange = function() {
-		if (xmlHttpReq.readyState == 4) {
-			status = STATUS_READY;
-			updatepage(xmlHttpReq.responseText);
-		}
-	};
-
-	xmlHttpReq.send(strURL);
-}
-
-function updatepage(response) {
-	console.log('updatepage', response);
-}
+var uiExtender = UIExtender();
 
 function fetchTabInfo(selectedPacketName) {
 	console.log('content_scripts.fetchTabInfo:' + selectedPacketName);
-
-	var streamObj = document.querySelector("div.a-b-f-i-oa");
-
 	var attrClass = undefined;
 	var postObj = undefined;
 
+	/*
+	 * get home stream
+	 */
+	var streamObj = document.querySelector("div.a-b-f-i-oa");
+
+	/*
+	 * get post stream
+	 */
 	if (!streamObj) {
+		streamObj = document.querySelector("div.a-Wf-i-M");
+	}
+
+	if (!streamObj) {
+		console.log('failed to get stram for extension');
 		return;
 	}
 
@@ -176,12 +291,29 @@ function extendPostArea(o) {
 	var placeholderObj = o.querySelector("div.a-f-i-bg");
 
 	extentPostActions(placeholderObj, 'Tweet', function() {
-		doTweet(parsePostData(this));
+		actions.doTweet(parsePostData(this));
 	}, 'Click to tweet this post');
 
 	extentPostActions(placeholderObj, 'Translate', function() {
-		doTranslate(parsePostData(this));
+		actions.doTranslate(parsePostData(this));
 	}, 'Click to translate this post');
+
+	extentPostActions(placeholderObj, 'Bookmark', function() {
+		actions.doBookmark(parsePostData(this));
+	}, 'Click to bookmark this post');
+
+	/*
+	 * .wsa { background-position: -102px -117px; }
+	 * 
+	 * .wsa { cursor: default; display: inline; height: 14px; margin-left: 5px;
+	 * vertical-align: 0; width: 14px; }
+	 * 
+	 * .wsa, .wxs, .wpb { background: url(/images/experiments/nav_logo78.png)
+	 * no-repeat; border: 0; cursor: pointer; display: none; margin-right: 3px;
+	 * height: 0px; vertical-align: bottom; width: 0px; }
+	 * 
+	 * <button class="wsa wss" style="margin-left:0"></button>
+	 */
 
 }
 
@@ -195,7 +327,7 @@ function extentPostActions(placeholderObj, title, callback, alt) {
 		return;
 	}
 	var txt = document.createElement("txt");
-	txt.innerText = " - ";
+	txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
 
 	// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
 	var span = document.createElement("span");
@@ -267,31 +399,57 @@ function parsePostData(o) {
 	;
 }
 
-function doTweet(data) {
-	try {
-		port.postMessage({
-			message : "doTweet",
-			values : []
-		});
-		window.open('https://twitter.com/intent/tweet?text='
-				+ encodeURIComponent(data.text + ' #googleplus') + '&url='
-				+ encodeURIComponent(data.url));
-	} catch (e) {
-		alert('failed open window');
-	}
-	;
-}
+function Actions() {
 
-function doTranslate(data) {
-	try {
-		port.postMessage({
-			message : "doTranslate",
-			values : []
-		});
-		window.open('http://translate.google.com/#auto|en|'
-				+ encodeURIComponent(data.text + ' #googleplus '));
-	} catch (e) {
-		alert('failed open window');
-	}
-	;
-};
+	this.doTweet = function(data) {
+		try {
+			getPort().postMessage({
+				message : "doTweet",
+				values : []
+			});
+			window.open('https://twitter.com/intent/tweet?text='
+					+ encodeURIComponent(data.text + ' #googleplus') + '&url='
+					+ encodeURIComponent(data.url));
+		} catch (e) {
+			alert('failed open window');
+		}
+		;
+	};
+
+	this.doTranslate = function(data) {
+		try {
+			getPort().postMessage({
+				message : "doTranslate",
+				values : []
+			});
+			window.open('http://translate.google.com/#auto|en|'
+					+ encodeURIComponent(data.text + ' #googleplus '));
+		} catch (e) {
+			alert('failed open window');
+		}
+		;
+	};
+
+	this.doBookmark = function(data) {
+		try {
+			getPort().postMessage({
+				message : "doBookmark",
+				values : []
+			});
+
+			window
+					.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup'
+							+ '&srcUrl='
+							+ encodeURIComponent(data.url)
+							+ '&snippet='
+							+ encodeURIComponent(data.text)
+							+ '&title='
+							+ encodeURIComponent('Google+ Bookmark'));
+
+		} catch (e) {
+			alert('failed open window');
+		}
+		;
+	};
+
+}

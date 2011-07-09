@@ -1,10 +1,15 @@
-var t = 0;// setTimeout("checkUpdate()", REFRESH_RATE);
+var t = 0;
+var timerOnMouseOver = 0;
+
 var CONF_TIMEOUT = 5000;
 var CONF_TIMEOUT_AFTER_MOUSEOUT = 5000;
 
 var bMouseOver = false;
+var bMouseOverTimerOff = true;
 
 function Notify() {
+
+	this.data = undefined;
 
 	this.init = function() {
 
@@ -15,12 +20,23 @@ function Notify() {
 	};
 
 	this.startTimer = function() {
-
 		t = setTimeout("notify.beforeClose()", CONF_TIMEOUT);
 	};
 
-	this.beforeClose = function() {
+	this.startTimerAfterMouseOut = function() {
+		bMouseOverTimerOff = false;
+		t = setTimeout("notify.afterMouseOut()", CONF_TIMEOUT_AFTER_MOUSEOUT);
+	};
+
+	this.afterMouseOut = function() {
+
 		if (!bMouseOver) {
+			bMouseOverTimerOff = true;
+		}
+	};
+
+	this.beforeClose = function() {
+		if (!bMouseOver && bMouseOverTimerOff) {
 			window.close();
 		} else {
 			t = setTimeout("notify.beforeClose()", CONF_TIMEOUT_AFTER_MOUSEOUT);
@@ -34,15 +50,30 @@ function Notify() {
 		if (bodyObj.addEventListener) {
 			bodyObj.addEventListener('mouseover', function(e) {
 				bMouseOver = true;
-				bodyObj.setAttribute('class','selected');
-				
+				bodyObj.setAttribute('class', 'selected');
+
 				console.log('mouseover', bMouseOver);
 			}, false);
 
 			bodyObj.addEventListener('mouseout', function(e) {
 				bMouseOver = false;
-				bodyObj.setAttribute('class','');
+				bodyObj.setAttribute('class', '');
 				console.log('mouseout', bMouseOver);
+				this.startTimerAfterMouseOut();
+
+			}, false);
+
+			bodyObj.addEventListener('click', function(e) {
+				bMouseOver = true;
+				bodyObj.setAttribute('class', 'clicked');
+				console.log('click', bMouseOver);
+
+				chrome.extension.getBackgroundPage().doOpenLink({
+					url : this.data.url
+				});
+
+				window.close();
+
 			}, false);
 
 		}
@@ -60,11 +91,13 @@ function Notify() {
 			query[part[0]] = decodeURIComponent(part[1]);
 		}
 
-		console.log(query);
+		this.data = query;
+
+		console.log(this.data);
 
 		var container = document.querySelector(".a-b-f-i-oa");
 
-		container.innerHTML = query.html;
+		container.innerHTML = this.data.html;
 
 		var containers = document.querySelectorAll("a");
 
