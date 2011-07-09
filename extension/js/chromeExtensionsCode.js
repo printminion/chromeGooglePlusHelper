@@ -9,7 +9,7 @@ var port = undefined;
 // });
 
 getPort().postMessage({
-	message : "registerPort",
+	message : "registerPort"
 });
 
 var STATUS_LOADING = 1;
@@ -23,6 +23,9 @@ var actions = new Actions();
 
 var gplushelper = new GPlusHelper();
 gplushelper.init();
+
+
+var lastPostId = undefined;
 
 function getPort() {
 
@@ -60,14 +63,13 @@ function GPlusHelper() {
 		data = this.analyzePage(url);
 
 		getPort().postMessage({
-			message : "onActivatePageAction",
+			message : "onActivatePageAction"
 		});
 
 		this.initHomePage(data.notificationOn);
 
 	};
-	
-	
+
 	this.analyzePage = function(url) {
 		// https://plus.google.com/
 		// https://plus.google.com/104512463398531242371/posts
@@ -125,23 +127,36 @@ function GPlusHelper() {
 		(function(bNotificationOn) {
 			container.addEventListener('DOMNodeInserted', function(e) {
 
-				console.log('DOMNodeInserted', e.target.id);
+				//console.log('DOMNodeInserted', e.target.id, e.target);
+
+				// a-b-f-i-p-R
 
 				var idBegin = e.target.id.substring(0, 7);
 				if (idBegin == 'update-') {
+					lastPostId = e.target.id;
+					console.log('onBeforePostAdded', idBegin);
+					return;
+				}
 
-					if (bNotificationOn) {
+				var classAttribute = e.target.getAttribute('class');
+
+				if (classAttribute == 'a-Ja-h a-b-h-Jb a-f-i-Ad') {
+					console.log('onPostAdded', lastPostId, e.target.getAttribute('href'));
+
+					var postObj = document.querySelector('#' + lastPostId);
+					lastPostId = undefined;
+					if (postObj && bNotificationOn) {
 						console.log(e.target.innerHTML);
 						getPort().postMessage({
 							message : "onNewPost",
-							id : e.target.id,
-							html : e.target.innerHTML
+							id : postObj.id,
+							url : 'https://plus.google.com/' + e.target.getAttribute('href'),
+							html : postObj.innerHTML
 						});
 					}
 
 					fetchTabInfo("fetchOnUpdate");
 
-					return;
 				}
 
 			}, false);

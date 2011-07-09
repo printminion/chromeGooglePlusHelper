@@ -230,12 +230,14 @@ function doNotify(data) {
 	 * create an HTML notification:
 	 */
 	var notification = webkitNotifications
-			.createHTMLNotification("notification_helper.html?id=" + data.id
+			.createHTMLNotification("notification_helper.html?" 
+					+ "id=" + data.id
+					+ "&url=" + encodeURIComponent(data.url)
 					+ "&html=" + encodeURIComponent(data.html));
 
 	console.log("notification_helper.html?" 
 			+ "id=" + data.id 
-			+ "&url=" + encodeURIComponent(data.html),
+			+ "&url=" + encodeURIComponent(data.url)
 			+ "&html=" + encodeURIComponent(data.html));
 	/*
 	 * add notification to the stack

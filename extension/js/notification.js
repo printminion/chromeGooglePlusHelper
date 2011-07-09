@@ -55,26 +55,33 @@ function Notify() {
 				console.log('mouseover', bMouseOver);
 			}, false);
 
-			bodyObj.addEventListener('mouseout', function(e) {
-				bMouseOver = false;
-				bodyObj.setAttribute('class', '');
-				console.log('mouseout', bMouseOver);
-				this.startTimerAfterMouseOut();
+			(function(comonent) {
+				bodyObj.addEventListener('mouseout', function(e) {
+					bMouseOver = false;
+					bodyObj.setAttribute('class', '');
+					console.log('mouseout', bMouseOver);
+					comonent.startTimerAfterMouseOut();
 
-			}, false);
+				}, false);
+			})(this);
 
-			bodyObj.addEventListener('click', function(e) {
-				bMouseOver = true;
-				bodyObj.setAttribute('class', 'clicked');
-				console.log('click', bMouseOver);
+			(function(comonent) {
+				bodyObj.addEventListener('click', function(e) {
+					e.stopPropagation();
+					bMouseOver = true;
+					bodyObj.setAttribute('class', 'clicked');
+					console.log('click', bMouseOver);
 
-				chrome.extension.getBackgroundPage().doOpenLink({
-					url : this.data.url
-				});
+					chrome.extension.getBackgroundPage().doOpenLink({
+						url : comonent.data.url
+					});
 
-				window.close();
+					window.close();
 
-			}, false);
+					return false;
+
+				}, false);
+			})(this);
 
 		}
 	};
@@ -97,23 +104,24 @@ function Notify() {
 
 		var container = document.querySelector(".a-b-f-i-oa");
 
-		container.innerHTML = this.data.html;
+		var html = this.data.html;
+
+		container.innerHTML = html;
 
 		var containers = document.querySelectorAll("a");
 
 		for (i in containers) {
 
-			if (containers[i].addEventListener) {
-				containers[i].addEventListener('click', function(e) {
-
-					console.log(e);
-					chrome.extension.getBackgroundPage().doOpenLink({
-						url : this.href
-					});
-					return;
-
-				}, false);
-			}
+			/*
+			 * if (containers[i].addEventListener) {
+			 * containers[i].addEventListener('click', function(e) {
+			 * e.stopPropagation(); console.log(e);
+			 * chrome.extension.getBackgroundPage().doOpenLink({ url : this.href
+			 * });
+			 * 
+			 * return false;
+			 *  }, false); }
+			 */
 
 		}
 	};
