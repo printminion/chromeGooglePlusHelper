@@ -46,8 +46,8 @@ var settings = {
 	},
 	
 	get notificationSound() {
-        if(localStorage['notificationSound'] == 'NaN') return 'http://audiomicro-dev.s3.amazonaws.com/preview/3674/79ae599f302a87f';
-		return localStorage['notificationSound'] || 'http://audiomicro-dev.s3.amazonaws.com/preview/3674/79ae599f302a87f';
+        if(localStorage['notificationSound'] == 'NaN') return 'sound/01.mp3';
+		return localStorage['notificationSound'] || 'sound/01.mp3';
 	}, 
 	set notificationSound(val) {
 		localStorage['notificationSound'] = val;
