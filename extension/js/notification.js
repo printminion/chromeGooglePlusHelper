@@ -1,8 +1,7 @@
 var t = 0;
-var timerOnMouseOver = 0;
 
-var CONF_TIMEOUT = 5000;
-var CONF_TIMEOUT_AFTER_MOUSEOUT = 5000;
+var CONF_TIMEOUT = chrome.extension.getBackgroundPage().settings.notificationTime;
+var CONF_TIMEOUT_AFTER_MOUSEOUT = chrome.extension.getBackgroundPage().settings.notificationTime;
 
 var bMouseOver = false;
 var bMouseOverTimerOff = true;
@@ -12,13 +11,29 @@ function Notify() {
 	this.data = undefined;
 
 	this.init = function() {
-
+		this.alertSound();
 		this.bindWindowEvents();
 		this.bindEvents();
 		this.startTimer();
 
 	};
 
+	this.alertSound = function() {
+		var bkg = chrome.extension.getBackgroundPage();
+
+		if (bkg.settings.notificationSound && bkg.settings.notificationOn) {
+
+			console.log('rrrriiiiinnnnggg');
+
+			pingSound = document.createElement('audio');
+			pingSound.setAttribute('src', bkg.settings.notificationSound);
+			pingSound.setAttribute('id', 'ping');
+			pingSound.load();
+			pingSound.play();
+
+		}
+		;
+	};
 	this.startTimer = function() {
 		t = setTimeout("notify.beforeClose()", CONF_TIMEOUT);
 	};
@@ -106,6 +121,8 @@ function Notify() {
 
 		var html = this.data.html;
 
+		html = html.replace('"//', '"https://');
+		
 		container.innerHTML = html;
 
 		var containers = document.querySelectorAll("a");
@@ -119,8 +136,7 @@ function Notify() {
 			 * chrome.extension.getBackgroundPage().doOpenLink({ url : this.href
 			 * });
 			 * 
-			 * return false;
-			 *  }, false); }
+			 * return false; }, false); }
 			 */
 
 		}

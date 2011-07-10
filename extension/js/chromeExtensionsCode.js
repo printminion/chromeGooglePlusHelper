@@ -24,7 +24,6 @@ var actions = new Actions();
 var gplushelper = new GPlusHelper();
 gplushelper.init();
 
-
 var lastPostId = undefined;
 
 function getPort() {
@@ -67,6 +66,21 @@ function GPlusHelper() {
 		});
 
 		this.initHomePage(data.notificationOn);
+
+		/*
+		 * var placeholderObj = document.querySelector('header');
+		 * 
+		 * if (placeholderObj) {
+		 * 
+		 * var script = document.createElement("script"); var attrClass =
+		 * document.createAttribute("src");
+		 * 
+		 * attrClass.nodeValue =
+		 * '//translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=auto';
+		 * script.setAttributeNode(attrClass);
+		 * 
+		 * placeholderObj.appendChild(script); }
+		 */
 
 	};
 
@@ -124,44 +138,69 @@ function GPlusHelper() {
 			return;
 		}
 
-		(function(bNotificationOn) {
+		(function(component) {
 			container.addEventListener('DOMNodeInserted', function(e) {
 
-				//console.log('DOMNodeInserted', e.target.id, e.target);
+				// console.log('DOMNodeInserted', e.target.id, e.target);
 
 				// a-b-f-i-p-R
 
 				var idBegin = e.target.id.substring(0, 7);
 				if (idBegin == 'update-') {
 					lastPostId = e.target.id;
-					console.log('onBeforePostAdded', idBegin);
+					console.log('onBeforePostAdded', lastPostId);
 					return;
 				}
 
 				var classAttribute = e.target.getAttribute('class');
 
 				if (classAttribute == 'a-Ja-h a-b-h-Jb a-f-i-Ad') {
-					console.log('onPostAdded', lastPostId, e.target.getAttribute('href'));
+					console.log('onPostAdded', lastPostId, e.target
+							.getAttribute('href'));
 
-					var postObj = document.querySelector('#' + lastPostId);
+					/*
+					 * check notifications settings
+					 */
+					chrome.extension.sendRequest({
+						action : "checkNotificationON",
+						lastPostId : lastPostId
+					}, function(response) {
+						console.log('response.notificationOn',
+								response.notificationOn);
+
+						if (!response.notificationOn) {
+							console.log('...no notification');
+							return;
+						}
+						var postObj = document.querySelector('#' + response.lastPostId);
+
+						if (!postObj) {
+							console.log('failed to get html by ' + '#' + response.lastPostId);
+							return;
+						}
+
+						/*
+						 * send notification
+						 */
+						getPort().postMessage(
+								{
+									message : "onNewPost",
+									id : postObj.id,
+									url : 'https://plus.google.com/'
+											+ e.target.getAttribute('href'),
+									html : postObj.innerHTML
+								});
+
+					});
+
 					lastPostId = undefined;
-					if (postObj && bNotificationOn) {
-						console.log(e.target.innerHTML);
-						getPort().postMessage({
-							message : "onNewPost",
-							id : postObj.id,
-							url : 'https://plus.google.com/' + e.target.getAttribute('href'),
-							html : postObj.innerHTML
-						});
-					}
-
 					fetchTabInfo("fetchOnUpdate");
 
 				}
 
 			}, false);
 
-		})(bNotificationOn);
+		})(this);
 
 	};
 
@@ -316,6 +355,8 @@ function extendPostArea(o) {
 	extentPostActions(placeholderObj, 'Bookmark', function() {
 		actions.doBookmark(parsePostData(this));
 	}, 'Click to bookmark this post');
+
+	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
 
 	/*
 	 * .wsa { background-position: -102px -117px; }

@@ -15,7 +15,6 @@ var requestFailureCount = 0; // used for exponential backoff
 var requestTimeout = 1000 * 2; // 5 seconds
 var rotation = 0;
 
-
 chrome.extension.onConnect.addListener(function(port) {
 	// Only accept connections with a port.name we expect.
 	if (port.name != 'chrome-google-plus-helper')
@@ -43,12 +42,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			break;
 		case 'doChromeBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark-chrome' ]);
-			
-			
-			
-			
-			
-			
+
 			break;
 		case 'onActivatePageAction':
 			chrome.pageAction.show(port.tab.id);
@@ -72,19 +66,64 @@ chrome.extension.onConnect.addListener(function(port) {
 
 });
 
-chrome.extension.onRequest.addListener(function(request, sender, callback) {
-	console.log('extension.onRequest');
+chrome.extension.onRequest
+		.addListener(function(request, sender, sendResponse) {
+			console.log('extension.onRequest', request);
 
-	if (request.action == 'fetchTabInfo') {
-		checkTab(callback, sender);
-	}
+			switch (request.action) {
+			case 'fetchTabInfo':
+				checkTab(sendResponse, sender);
+				break;
+			case 'checkNotificationON':
+				var bkg = chrome.extension.getBackgroundPage();
 
-});
+				console.log('notificationOn', bkg.settings.notificationOn);
+
+				sendResponse({notificationOn: bkg.settings.notificationOn,
+					lastPostId : request.lastPostId});
+
+
+				break;
+
+			default:
+				break;
+			}
+
+		});
 
 function init() {
 	canvas = document.getElementById('canvas');
 	loggedInImage = document.getElementById('icon');
 	canvasContext = canvas.getContext('2d');
+
+	app
+			.onStart(
+					function() {
+						/*
+						 * installed part
+						 */
+						console.log("Extension Installed");
+
+						var bkg = chrome.extension.getBackgroundPage();
+
+						bkg.settings.addTwitter = true;
+						bkg.settings.addTranslate = true;
+						bkg.settings.addBookmarks = true;
+						bkg.settings.addTranslateTo = 'en';
+
+						bkg.settings.notificationOn = true;
+						bkg.settings.notificationSound = 'http://audiomicro-dev.s3.amazonaws.com/preview/3674/79ae599f302a87f';
+						bkg.settings.notificationTime = 5000;
+
+						window.open('welcome.html');
+					}, function() {
+						/*
+						 * updated part
+						 */
+						console.log("Extension Updated");
+						window.open('update.html');
+					});
+
 }
 
 function checkTab(callback, sender) {
@@ -190,19 +229,6 @@ chrome.pageAction.onClicked.addListener(function(tab) {
 
 });
 
-function ifFirstInstall() {
-
-	return true;
-}
-
-function onInitialisation() {
-	if (ifFirstInstall()) {
-		/*
-		 * reload all tabs
-		 */
-	}
-}
-
 function doOpenLink(data) {
 
 	chrome.tabs.create({
@@ -230,15 +256,13 @@ function doNotify(data) {
 	 * create an HTML notification:
 	 */
 	var notification = webkitNotifications
-			.createHTMLNotification("notification_helper.html?" 
-					+ "id=" + data.id
-					+ "&url=" + encodeURIComponent(data.url)
+			.createHTMLNotification("notification_helper.html?" + "id="
+					+ data.id + "&url=" + encodeURIComponent(data.url)
 					+ "&html=" + encodeURIComponent(data.html));
 
-	console.log("notification_helper.html?" 
-			+ "id=" + data.id 
-			+ "&url=" + encodeURIComponent(data.url)
-			+ "&html=" + encodeURIComponent(data.html));
+	console.log("notification_helper.html?" + "id=" + data.id + "&url="
+			+ encodeURIComponent(data.url) + "&html="
+			+ encodeURIComponent(data.html));
 	/*
 	 * add notification to the stack
 	 */
@@ -281,6 +305,13 @@ function checkUpdate() {
 	}
 }
 
+function refreshConfiguration() {
+	console.log('refreshConfiguration');
+}
+
+/*
+ * animation stuff
+ */
 function animateFlip(tabId) {
 	rotation += 1 / animationFrames;
 	drawIconAtRotation(tabId);
