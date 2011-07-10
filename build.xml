@@ -8,7 +8,20 @@
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
-			<zipfileset dir="." includes="extension/**" excludes="extension/background.html,extension/manifest.tpl.json,extension/js/chromeExtensionsCode.js,extension/js/background.js,extension/js/notification.js,*.bak" />
+			<zipfileset dir="." includes="extension/**" excludes="
+				extension/background.html,
+				extension/manifest.tpl.json,
+				extension/notification_helper.html,
+				extension/options.html,
+			
+				extension/js/analytics.js,
+				extension/js/app.js,
+				extension/js/background.js,
+				extension/js/chromeExtensionsCode.js,
+				extension/js/notification.js,
+				extension/js/options.js,
+								
+				*.bak" />
 		</zip>
 	</target>
 
@@ -25,10 +38,10 @@
 
 	<target name="closure" depends="templates" description="Minify javascripts with closure">
 
-		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/chromeExtensionsCode.min.js">
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/app.min.js">
 
 			<sources dir="${basedir}/extension/js">
-				<file name="chromeExtensionsCode.js" />
+				<file name="app.js" />
 			</sources>
 
 		</jscomp>
@@ -40,6 +53,16 @@
 			</sources>
 
 		</jscomp>
+				
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/chromeExtensionsCode.min.js">
+
+			<sources dir="${basedir}/extension/js">
+				<file name="chromeExtensionsCode.js" />
+			</sources>
+
+		</jscomp>
+
+
 
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/notification.min.js">
 
@@ -48,6 +71,16 @@
 			</sources>
 
 		</jscomp>
+
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/options.min.js">
+
+			<sources dir="${basedir}/extension/js">
+				<file name="options.js" />
+			</sources>
+
+		</jscomp>
+
+
 	</target>
 
 

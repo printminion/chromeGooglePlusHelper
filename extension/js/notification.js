@@ -21,12 +21,16 @@ function Notify() {
 	this.alertSound = function() {
 		var bkg = chrome.extension.getBackgroundPage();
 
+		console.log('notificationSound', bkg.settings.notificationSound);
+		console.log('notificationOn', bkg.settings.notificationOn);
+		console.log('fullpath', chrome.extension.getURL('sound/01.mp3'));
+		
 		if (bkg.settings.notificationSound && bkg.settings.notificationOn) {
 
-			console.log('rrrriiiiinnnnggg');
+			console.log('rrrriiiiinnnnggg:', bkg.settings.notificationSound);
 
 			pingSound = document.createElement('audio');
-			pingSound.setAttribute('src', bkg.settings.notificationSound);
+			pingSound.setAttribute('src', chrome.extension.getURL(bkg.settings.notificationSound));
 			pingSound.setAttribute('id', 'ping');
 			pingSound.load();
 			pingSound.play();

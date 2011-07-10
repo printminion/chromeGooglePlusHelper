@@ -172,10 +172,12 @@ function GPlusHelper() {
 							console.log('...no notification');
 							return;
 						}
-						var postObj = document.querySelector('#' + response.lastPostId);
+						var postObj = document.querySelector('#'
+								+ response.lastPostId);
 
 						if (!postObj) {
-							console.log('failed to get html by ' + '#' + response.lastPostId);
+							console.log('failed to get html by ' + '#'
+									+ response.lastPostId);
 							return;
 						}
 
@@ -319,42 +321,65 @@ function fetchTabInfo(selectedPacketName) {
 		return;
 	}
 
-	for ( var i = 0; i < streamObj.childElementCount; i++) {
-		// console.log('found element...');
+	chrome.extension.sendRequest({
+		action : "getSettings"
+	}, function(response) {
+		console.log('response.getSettings', response.settings);
 
-		postObj = streamObj.childNodes[i];
+		var settings = response.settings;
+			
+		for ( var i = 0; i < streamObj.childElementCount; i++) {
+			// console.log('found element...');
 
-		if (postObj) {
+			postObj = streamObj.childNodes[i];
 
-			if (!postObj.getAttributeNode('mk-extended')) {
-				attrClass = document.createAttribute('mk-extended');
-				attrClass.nodeValue = 'true';
-				postObj.setAttributeNode(attrClass);
-				extendPostArea(postObj);
+			if (postObj) {
+
+				if (!postObj.getAttributeNode('mk-extended')) {
+					attrClass = document.createAttribute('mk-extended');
+					attrClass.nodeValue = 'true';
+					postObj.setAttributeNode(attrClass);
+					extendPostArea(postObj, settings);
+				}
+				;
 			}
 			;
 		}
 		;
-	}
-	;
+
+	});
+
 };
 
-function extendPostArea(o) {
+function extendPostArea(o, settings) {
 	console.log('extendPostArea...');
 
 	var placeholderObj = o.querySelector("div.a-f-i-bg");
 
-	extentPostActions(placeholderObj, 'Tweet', function() {
-		actions.doTweet(parsePostData(this));
-	}, 'Click to tweet this post');
+	if (!placeholderObj) {
+		console.log('error: failed to get the placeholder for actions');
+		return;
+	}
 
-	extentPostActions(placeholderObj, 'Translate', function() {
-		actions.doTranslate(parsePostData(this));
-	}, 'Click to translate this post');
+	if (settings.addTwitter == 'true') {
+		extentPostWithAction(placeholderObj, 'Tweet', function() {
+			actions.doTweet(parsePostData(this));
+		}, 'Click to tweet this post');
+	}
 
-	extentPostActions(placeholderObj, 'Bookmark', function() {
-		actions.doBookmark(parsePostData(this));
-	}, 'Click to bookmark this post');
+	if (settings.addTranslate == 'true') {
+		extentPostWithAction(placeholderObj, 'Translate', function() {
+			actions.doTranslate(parsePostData(this));
+		}, 'Click to translate this post');
+	}
+
+	if (settings.addBookmarks == 'true') {
+
+		extentPostWithAction(placeholderObj, 'Bookmark', function() {
+			actions.doBookmark(parsePostData(this));
+		}, 'Click to bookmark this post');
+
+	}
 
 	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
 
@@ -378,7 +403,7 @@ function extendPostArea(o) {
  * 
  * @param placeholderObj
  */
-function extentPostActions(placeholderObj, title, callback, alt) {
+function extentPostWithAction(placeholderObj, caption, callback, title) {
 	if (!placeholderObj) {
 		return;
 	}
@@ -387,14 +412,14 @@ function extentPostActions(placeholderObj, title, callback, alt) {
 
 	// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
 	var span = document.createElement("span");
-	span.innerText = title;
+	span.innerText = caption;
 
 	var attrClass = document.createAttribute("class");
 	attrClass.nodeValue = 'd-h';
 	span.setAttributeNode(attrClass);
 
-	var attrAlt = document.createAttribute("alt");
-	attrAlt.nodeValue = alt;
+	var attrAlt = document.createAttribute("title");
+	attrAlt.nodeValue = title;
 	span.setAttributeNode(attrAlt);
 
 	span.onclick = callback;
@@ -478,8 +503,22 @@ function Actions() {
 				message : "doTranslate",
 				values : []
 			});
-			window.open('http://translate.google.com/#auto|en|'
-					+ encodeURIComponent(data.text + ' #googleplus '));
+			
+			
+			chrome.extension.sendRequest({
+				action : "getSettings"
+			}, function(response) {
+				console.log('response.getSettings', response.settings);
+
+				var settings = response.settings;
+				
+				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|'
+						+ encodeURIComponent(data.text + ' #googleplus '));
+
+			});
+			
+			
+
 		} catch (e) {
 			alert('failed open window');
 		}

@@ -74,6 +74,13 @@ chrome.extension.onRequest
 			case 'fetchTabInfo':
 				checkTab(sendResponse, sender);
 				break;
+			case 'getSettings':
+				var bkg = chrome.extension.getBackgroundPage();
+
+				console.log('settings', bkg.settings);
+				sendResponse({settings: bkg.settings});
+				
+				break;
 			case 'checkNotificationON':
 				var bkg = chrome.extension.getBackgroundPage();
 
@@ -108,20 +115,20 @@ function init() {
 
 						bkg.settings.addTwitter = true;
 						bkg.settings.addTranslate = true;
-						bkg.settings.addBookmarks = true;
+						bkg.settings.addBookmarks = false;
 						bkg.settings.addTranslateTo = 'en';
 
 						bkg.settings.notificationOn = true;
-						bkg.settings.notificationSound = 'http://audiomicro-dev.s3.amazonaws.com/preview/3674/79ae599f302a87f';
+						bkg.settings.notificationSound = 'sound/01.mp3';
 						bkg.settings.notificationTime = 5000;
 
-						window.open('welcome.html');
+						window.open('options'+ POSTFIX + '.html');
 					}, function() {
 						/*
 						 * updated part
 						 */
 						console.log("Extension Updated");
-						window.open('update.html');
+						window.open('options'+ POSTFIX + '.html');
 					});
 
 }
@@ -256,11 +263,11 @@ function doNotify(data) {
 	 * create an HTML notification:
 	 */
 	var notification = webkitNotifications
-			.createHTMLNotification("notification_helper.html?" + "id="
+			.createHTMLNotification('notification_helper' + POSTFIX + '.html' + "?" + "id="
 					+ data.id + "&url=" + encodeURIComponent(data.url)
 					+ "&html=" + encodeURIComponent(data.html));
 
-	console.log("notification_helper.html?" + "id=" + data.id + "&url="
+	console.log('notification_helper' + POSTFIX + '.html' + "?" + "id=" + data.id + "&url="
 			+ encodeURIComponent(data.url) + "&html="
 			+ encodeURIComponent(data.html));
 	/*

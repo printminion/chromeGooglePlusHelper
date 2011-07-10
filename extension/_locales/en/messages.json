@@ -12,7 +12,7 @@
 		"message": "Some text"
 	},
 	"default_title": {
-		"message": "Social Media Monitoring"
+		"message": "Helper for Google+"
 	},
 	"popup_refresh": {
 		"message": "Refresh"
@@ -26,29 +26,11 @@
 	"popup_keywords": {
 		"message": "Keywords"
 	},
-	"popup_cTpM": {
-		"message": "cTpM"
-	},
-	"popup_ltTpM": {
-		"message": "ltTpM"
-	},
 	   "tooltip_tkeywords": {
       "message": "Keywords"
    },  
-   "tooltip_cTpM":{
-   	"message": "current number of Tweets per Minute"
-   },
-   "tooltip_ltTpM":{
-   	"message": "long-term number of Tweets per Minute"
-   },  
 	"popup_searchresults": {
 		"message": "Search results in"
-	},
-	"searchresults_currentwindow": {
-		"message": "the current window"
-	},
-	"searchresults_newwindow": {
-		"message": "a new window"
 	},
 	"button_show": {
 		"message": "Open"
@@ -93,21 +75,6 @@
 	"options_title": {
 		"message": "Options"
 	},
-	"options_default_geolocation_title": {
-		"message": "Default Geolocation:"
-	},
-	"options_geolocation_anywhere": {
-		"message": "anywhere"
-	},
-	"options_geolocation_userdefined": {
-		"message": "define your location"
-	},
-	"search_location": {
-		"message": "Search Location"
-	},
-	"kilometres": {
-		"message": "kilometres"
-	},
 	"button_findme": {
 		"message": "Find me!"
 	},
@@ -130,7 +97,7 @@
 		}
 	},
 	"options_sound_alert_title": {
-		"message": "Sound Alert:"
+		"message": "Sound Alert"
 	},
 	"options_sound_alert_none": {
 		"message": "None"
@@ -144,18 +111,9 @@
 			}
 		}
 	},
-	"options_probe_labels": {
-		"message": "cTpM & ltTpM labels:"
-	},
 	"hide": {
 		"message": "hide"
 	},
-	"options_global_threshold_ratio": {
-		"message": "Notification Threshold:"
-	},
-	"options_global_threshold_ratio_default_hint": {
-		"message": "(default = 3)"
-	},	
 	"button_play": {
 		"message": "Play"
 	},
