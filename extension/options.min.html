@@ -23,6 +23,13 @@
 		if (bkg.settings.addTranslate == "true") {
 			$("#options_add_translate").attr("checked", "true");
 		}
+		
+		if (bkg.settings.addHashtags == "true") {
+			$("#options_add_hashtags").attr("checked", "true");
+		}
+		
+		
+		
 		if (bkg.settings.addBookmarks == "true") {
 			$("#options_add_bookmark").attr("checked", "true");
 		}
@@ -152,6 +159,12 @@
 						</td>
 					</tr>
 
+					<tr>
+						<td class="option" title="We will add linked hashtags on the fly">Hashtags</td>
+						<td><input type="checkbox" id="options_add_hashtags"
+							name="options_add_hashtags" onchange="markDirty();" value="1" />
+						</td>
+					</tr>
 
 <!-- 
 					<tr>
@@ -332,6 +345,8 @@
 		function resetOptions() {
 			$("#options_add_twitter").attr("checked", true);
 			$("#options_add_translate").attr("checked", true);
+			$("#options_add_hashtags").attr("checked", true);
+			
 			$("#options_add_bookmark").attr("checked", false);
 
 			$("#options_add_translate_to").val("en");
@@ -363,6 +378,12 @@
 			bkg.settings.addTwitter = $("#options_add_twitter").attr("checked");
 			bkg.settings.addTranslate = $("#options_add_translate").attr(
 					"checked");
+		
+			bkg.settings.addHashtags = $("#options_add_hashtags").attr(
+			"checked");
+	
+			
+			
 			bkg.settings.addBookmarks = $("#options_add_bookmark").attr(
 					"checked");
 			bkg.settings.addTranslateTo = $("#options_add_translate_to").val();

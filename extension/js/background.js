@@ -115,6 +115,8 @@ function init() {
 
 						bkg.settings.addTwitter = true;
 						bkg.settings.addTranslate = true;
+						bkg.settings.addHashtags = true;
+						
 						bkg.settings.addBookmarks = false;
 						bkg.settings.addTranslateTo = 'en';
 
@@ -127,6 +129,8 @@ function init() {
 						/*
 						 * updated part
 						 */
+						bkg.settings.addHashtags = true;
+						
 						console.log("Extension Updated");
 						//window.open('options'+ POSTFIX + '.html');
 						

@@ -18,7 +18,17 @@ var settings = {
 	},
 	set addTranslate(val) {
 		localStorage['addTranslate'] = val;
-	},	
+	},
+	
+	get addHashtags() {
+        if(localStorage['addHashtags'] == 'NaN') return true;
+		return localStorage['addHashtags'] || true;
+	},
+	set addHashtags(val) {
+		localStorage['addHashtags'] = val;
+	},
+	
+	
 	 
 	get addBookmarks() {
         if(localStorage['addBookmarks'] == 'NaN') return false;

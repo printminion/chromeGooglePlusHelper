@@ -193,6 +193,11 @@ function GPlusHelper() {
 									html : postObj.innerHTML
 								});
 
+						
+						html = component.addHashTagsUrls(html);
+						
+						postObj.innerHTML = html;
+
 					});
 
 					lastPostId = undefined;
@@ -204,6 +209,15 @@ function GPlusHelper() {
 
 		})(this);
 
+	};
+
+	this.addHashTagsUrls = function(html) {
+
+		var replaceWith = '$1<a href="http://www.google.com/search?sourceid=chrome&ie=UTF-8&q=%23$2+site%3Aplus.google.com" target="_blank">#$2</a>';
+		html = html.replace(/(^|[^&])#([A-Za-z0-9_-]+)(?![A-Za-z0-9_\]-])/g,
+				replaceWith);
+
+		return html;
 	};
 
 	this.getFullUrlByLocation = function(location) {
@@ -320,14 +334,14 @@ function fetchTabInfo(selectedPacketName) {
 		console.log('failed to get stram for extension');
 		return;
 	}
-
-	chrome.extension.sendRequest({
+	
+		chrome.extension.sendRequest({
 		action : "getSettings"
 	}, function(response) {
 		console.log('response.getSettings', response.settings);
 
 		var settings = response.settings;
-			
+
 		for ( var i = 0; i < streamObj.childElementCount; i++) {
 			// console.log('found element...');
 
@@ -353,6 +367,19 @@ function fetchTabInfo(selectedPacketName) {
 
 function extendPostArea(o, settings) {
 	console.log('extendPostArea...');
+
+	
+	
+	
+	var postBodyObj = o.querySelector("div.a-b-f-i-p-R");
+	
+	if (postBodyObj) {
+		if (settings.addHashtags == 'true') {
+
+			postBodyObj.innerHTML = gplushelper.addHashTagsUrls(postBodyObj.innerHTML);
+
+		}
+	}
 
 	var placeholderObj = o.querySelector("div.a-f-i-bg");
 
@@ -380,6 +407,7 @@ function extendPostArea(o, settings) {
 		}, 'Click to bookmark this post');
 
 	}
+
 
 	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
 
@@ -499,27 +527,24 @@ function Actions() {
 
 	this.doTranslate = function(data) {
 		try {
-			
-			
-			
+
 			chrome.extension.sendRequest({
 				action : "getSettings"
 			}, function(response) {
 				console.log('response.getSettings', response.settings);
 
 				var settings = response.settings;
-			
+
 				getPort().postMessage({
 					message : "doTranslate",
 					language : settings.addTranslateTo
 				});
-				
-				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|'
+
+				window.open('http://translate.google.com/#auto|'
+						+ settings.addTranslateTo + '|'
 						+ encodeURIComponent(data.text + ' #googleplus '));
 
 			});
-			
-			
 
 		} catch (e) {
 			alert('failed open window');
