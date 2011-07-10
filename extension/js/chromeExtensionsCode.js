@@ -499,10 +499,7 @@ function Actions() {
 
 	this.doTranslate = function(data) {
 		try {
-			getPort().postMessage({
-				message : "doTranslate",
-				values : []
-			});
+			
 			
 			
 			chrome.extension.sendRequest({
@@ -511,6 +508,11 @@ function Actions() {
 				console.log('response.getSettings', response.settings);
 
 				var settings = response.settings;
+			
+				getPort().postMessage({
+					message : "doTranslate",
+					language : settings.addTranslateTo
+				});
 				
 				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|'
 						+ encodeURIComponent(data.text + ' #googleplus '));

@@ -16,6 +16,7 @@
     }
   ],
 	"background_page": "background.min.html",
+	"options_page": "options.min.html",
 	"permissions": [
 		"tabs", "notifications"
 	],

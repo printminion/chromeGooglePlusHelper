@@ -35,7 +35,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			_gaq.push([ '_trackPageview', '/tweet' ]);
 			break;
 		case 'doTranslate':
-			_gaq.push([ '_trackPageview', '/translate' ]);
+			_gaq.push([ '_trackPageview', '/translate/' + data.language ]);
 			break;
 		case 'doBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark' ]);
@@ -128,7 +128,8 @@ function init() {
 						 * updated part
 						 */
 						console.log("Extension Updated");
-						window.open('options'+ POSTFIX + '.html');
+						//window.open('options'+ POSTFIX + '.html');
+						
 					});
 
 }

@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_ext_name__",
-	"version": "0.0.5",
+	"version": "0.0.8",
 	"description": "__MSG_ext_description__",
 	"default_locale": "en",
 	"icons": {
@@ -16,6 +16,7 @@
     }
   ],
 	"background_page": "background.min.html",
+	"options_page": "options.min.html",
 	"permissions": [
 		"tabs", "notifications"
 	],
