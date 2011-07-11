@@ -40,6 +40,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'doBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark' ]);
 			break;
+		
 		case 'doChromeBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark-chrome' ]);
 
@@ -129,7 +130,7 @@ function init() {
 						/*
 						 * updated part
 						 */
-						bkg.settings.addHashtags = true;
+						//bkg.settings.addHashtags = true;
 						
 						console.log("Extension Updated");
 						//window.open('options'+ POSTFIX + '.html');

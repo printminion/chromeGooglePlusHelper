@@ -4,7 +4,7 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="0.0.10" />
+	<property name="VERSION" value="0.0.12" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
@@ -13,15 +13,20 @@
 				extension/manifest.tpl.json,
 				extension/notification_helper.html,
 				extension/options.html,
-			
+				extension/update.html,
+							
 				extension/js/analytics.js,
 				extension/js/app.js,
 				extension/js/background.js,
 				extension/js/chromeExtensionsCode.js,
 				extension/js/notification.js,
 				extension/js/options.js,
+				extension/js/omnibox.js,
+				extension/\.settings/*,
+				extension/\.settings,
 								
-				*.bak" />
+				extension/.project,
+				extension/**/*.bak" />
 		</zip>
 	</target>
 
@@ -39,45 +44,39 @@
 	<target name="closure" depends="templates" description="Minify javascripts with closure">
 
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/app.min.js">
-
 			<sources dir="${basedir}/extension/js">
 				<file name="app.js" />
 			</sources>
-
 		</jscomp>
 
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/background.min.js">
-
 			<sources dir="${basedir}/extension/js">
 				<file name="background.js" />
 			</sources>
-
 		</jscomp>
 				
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/chromeExtensionsCode.min.js">
-
 			<sources dir="${basedir}/extension/js">
 				<file name="chromeExtensionsCode.js" />
 			</sources>
-
 		</jscomp>
 
-
-
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/notification.min.js">
-
 			<sources dir="${basedir}/extension/js">
 				<file name="notification.js" />
 			</sources>
-
 		</jscomp>
 
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/options.min.js">
-
 			<sources dir="${basedir}/extension/js">
 				<file name="options.js" />
 			</sources>
+		</jscomp>
 
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/omnibox.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="omnibox.js" />
+			</sources>
 		</jscomp>
 
 
