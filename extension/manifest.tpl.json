@@ -19,7 +19,7 @@
 	"background_page": "background.min.html",
 	"options_page": "options.min.html",
 	"permissions": [
-		"tabs", "notifications"
+		"tabs", "notifications", "permissions", "bookmarks"
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

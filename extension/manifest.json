@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_ext_name__",
-	"version": "0.0.12",
+	"version": "0.0.14",
 	"description": "__MSG_ext_description__",
 	"default_locale": "en",
 	"omnibox": { "keyword" : "plus" },
@@ -13,13 +13,14 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/chromeExtensionsCode.min.js"]
+      "js": ["js/chromeExtensionsCode.js"],
+      "css": ["css/inject.css"]
     }
   ],
-	"background_page": "background.min.html",
-	"options_page": "options.min.html",
+	"background_page": "background.html",
+	"options_page": "options.html",
 	"permissions": [
-		"tabs", "notifications"
+		"tabs", "notifications", "bookmarks"
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

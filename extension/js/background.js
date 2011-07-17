@@ -14,6 +14,7 @@ var pollIntervalMax = 1000 * 60 * 60; // 1 hour
 var requestFailureCount = 0; // used for exponential backoff
 var requestTimeout = 1000 * 2; // 5 seconds
 var rotation = 0;
+var bookmarks = undefined;
 
 chrome.extension.onConnect.addListener(function(port) {
 	// Only accept connections with a port.name we expect.
@@ -40,7 +41,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'doBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark' ]);
 			break;
-		
+
 		case 'doChromeBookmark':
 			_gaq.push([ '_trackPageview', '/bookmark-chrome' ]);
 
@@ -67,75 +68,90 @@ chrome.extension.onConnect.addListener(function(port) {
 
 });
 
-chrome.extension.onRequest
-		.addListener(function(request, sender, sendResponse) {
-			console.log('extension.onRequest', request);
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	console.log('extension.onRequest', request);
 
-			switch (request.action) {
-			case 'fetchTabInfo':
-				checkTab(sendResponse, sender);
-				break;
-			case 'getSettings':
-				var bkg = chrome.extension.getBackgroundPage();
+	switch (request.action) {
+	case 'doChromeBookmark':
+		bookmarks.addBookmark(request.values, sendResponse);
+		_gaq.push([ '_trackPageview', '/bookmark-chrome/add' ]);
+		break;
+	case 'checkChromeBookmarked':
+		bookmarks.checkBookmark(request.values, sendResponse);
+		break;
+	case 'removeChromeBookmark':
+		_gaq.push([ '_trackPageview', '/bookmark-chrome/remove' ]);
+		bookmarks.removeBookmark(request.values, sendResponse);
+		break;
+	case 'fetchTabInfo':
+		checkTab(sendResponse, sender);
+		break;
+	case 'getSettings':
+		_gaq.push([ '_trackPageview', '/settings' ]);
+		var bkg = chrome.extension.getBackgroundPage();
 
-				console.log('settings', bkg.settings);
-				sendResponse({settings: bkg.settings});
-				
-				break;
-			case 'checkNotificationON':
-				var bkg = chrome.extension.getBackgroundPage();
-
-				console.log('notificationOn', bkg.settings.notificationOn);
-
-				sendResponse({notificationOn: bkg.settings.notificationOn,
-					lastPostId : request.lastPostId});
-
-
-				break;
-
-			default:
-				break;
-			}
-
+		console.log('settings', bkg.settings);
+		sendResponse({
+			settings : bkg.settings
 		});
 
+		break;
+	case 'checkNotificationON':
+		var bkg = chrome.extension.getBackgroundPage();
+
+		console.log('notificationOn', bkg.settings.notificationOn);
+
+		sendResponse({
+			notificationOn : bkg.settings.notificationOn,
+			lastPostId : request.lastPostId
+		});
+
+		break;
+
+	default:
+		break;
+	}
+
+});
+
 function init() {
+
+	bookmarks = new Bookmarks();
+	bookmarks.init();
+
 	canvas = document.getElementById('canvas');
 	loggedInImage = document.getElementById('icon');
 	canvasContext = canvas.getContext('2d');
 
-	app
-			.onStart(
-					function() {
-						/*
-						 * installed part
-						 */
-						console.log("Extension Installed");
+	app.onStart(function() {
+		/*
+		 * installed part
+		 */
+		console.log("Extension Installed");
 
-						var bkg = chrome.extension.getBackgroundPage();
+		var bkg = chrome.extension.getBackgroundPage();
 
-						bkg.settings.addTwitter = true;
-						bkg.settings.addTranslate = true;
-						bkg.settings.addHashtags = true;
-						
-						bkg.settings.addBookmarks = false;
-						bkg.settings.addTranslateTo = 'en';
+		bkg.settings.addTwitter = true;
+		bkg.settings.addTranslate = true;
+		bkg.settings.addHashtags = true;
 
-						bkg.settings.notificationOn = true;
-						bkg.settings.notificationSound = 'sound/01.mp3';
-						bkg.settings.notificationTime = 5000;
+		bkg.settings.addBookmarks = false;
+		bkg.settings.addTranslateTo = 'en';
 
-						window.open('options'+ POSTFIX + '.html');
-					}, function() {
-						/*
-						 * updated part
-						 */
-						//bkg.settings.addHashtags = true;
-						
-						console.log("Extension Updated");
-						//window.open('options'+ POSTFIX + '.html');
-						
-					});
+		bkg.settings.notificationOn = true;
+		bkg.settings.notificationSound = 'sound/01.mp3';
+		bkg.settings.notificationTime = 5000;
+
+		window.open('options' + POSTFIX + '.html');
+	}, function() {
+		/*
+		 * updated part
+		 */
+		// bkg.settings.addHashtags = true;
+		console.log("Extension Updated");
+		// window.open('options'+ POSTFIX + '.html');
+
+	});
 
 }
 
@@ -199,14 +215,20 @@ function beforeUpdateTab(tabId) {
 			console.log('updating active tab');
 
 			if (ports.hasOwnProperty(tab.id)) {
-				chrome.pageAction.show(tab.id);
 
+				chrome.pageAction.show(tab.id);
 				ports[tab.id].postMessage({
 					message : 'update',
 					update : true
 				});
 
 			} else {
+
+				chrome.pageAction.setIcon({
+					tabId : tab.id,
+					path : 'images/icon16gray.png'
+				});
+				chrome.pageAction.show(tab.id);
 				console.log('no port to tab');
 			}
 		}
@@ -269,12 +291,13 @@ function doNotify(data) {
 	 * create an HTML notification:
 	 */
 	var notification = webkitNotifications
-			.createHTMLNotification('notification_helper' + POSTFIX + '.html' + "?" + "id="
-					+ data.id + "&url=" + encodeURIComponent(data.url)
-					+ "&html=" + encodeURIComponent(data.html));
+			.createHTMLNotification('notification_helper' + POSTFIX + '.html'
+					+ "?" + "id=" + data.id + "&url="
+					+ encodeURIComponent(data.url) + "&html="
+					+ encodeURIComponent(data.html));
 
-	console.log('notification_helper' + POSTFIX + '.html' + "?" + "id=" + data.id + "&url="
-			+ encodeURIComponent(data.url) + "&html="
+	console.log('notification_helper' + POSTFIX + '.html' + "?" + "id="
+			+ data.id + "&url=" + encodeURIComponent(data.url) + "&html="
 			+ encodeURIComponent(data.html));
 	/*
 	 * add notification to the stack

@@ -145,14 +145,22 @@ function GPlusHelper() {
 
 				// a-b-f-i-p-R
 
-				var idBegin = e.target.id.substring(0, 7);
+				var idBegin = e.target.id ? e.target.id.substring(0, 7)
+						: undefined;
+
 				if (idBegin == 'update-') {
 					lastPostId = e.target.id;
 					console.log('onBeforePostAdded', lastPostId);
 					return;
 				}
 
-				var classAttribute = e.target.getAttribute('class');
+				var classAttribute = undefined;
+				
+				try {
+					classAttribute = e.target.getAttribute('class');
+				} catch (e) {
+					// TODO: handle exception
+				}
 
 				if (classAttribute == 'a-Ja-h a-b-h-Jb a-f-i-Ad') {
 					console.log('onPostAdded', lastPostId, e.target
@@ -193,9 +201,8 @@ function GPlusHelper() {
 									html : postObj.innerHTML
 								});
 
-						
-						html = component.addHashTagsUrls(html);
-						
+						var html = component.addHashTagsUrls(postObj.innerHTML);
+
 						postObj.innerHTML = html;
 
 					});
@@ -307,12 +314,6 @@ getPort().onMessage.addListener(function(msg) {
  * function updatepage(response) { console.log('updatepage', response); }
  */
 
-function UIExtender() {
-
-}
-
-var uiExtender = UIExtender();
-
 function fetchTabInfo(selectedPacketName) {
 	console.log('content_scripts.fetchTabInfo:' + selectedPacketName);
 	var attrClass = undefined;
@@ -334,8 +335,8 @@ function fetchTabInfo(selectedPacketName) {
 		console.log('failed to get stram for extension');
 		return;
 	}
-	
-		chrome.extension.sendRequest({
+
+	chrome.extension.sendRequest({
 		action : "getSettings"
 	}, function(response) {
 		console.log('response.getSettings', response.settings);
@@ -368,15 +369,13 @@ function fetchTabInfo(selectedPacketName) {
 function extendPostArea(o, settings) {
 	console.log('extendPostArea...');
 
-	
-	
-	
 	var postBodyObj = o.querySelector("div.a-b-f-i-p-R");
-	
+
 	if (postBodyObj) {
 		if (settings.addHashtags == 'true') {
 
-			postBodyObj.innerHTML = gplushelper.addHashTagsUrls(postBodyObj.innerHTML);
+			postBodyObj.innerHTML = gplushelper
+					.addHashTagsUrls(postBodyObj.innerHTML);
 
 		}
 	}
@@ -408,6 +407,45 @@ function extendPostArea(o, settings) {
 
 	}
 
+	var placeholderIconsObj = o.querySelector("span.a-f-i-yj");
+
+	if (!placeholderIconsObj) {
+		console.log('error: failed to get the placeholder for incons');
+		return;
+	}
+	// if (settings.doChromeBookmark == 'true') {
+	var postData = parsePostData(postBodyObj);
+	
+	chrome.extension.sendRequest({
+		action : "checkChromeBookmarked",
+		values : {
+			url : postData.url
+		}
+	}, function(bookmarked) {
+
+		if (bookmarked) {
+
+			extentPostWithIconAction(placeholderIconsObj, 'mk-bookmarked',
+					function(element) {
+						actions.doChromeBookmark(element.target,
+								parsePostData(this));
+					}, 'Click to remove bookmark this post');
+
+		} else {
+
+			extentPostWithIconAction(placeholderIconsObj, 'mk-bookmark',
+					function(element) {
+						actions.doChromeBookmark(element.target,
+								parsePostData(this));
+					}, 'Click to bookmark this post');
+
+		}
+
+	});
+
+	// }
+
+	// http://www.delicious.com/save?url=http%3A%2F%2Fwww.delicious.com%2Fhelp%2Fbookmarklets&title=Install%20Bookmarklets%20on%20Delicious&notes=&v=6&noui=1&jump=doclose
 
 	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
 
@@ -425,6 +463,8 @@ function extendPostArea(o, settings) {
 	 */
 
 }
+
+
 
 /**
  * create element
@@ -444,6 +484,34 @@ function extentPostWithAction(placeholderObj, caption, callback, title) {
 
 	var attrClass = document.createAttribute("class");
 	attrClass.nodeValue = 'd-h';
+	span.setAttributeNode(attrClass);
+
+	var attrAlt = document.createAttribute("title");
+	attrAlt.nodeValue = title;
+	span.setAttributeNode(attrAlt);
+
+	span.onclick = callback;
+
+	placeholderObj.appendChild(txt);
+	placeholderObj.appendChild(span);
+}
+
+function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
+	if (!placeholderObj) {
+		return;
+	}
+	// d-h a-f-i-Ia-D-h a-b-f-i-Ia-D-h
+	// a-f-i-yj
+	var txt = document.createElement("txt");
+	txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
+
+	// <button id="star" class="wpb" style="margin-left: 0"></button>
+
+	var span = document.createElement("button");
+	// span.innerText = caption;
+
+	var attrClass = document.createAttribute("class");
+	attrClass.nodeValue = htmlClass;// 'mk-bookmark';
 	span.setAttributeNode(attrClass);
 
 	var attrAlt = document.createAttribute("title");
@@ -497,12 +565,25 @@ function parsePostData(o) {
 			postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
 		}
 		// a-f-i-u-ki
+		/*
+		 * get author
+		 */
+		// cs2K7c a-f-i-Zb a-f-i-Zb-U
+		var autorObj = currentElement.querySelector("a.cs2K7c");
+		var author = autorObj != undefined ? autorObj.innerHTML : '';
+		var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
+				: '';
 
-		return {
+		var data = {
 			text : postTextObj.innerText,
 			url : 'https://plus.google.com/' + postUrlObj.getAttribute('href'),
-			author : ''
+			author : author,
+			authorUrl : authorUrl
+
 		};
+		console.log('data', data);
+
+		return data;
 
 	}
 	;
@@ -574,4 +655,44 @@ function Actions() {
 		;
 	};
 
+	this.doChromeBookmark = function(element, data) {
+		if (element.getAttribute('class') == 'mk-bookmark') {
+			this.addChromeBookmark(element, data);
+		} else {
+			this.removeChromeBookmark(element, data);
+		}
+	};
+	
+	this.addChromeBookmark = function(element, data) {
+		console.log('doChromeBookmark', element, data);
+		chrome.extension.sendRequest({
+			action : "doChromeBookmark",
+			values : {
+				url : data.url,
+				text : data.author + ': ' + data.text
+			}
+		},
+				function(bookmarked) {
+					element.setAttribute('title',
+							'Click to remove bookmark for this post');
+					element.setAttribute('class', 'mk-bookmarked');
+				});
+
+	};
+
+	this.removeChromeBookmark = function(element, data) {
+		console.log('removeChromeBookmark', element, data);
+		chrome.extension.sendRequest({
+			action : "removeChromeBookmark",
+			values : {
+				url : data.url
+			}
+		}, function(bookmarked) {
+			element.setAttribute('title', 'Click to bookmark this post');
+			element.setAttribute('class', 'mk-bookmark');
+		});
+
+	};
 }
+
+
