@@ -4,7 +4,7 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="0.0.16" />
+	<property name="VERSION" value="0.0.18" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
@@ -18,13 +18,14 @@
 				extension/js/analytics.js,
 				extension/js/app.js,
 				extension/js/background.js,
+				extension/js/chromeBookmarks.js,
 				extension/js/chromeExtensionsCode.js,
 				extension/js/notification.js,
-				extension/js/options.js,
 				extension/js/omnibox.js,
+				extension/js/options.js,
 				extension/\.settings/*,
 				extension/\.settings,
-								
+				extension/bookmarks.html,
 				extension/.project,
 				extension/**/*.bak" />
 		</zip>
@@ -54,7 +55,14 @@
 				<file name="background.js" />
 			</sources>
 		</jscomp>
-				
+
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/chromeBookmarks.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="chromeBookmarks.js" />
+			</sources>
+		</jscomp>
+
+			
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/chromeExtensionsCode.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="chromeExtensionsCode.js" />
@@ -67,17 +75,19 @@
 			</sources>
 		</jscomp>
 
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/omnibox.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="omnibox.js" />
+			</sources>
+		</jscomp>
+			
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/options.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="options.js" />
 			</sources>
 		</jscomp>
 
-		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/omnibox.min.js">
-			<sources dir="${basedir}/extension/js">
-				<file name="omnibox.js" />
-			</sources>
-		</jscomp>
+
 
 
 	</target>

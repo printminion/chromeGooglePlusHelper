@@ -46,6 +46,10 @@ chrome.extension.onConnect.addListener(function(port) {
 			_gaq.push([ '_trackPageview', '/bookmark-chrome' ]);
 
 			break;
+
+		case 'doDelicious':
+			_gaq.push([ '_trackPageview', '/bookmark-delicious' ]);
+			break;
 		case 'onActivatePageAction':
 			chrome.pageAction.show(port.tab.id);
 			break;
@@ -72,9 +76,16 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	console.log('extension.onRequest', request);
 
 	switch (request.action) {
+	case 'doOpenLink':
+		_gaq.push([ '_trackPageview', '/openLink' ]);
+		doOpenLink(request.values);
+		break;
 	case 'doChromeBookmark':
 		bookmarks.addBookmark(request.values, sendResponse);
 		_gaq.push([ '_trackPageview', '/bookmark-chrome/add' ]);
+		break;
+	case 'doDelicious':
+		_gaq.push([ '_trackPageview', '/bookmark-delicious' ]);
 		break;
 	case 'checkChromeBookmarked':
 		bookmarks.checkBookmark(request.values, sendResponse);
@@ -92,7 +103,8 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 		console.log('settings', bkg.settings);
 		sendResponse({
-			settings : bkg.settings
+			settings : bkg.settings,
+			chromeBookmarsFolderId: bkg.bookmarks.parentId
 		});
 
 		break;
@@ -136,6 +148,12 @@ function init() {
 		bkg.settings.addHashtags = true;
 
 		bkg.settings.addBookmarks = false;
+		bkg.settings.addChromeBookmarks = true;
+		bkg.settings.addDelicious = true;
+		
+		bkg.settings.addChromeBookmarksToolbar = true;
+		
+		
 		bkg.settings.addTranslateTo = 'en';
 
 		bkg.settings.notificationOn = true;
@@ -145,10 +163,14 @@ function init() {
 		window.open('options' + POSTFIX + '.html');
 	}, function() {
 		/*
-		 * updated part
+		 * set default values
 		 */
-		// bkg.settings.addHashtags = true;
-		console.log("Extension Updated");
+		bkg.settings.addChromeBookmarks = true;
+		bkg.settings.addDelicious = true;
+		bkg.settings.addChromeBookmarksToolbar = true;
+		
+
+		console.log("Extension Updated", bkg.settings);
 		// window.open('options'+ POSTFIX + '.html');
 
 	});
@@ -265,7 +287,7 @@ chrome.pageAction.onClicked.addListener(function(tab) {
 });
 
 function doOpenLink(data) {
-
+console.log('doOpenLink', data);
 	chrome.tabs.create({
 		url : data.url
 	});

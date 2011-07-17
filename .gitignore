@@ -1,0 +1,11 @@
+
+/extension/background.min.html
+/extension/js/background.min.js
+/extension/js/chromeExtensionsCode.min.js
+/extension/js/app.min.js
+/extension/js/notification.min.js
+/extension/js/omnibox.min.js
+/extension/js/options.min.js
+*.zip
+*.rar
+/extension/js/chromeBookmarks.min.js

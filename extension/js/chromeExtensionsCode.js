@@ -65,26 +65,16 @@ function GPlusHelper() {
 			message : "onActivatePageAction"
 		});
 
+		
+		this.initHomePageToolbar();
 		this.initHomePage(data.notificationOn);
-
-		/*
-		 * var placeholderObj = document.querySelector('header');
-		 * 
-		 * if (placeholderObj) {
-		 * 
-		 * var script = document.createElement("script"); var attrClass =
-		 * document.createAttribute("src");
-		 * 
-		 * attrClass.nodeValue =
-		 * '//translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=auto';
-		 * script.setAttributeNode(attrClass);
-		 * 
-		 * placeholderObj.appendChild(script); }
-		 */
-
+		
+		
 	};
 
 	this.analyzePage = function(url) {
+		console.log('analyzePage...');
+		
 		// https://plus.google.com/
 		// https://plus.google.com/104512463398531242371/posts
 		// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
@@ -128,7 +118,8 @@ function GPlusHelper() {
 	};
 
 	this.initHomePage = function(bNotificationOn) {
-
+		console.log('initHomePage...');
+		
 		var container = document.querySelector("div.a-b-f-i-oa");
 		if (container == undefined) {
 			return;
@@ -218,6 +209,58 @@ function GPlusHelper() {
 
 	};
 
+	this.initHomePageToolbar = function(settings) {
+		console.log('initHomePageToolbar...');
+		var miniToolbarObj = document.querySelector("div.oLO5kc");
+
+		if(!miniToolbarObj) {
+			return;
+		}
+		
+		chrome.extension.sendRequest({
+			action : "getSettings"
+		}, function(response) {
+			console.log('response.getSettings', response);
+
+			var settings = response.settings;
+
+			if (settings.addChromeBookmarks == 'true' && settings.addChromeBookmarksToolbar == 'true') {
+				
+				var buttonObj = document.createElement("a");
+				
+				buttonObj.href = '#';
+				
+				var attrClass = document.createAttribute("class");
+				attrClass.nodeValue = 'd-h a-b-h-Jb rKsb7e d-s-r jw8A1e';
+				
+				
+				(function(chromeBookmarsFolderId) {
+					buttonObj.onclick = function(e) {
+						e.stopPropagation();
+						chrome.extension.sendRequest({
+							action : "doOpenLink",
+							values : {
+								url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId
+							}
+						},
+					function() {});		
+						
+						return false;
+					};
+				})(response.chromeBookmarsFolderId);
+				
+				
+				buttonObj.setAttributeNode(attrClass);
+				buttonObj.innerHTML = '<span class="mZxz3d VAbDid mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';
+				miniToolbarObj.appendChild(buttonObj);
+
+			}	
+
+		});
+
+		
+	};
+	
 	this.addHashTagsUrls = function(html) {
 
 		var replaceWith = '$1<a href="http://www.google.com/search?sourceid=chrome&ie=UTF-8&q=%23$2+site%3Aplus.google.com" target="_blank">#$2</a>';
@@ -339,12 +382,12 @@ function fetchTabInfo(selectedPacketName) {
 	chrome.extension.sendRequest({
 		action : "getSettings"
 	}, function(response) {
-		console.log('response.getSettings', response.settings);
+		console.log('response.getSettings', response);
 
 		var settings = response.settings;
 
 		for ( var i = 0; i < streamObj.childElementCount; i++) {
-			// console.log('found element...');
+			console.log('found post element...');
 
 			postObj = streamObj.childNodes[i];
 
@@ -377,7 +420,7 @@ function extendPostArea(o, settings) {
 			postBodyObj.innerHTML = gplushelper
 					.addHashTagsUrls(postBodyObj.innerHTML);
 
-		}
+		};
 	}
 
 	var placeholderObj = o.querySelector("div.a-f-i-bg");
@@ -407,13 +450,24 @@ function extendPostArea(o, settings) {
 
 	}
 
+	
+	if (settings.addDelicious == 'true') {
+
+		extentPostWithAction(placeholderObj, 'Delicious', function() {
+			actions.doDelicious(parsePostData(this));
+		}, 'Click to bookmark this post on Delicious');
+
+	}
+	
+	
 	var placeholderIconsObj = o.querySelector("span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
 		console.log('error: failed to get the placeholder for incons');
 		return;
 	}
-	// if (settings.doChromeBookmark == 'true') {
+	
+	if (settings.addChromeBookmarks == 'true') {
 	var postData = parsePostData(postBodyObj);
 	
 	chrome.extension.sendRequest({
@@ -439,28 +493,13 @@ function extendPostArea(o, settings) {
 								parsePostData(this));
 					}, 'Click to bookmark this post');
 
-		}
+		};
 
 	});
 
-	// }
-
-	// http://www.delicious.com/save?url=http%3A%2F%2Fwww.delicious.com%2Fhelp%2Fbookmarklets&title=Install%20Bookmarklets%20on%20Delicious&notes=&v=6&noui=1&jump=doclose
+	};
 
 	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
-
-	/*
-	 * .wsa { background-position: -102px -117px; }
-	 * 
-	 * .wsa { cursor: default; display: inline; height: 14px; margin-left: 5px;
-	 * vertical-align: 0; width: 14px; }
-	 * 
-	 * .wsa, .wxs, .wpb { background: url(/images/experiments/nav_logo78.png)
-	 * no-repeat; border: 0; cursor: pointer; display: none; margin-right: 3px;
-	 * height: 0px; vertical-align: bottom; width: 0px; }
-	 * 
-	 * <button class="wsa wss" style="margin-left:0"></button>
-	 */
 
 }
 
@@ -502,8 +541,8 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	}
 	// d-h a-f-i-Ia-D-h a-b-f-i-Ia-D-h
 	// a-f-i-yj
-	var txt = document.createElement("txt");
-	txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
+//	var txt = document.createElement("txt");
+//	txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
 
 	// <button id="star" class="wpb" style="margin-left: 0"></button>
 
@@ -511,7 +550,7 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	// span.innerText = caption;
 
 	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = htmlClass;// 'mk-bookmark';
+	attrClass.nodeValue = htmlClass;;
 	span.setAttributeNode(attrClass);
 
 	var attrAlt = document.createAttribute("title");
@@ -520,7 +559,7 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 
 	span.onclick = callback;
 
-	placeholderObj.appendChild(txt);
+	//placeholderObj.appendChild(txt);
 	placeholderObj.appendChild(span);
 }
 
@@ -612,7 +651,7 @@ function Actions() {
 			chrome.extension.sendRequest({
 				action : "getSettings"
 			}, function(response) {
-				console.log('response.getSettings', response.settings);
+				console.log('response.getSettings', response);
 
 				var settings = response.settings;
 
@@ -654,6 +693,34 @@ function Actions() {
 		}
 		;
 	};
+
+	this.doDelicious = function(data) {
+		try {
+			getPort().postMessage({
+				message : "doDelicious",
+				values : []
+			});
+
+			window
+					.open('http://www.delicious.com/save?'
+							+ '&url='
+							+ encodeURIComponent(data.url)
+							+ '&notes='
+							+ encodeURIComponent(data.author + ': ' + data.text)
+							+ '&title='
+							+ encodeURIComponent(data.author + ' on Google+')
+							+ '&v=6&noui=1&jump=doclose', "doDelicious",'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
+
+
+				
+		} catch (e) {
+			alert('failed open window');
+		}
+		;
+	};
+	
+	
+	
 
 	this.doChromeBookmark = function(element, data) {
 		if (element.getAttribute('class') == 'mk-bookmark') {

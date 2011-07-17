@@ -37,7 +37,35 @@ var settings = {
 	set addBookmarks(val) {
 		localStorage['addBookmarks'] = val;
 	},	
-
+	
+	
+	get addDelicious() {
+        if(localStorage['addDelicious'] == 'NaN') return false;
+		return localStorage['addDelicious'] || false;
+	}, 
+	set addDelicious(val) {
+		localStorage['addDelicious'] = val;
+	},
+	
+	
+	
+	get addChromeBookmarks() {
+        if(localStorage['addChromeBookmarks'] == 'NaN') return true;
+		return localStorage['addChromeBookmarks'] || false;
+	}, 
+	set addChromeBookmarks(val) {
+		localStorage['addChromeBookmarks'] = val;
+	},	
+	
+	get addChromeBookmarksToolbar() {
+        if(localStorage['addChromeBookmarksToolbar'] == 'NaN') return true;
+		return localStorage['addChromeBookmarksToolbar'] || false;
+	}, 
+	set addChromeBookmarksToolbar(val) {
+		localStorage['addChromeBookmarksToolbar'] = val;
+	},	
+	
+	
 	get addTranslateTo() {
         if(localStorage['addTranslateTo'] == 'NaN') return 'en';
 		return localStorage['addTranslateTo'] || 'en';

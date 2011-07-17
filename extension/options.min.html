@@ -34,6 +34,22 @@
 			$("#options_add_bookmark").attr("checked", "true");
 		}
 
+		if (bkg.settings.addDelicious == "true") {
+			$("#options_add_bookmark_delicious").attr("checked", "true");
+		}
+		
+		
+		
+		
+		if (bkg.settings.addChromeBookmarks == "true") {
+			$("#options_add_chrome_bookmark").attr("checked", "true");
+		}
+		
+		if (bkg.settings.addChromeBookmarksToolbar == "true") {
+			$("#options_add_chrome_bookmark_toolbar").attr("checked", "true");
+		}
+		
+
 		$("#options_add_translate_to").val(bkg.settings.addTranslateTo);
 
 		if (bkg.settings.notificationOn) {
@@ -166,15 +182,23 @@
 						</td>
 					</tr>
 
-<!-- 
-					<tr>
-						<td class="option">Bookmark</td>
+					<!-- <tr>
+						<td class="option" title="Bookmark in Google Lists">Bookmark</td>
 						<td><input type="checkbox" id="options_add_bookmark"
 							name="options_add_bookmark" onchange="markDirty();" value="1" />
 						</td>
 					</tr>
- -->
+					 -->
 
+					<tr>
+						<td class="option" title="Bookmark on Delicious">Delicious</td>
+						<td><input type="checkbox" id="options_add_bookmark_delicious"
+							name="options_add_bookmark_delicious" onchange="markDirty();" value="1" />
+						</td>
+					</tr>
+					
+					
+					
 
 				</table>
 
@@ -280,6 +304,30 @@
 			</div>
 		</div>
 
+	<div class="option_row">
+			<div class="option_name">Chrome Bookmarks</div>
+			<div class="option_picker">
+				<table border="0">
+					<tbody>
+						<tr>
+							<td class="option" title="Show bookmark star in each post">Enabled</td>
+							<td><input type="checkbox" id="options_add_chrome_bookmark"
+							name="options_add_chrome_bookmark" onchange="markDirty();" value="1" />
+							</td>
+						</tr>
+
+						<tr>
+							<td class="option" title="Add bookmark button to the Google Plus Toolbar">Toolbar</td>
+							<td>
+							<input type="checkbox" id="options_add_chrome_bookmark_toolbar"
+							name="options_add_chrome_bookmark_toolbar" onchange="markDirty();" value="1" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
 
 		<div class="clear">
 			<!---->
@@ -348,6 +396,12 @@
 			$("#options_add_hashtags").attr("checked", true);
 			
 			$("#options_add_bookmark").attr("checked", false);
+			$("#options_add_bookmark_delicious").attr("checked", false);
+			
+			
+			
+			$("#options_add_chrome_bookmark").attr("checked", true);
+			$("#options_add_chrome_bookmark_toolbar").attr("checked", true);
 
 			$("#options_add_translate_to").val("en");
 
@@ -386,6 +440,19 @@
 			
 			bkg.settings.addBookmarks = $("#options_add_bookmark").attr(
 					"checked");
+			
+			bkg.settings.addDelicious = $("#options_add_bookmark_delicious").attr(
+			"checked");
+			
+			bkg.settings.addChromeBookmarks = $("#options_add_chrome_bookmark").attr(
+			"checked");
+			
+			bkg.settings.addChromeBookmarksToolbar = $("#options_add_chrome_bookmark_toolbar").attr(
+			"checked");
+			
+			
+			
+	
 			bkg.settings.addTranslateTo = $("#options_add_translate_to").val();
 
 			bkg.settings.notificationOn = $("#options_notificationOn").attr(

@@ -1,0 +1,72 @@
+<html>
+<head>
+
+<script src="js/chromeBookmarks.js"></script>
+
+
+<style type="text/css">
+.wsa,.wxs,.wpb {
+	background: url('/images/nav_logo78.png') no-repeat;
+	border: 0;
+	cursor: pointer;
+	display: none;
+	margin-right: 3px;
+	height: 0px;
+	vertical-align: bottom;
+	width: 0px;
+}
+
+.wsa {
+	background-position: -102px -117px;
+}
+
+.wpb {
+	background-position: -117px -117px;
+}
+
+.wsa {
+	cursor: default;
+	display: inline;
+	height: 14px;
+	margin-left: 5px;
+	vertical-align: 0;
+	width: 14px;
+}
+
+.wpb {
+	cursor: default;
+	display: inline;
+	height: 14px;
+	margin-left: 5px;
+	vertical-align: 0;
+	width: 14px;
+}
+</style>
+
+</head>
+
+<body onload="init()">
+
+
+	<br>
+
+	<input type="text" id="txtSearch"
+		value="http://techcrunch.com/2011/07/11/the-techcrunch-redesign-a-copy-and-paste-hatemail-template/">
+	<button onclick="search('http://techcrunch.com/2011/07/11/the-techcrunch-redesign-a-copy-and-paste-hatemail-template/')">check
+		link</button>
+	<button id="star" class="wpb" style="margin-left: 0"></button>
+
+	<br>
+
+	<input type="text" id="txtDelete"
+		value="http://techcrunch.com/2011/07/11/the-techcrunch-redesign-a-copy-and-paste-hatemail-template/">
+	<button onclick="remove()">remove bookmark</button>
+
+	<br>
+
+	<input type="text" id="txtAdd"
+		value="http://techcrunch.com/2011/07/11/the-techcrunch-redesign-a-copy-and-paste-hatemail-template/">
+	<button onclick="add()">add bookmark</button>
+
+</body>
+</html>

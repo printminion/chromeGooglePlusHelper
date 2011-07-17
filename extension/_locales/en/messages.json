@@ -3,7 +3,7 @@
 		"message": "Helper for Google+"
 	},
 	"ext_description": {
-		"message": "Add extra functions the Google+. Get desktop notifications on new posts. Share Posts via twitter. Translate posts with Google Translate. Linked #hashtags. Search in posts and profiles directly from your omnibox."
+		"message": "Add extra functions the Google+. Get desktop notifications on new posts. Share Posts via twitter. Translate posts with Google Translate. Bookmark posts faster for reading later (also to delicious.com). Linked #hashtags. Search in posts and profiles directly from your omnibox."
 	},
 	"ext_page_action_badge": {
 		"message": "Helper for Google+"
@@ -82,7 +82,7 @@
 		"message": "Checking..."
 	},
 	"status_saved": {
-		"message": "Saved..."
+		"message": "Saved... ..please reload Google+ Tabs"
 	},
 	"options_update_frequency_title": {
 		"message": "Update every:"
@@ -124,7 +124,7 @@
 		"message": "Reset"
 	},
 	"status_save": {
-		"message": "Options saved"
+		"message": "Options saved. Please reload your Google+ Tabs"
 	},
 	"license_title": {
 		"message": "License"
