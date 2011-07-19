@@ -84,7 +84,7 @@ var settings = {
 	
 	get notificationSound() {
         if(localStorage['notificationSound'] == 'NaN') return 'sound/01.mp3';
-		return localStorage['notificationSound'] || 'sound/01.mp3';
+		return localStorage['notificationSound'];
 	}, 
 	set notificationSound(val) {
 		localStorage['notificationSound'] = val;
