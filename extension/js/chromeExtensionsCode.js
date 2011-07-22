@@ -264,13 +264,13 @@ function GPlusHelper() {
 	this.addHashTagsUrls = function(element, callback) {
 
 		
-		var replaceWith = '$1<a href="http://www.google.com/search?sourceid=chrome&ie=UTF-8&q=%23$2+site%3Aplus.google.com" target="_blank">#$2</a>$3';
-		var hashtagged = element.innerText.replace(/([ ])#([A-Za-z0-9_-]+)([ ,])/g,
+		var replaceWith = '$1<a href="http://www.google.com/search?sourceid=chrome&ie=UTF-8&q=%23$2+site%3Aplus.google.com" target="_blank">#$2</a>';
+		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
 				replaceWith);
 
 		if (element.innerHTML != hashtagged) {
 			
-			var hashtagged = element.innerHTML.replace(/([ ])#([A-Za-z0-9_-]+)([ ,])/g,
+			var hashtagged = element.innerHTML.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
 					replaceWith);
 			
 			callback(hashtagged);
