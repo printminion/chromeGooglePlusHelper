@@ -27,8 +27,6 @@ var settings = {
 	set addHashtags(val) {
 		localStorage['addHashtags'] = val;
 	},
-	
-	
 	 
 	get addBookmarks() {
         if(localStorage['addBookmarks'] == 'NaN') return false;
@@ -47,7 +45,14 @@ var settings = {
 		localStorage['addDelicious'] = val;
 	},
 	
-	
+
+	get addFacebook() {
+        if(localStorage['addFacebook'] == 'NaN') return false;
+		return localStorage['addFacebook'] || false;
+	}, 
+	set addFacebook(val) {
+		localStorage['addFacebook'] = val;
+	},
 	
 	get addChromeBookmarks() {
         if(localStorage['addChromeBookmarks'] == 'NaN') return true;

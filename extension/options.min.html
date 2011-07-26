@@ -9,6 +9,7 @@
 <script type="text/javascript" src="js/options.min.js"></script>
 <script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
 
+
 <script type="text/javascript">
 	//Restores select box state to saved value from localStorage.
 	$(function() {
@@ -20,6 +21,10 @@
 			$("#options_add_twitter").attr("checked", "true");
 		}
 
+		if (bkg.settings.addFacebook == "true") {
+			$("#options_add_facebook").attr("checked", "true");
+		}
+		
 		if (bkg.settings.addTranslate == "true") {
 			$("#options_add_translate").attr("checked", "true");
 		}
@@ -33,7 +38,7 @@
 		if (bkg.settings.addBookmarks == "true") {
 			$("#options_add_bookmark").attr("checked", "true");
 		}
-
+		
 		if (bkg.settings.addDelicious == "true") {
 			$("#options_add_bookmark_delicious").attr("checked", "true");
 		}
@@ -111,6 +116,12 @@
 						</td>
 					</tr>
 
+					<tr>
+						<td class="option">Facebook</td>
+						<td><input type="checkbox" id="options_add_facebook"
+							name="options_add_facebook" onchange="markDirty();" value="1" />
+						</td>
+					</tr>
 
 					<tr>
 						<td class="option">Translate</td>
@@ -189,7 +200,7 @@
 						</td>
 					</tr>
 					 -->
-
+					 
 					<tr>
 						<td class="option" title="Bookmark on Delicious">Delicious</td>
 						<td><input type="checkbox" id="options_add_bookmark_delicious"
@@ -329,6 +340,12 @@
 			</div>
 		</div>
 
+
+
+					
+					
+					
+
 		<div class="clear">
 			<!---->
 		</div>
@@ -392,6 +409,8 @@
 
 		function resetOptions() {
 			$("#options_add_twitter").attr("checked", true);
+			$("#options_add_facebook").attr("checked", true);
+			
 			$("#options_add_translate").attr("checked", true);
 			$("#options_add_hashtags").attr("checked", true);
 			
@@ -430,6 +449,8 @@
 		function save_options() {
 
 			bkg.settings.addTwitter = $("#options_add_twitter").attr("checked");
+			bkg.settings.addFacebook = $("#options_add_facebook").attr("checked");
+			
 			bkg.settings.addTranslate = $("#options_add_translate").attr(
 					"checked");
 		

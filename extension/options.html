@@ -20,6 +20,10 @@
 			$("#options_add_twitter").attr("checked", "true");
 		}
 
+		if (bkg.settings.addFacebook == "true") {
+			$("#options_add_facebook").attr("checked", "true");
+		}
+		
 		if (bkg.settings.addTranslate == "true") {
 			$("#options_add_translate").attr("checked", "true");
 		}
@@ -111,6 +115,12 @@
 						</td>
 					</tr>
 
+					<tr>
+						<td class="option">Facebook</td>
+						<td><input type="checkbox" id="options_add_facebook"
+							name="options_add_facebook" onchange="markDirty();" value="1" />
+						</td>
+					</tr>
 
 					<tr>
 						<td class="option">Translate</td>
@@ -398,6 +408,8 @@
 
 		function resetOptions() {
 			$("#options_add_twitter").attr("checked", true);
+			$("#options_add_facebook").attr("checked", true);
+			
 			$("#options_add_translate").attr("checked", true);
 			$("#options_add_hashtags").attr("checked", true);
 			
@@ -436,6 +448,8 @@
 		function save_options() {
 
 			bkg.settings.addTwitter = $("#options_add_twitter").attr("checked");
+			bkg.settings.addFacebook = $("#options_add_facebook").attr("checked");
+			
 			bkg.settings.addTranslate = $("#options_add_translate").attr(
 					"checked");
 		

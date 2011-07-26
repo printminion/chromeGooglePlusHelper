@@ -182,13 +182,18 @@ function GPlusHelper() {
 						/*
 						 * send notification
 						 */
+						var data = parcePostDataElement(postObj);
+						console.log('parcePostDataElement', data);
+						
 						getPort().postMessage(
 								{
 									message : "onNewPost",
 									id : postObj.id,
 									url : 'https://plus.google.com/'
 											+ e.target.getAttribute('href'),
-									html : postObj.innerHTML
+									html : postObj.innerHTML,
+									author: data.author,
+									text: data.text
 								});
 
 					});
@@ -242,11 +247,25 @@ function GPlusHelper() {
 															action : "doOpenLink",
 															values : {
 																url : 'chrome://bookmarks/?#'
-																		+ chromeBookmarsFolderId
+																		+ chromeBookmarsFolderId,
+																target: 'bookmarks'
 															}
 														}, function() {
 														});
+										
+										/*
+										
+										console.log('show bookmarks');
+										//var streamObj = document.querySelector("div.a-b-f-i-oa");
+										//var streamObj = document.querySelector("#contentPane");
+										var streamObj = document.querySelector(".a-p-M");
+										
+										
+										if (streamObj) {
+											streamObj.style.display = 'none';
+										}
 
+										*/
 										return false;
 									};
 								})(response.chromeBookmarsFolderId);
@@ -449,6 +468,14 @@ function extendPostArea(o, settings) {
 			actions.doTweet(parsePostData(this));
 		}, 'Click to tweet this post');
 	}
+	
+	if (settings.addFacebook == 'true') {
+
+		extentPostWithAction(placeholderObj, 'Facebook', function() {
+			actions.doFacebook(parsePostData(this));
+		}, 'Click to post on Facebook');
+
+	}
 
 	if (settings.addTranslate == 'true') {
 		extentPostWithAction(placeholderObj, 'Translate', function() {
@@ -579,7 +606,7 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 function parsePostData(o) {
 	console.log('parsePostData', o);
 
-	var updateDiv = undefined;
+	//var updateDiv = undefined;
 	var currentElement = o;
 
 	while (currentElement.parentElement) {
@@ -588,57 +615,59 @@ function parsePostData(o) {
 		if (currentElement.getAttribute('id')) {
 			var idBegin = currentElement.getAttribute('id').substring(0, 7);
 			if (idBegin == 'update-') {
-				updateDiv = currentElement;
-				break;
+				//updateDiv = currentElement;
+				return parcePostDataElement(currentElement);
+				//break;
 			}
 			;
 
 		}
 		;
+	}
+}
 
+function parcePostDataElement(currentElement) {
+	if (!currentElement) {
+		return;
+	}
+	
+	// console.log(updateDiv);
+	var postUrlObj = currentElement.querySelector("a.a-Ja-h");
+	// console.log(postUrlObj);
+	/*
+	 * try to get comment
+	 */
+	var postTextObj = null;
+
+	postTextObj = currentElement.querySelector("div.a-b-f-i-u-ki");
+
+	if (postTextObj && postTextObj.innerText == '') {
+		postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
 	}
 
-	if (updateDiv) {
-		// console.log(updateDiv);
-		var postUrlObj = currentElement.querySelector("a.a-Ja-h");
-		// console.log(postUrlObj);
-		/*
-		 * try to get comment
-		 */
-		var postTextObj = null;
-
-		postTextObj = currentElement.querySelector("div.a-b-f-i-u-ki");
-
-		if (postTextObj && postTextObj.innerText == '') {
-			postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
-		}
-
-		if (!postTextObj) {
-			postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
-		}
-		// a-f-i-u-ki
-		/*
-		 * get author
-		 */
-		// cs2K7c a-f-i-Zb a-f-i-Zb-U
-		var autorObj = currentElement.querySelector("a.cs2K7c");
-		var author = autorObj != undefined ? autorObj.innerHTML : '';
-		var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
-				: '';
-
-		var data = {
-			text : postTextObj.innerText,
-			url : 'https://plus.google.com/' + postUrlObj.getAttribute('href'),
-			author : author,
-			authorUrl : authorUrl
-
-		};
-		console.log('data', data);
-
-		return data;
-
+	if (!postTextObj) {
+		postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
 	}
-	;
+	// a-f-i-u-ki
+	/*
+	 * get author
+	 */
+	// cs2K7c a-f-i-Zb a-f-i-Zb-U
+	var autorObj = currentElement.querySelector("a.cs2K7c");
+	var author = autorObj != undefined ? autorObj.innerHTML : '';
+	var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
+			: '';
+
+	var data = {
+		text : postTextObj.innerText,
+		url : 'https://plus.google.com/' + postUrlObj.getAttribute('href'),
+		author : author,
+		authorUrl : authorUrl
+
+	};
+	console.log('data', data);
+
+	return data;
 }
 
 function UIExtender() {
@@ -757,7 +786,29 @@ function Actions() {
 		} catch (e) {
 			alert('failed open window');
 		}
-		;
+	};
+	
+	this.doFacebook = function(data) {
+		try {
+			getPort().postMessage({
+				message : "doFacebook",
+				values : []
+			});
+
+			window
+					.open(
+							'http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596'
+									+ '&u='
+									+ encodeURIComponent(data.url)
+									+ '&t='
+									+ encodeURIComponent(data.author
+											+ ' on Google+')
+									,
+								'sharer','toolbar=0,status=0,resizable=1,width=626,height=436');
+
+		} catch (e) {
+			alert('failed open window');
+		}
 	};
 
 	this.doChromeBookmark = function(element, data) {

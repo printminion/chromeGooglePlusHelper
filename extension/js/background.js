@@ -35,6 +35,9 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'doTweet':
 			_gaq.push([ '_trackPageview', '/tweet' ]);
 			break;
+		case 'doFacebook':
+			_gaq.push([ '_trackPageview', '/facebook' ]);
+			break;
 		case 'doTranslate':
 			_gaq.push([ '_trackPageview', '/translate/' + data.language ]);
 			break;
@@ -79,6 +82,9 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	case 'doOpenLink':
 		_gaq.push([ '_trackPageview', '/openLink' ]);
 		doOpenLink(request.values);
+		break;
+	case 'doFacebook':
+		_gaq.push([ '_trackPageview', '/facebook' ]);
 		break;
 	case 'doChromeBookmark':
 		bookmarks.addBookmark(request.values, sendResponse);
@@ -314,9 +320,13 @@ function doNotify(data) {
 	 */
 	var notification = webkitNotifications
 			.createHTMLNotification('notification_helper' + POSTFIX + '.html'
-					+ "?" + "id=" + data.id + "&url="
-					+ encodeURIComponent(data.url) + "&html="
-					+ encodeURIComponent(data.html));
+					+ "?" + "id=" + data.id + 
+					"&url=" + encodeURIComponent(data.url) + 
+					"&author=" + encodeURIComponent(data.author) + 
+					"&html="+ encodeURIComponent(data.html) +
+					"&text="+ encodeURIComponent(data.text)
+							
+			);
 
 	console.log('notification_helper' + POSTFIX + '.html' + "?" + "id="
 			+ data.id + "&url=" + encodeURIComponent(data.url) + "&html="

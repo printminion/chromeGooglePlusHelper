@@ -5,10 +5,10 @@ var bkg = chrome.extension.getBackgroundPage();
 
 // Saves options to localStorage.
 function save_options() {
-	bkg.settings.pollInterval = parseInt($('#refresh-interval').val()) * 60000;
-	bkg.settings.timeout = 1000 * 15;
+//	bkg.settings.pollInterval = parseInt($('#refresh-interval').val()) * 60000;
+//	bkg.settings.timeout = 1000 * 15;
 
-	bkg.settings.soundAlert = $('#sound-alert').val();
+//	bkg.settings.soundAlert = $('#sound-alert').val();
 
 	console.log($('#options_hide_probe_labels').attr('checked'));
 	console.log(parseFloat($('#options_global_threshold_ratio').val()));
@@ -72,7 +72,7 @@ function saveOptions() {
 }
 
 function resetOptions() {
-	$('#refresh-interval').val("30");
+//	$('#refresh-interval').val("30");
 	$('#sound-alert').val("");
 	$("#options_global_threshold_ratio").val(3);
 	$("#options_hide_probe_labels").attr("checked", false);
