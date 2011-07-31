@@ -1,7 +1,50 @@
-https://plus.google.com/u/0/_/n/rsv?hl=en&bf=6cc6a3ea&jsmode=OPTIMIZED
 
-https://plus.google.com/_/stream/markitemread/?_reqid=1047470&rt=j
+v 0.0.25
+ * Added +1 button to the post - now you can +1 posts to your profile
+ * Compatibility fix for G+me
 
-https://plus.google.com/u/0/_/n/guc?_reqid=1147584&rt=j
+v 0.0.21
+ * added facebook share
+ * fixed bookmarking via desktop notifier
 
-https://plus.google.com/u/0/_/n/guc?_reqid=1247584&rt=j
+v 0.0.20
+ * fixed broken posts because of hashtag linking
+
+v 0.0.19
+ * fixed options saving. notifications without sound are possible now
+
+v 0.0.18
+ * Bookmark Google+ posts for reading them later. Faster and easier! 
+ * Bookmark posts on Delicious
+
+v 0.0.15
+ * fixed options saving. notifications without sound are possible now
+
+v 0.0.12
+ * added omnibox search hack
+
+v 0.0.9
+ * added Linked hashtags for better search
+
+v 0.0.8
+ * added notification feature
+ * added sounds for notification
+ * added options page
+ * now you can choose witch actions you want to embed (twitter/translate)
+ * you can specify your target language for the translation 
+ * bug fixes
+
+v 0.0.4
+ * add *tweet*, *translate* via click on page action icon in omni box
+ * tweet limited posts
+ * *tweet*, *translate* action will be also added now on tab switching
+ * performance optimisation
+
+v 0.0.3
+ * added translation functionality
+ 
+v 0.0.2
+ * description fix
+
+v 0.0.1
+ * initial version
