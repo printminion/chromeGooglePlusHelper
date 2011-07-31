@@ -45,7 +45,24 @@ var settings = {
 		localStorage['addDelicious'] = val;
 	},
 	
-
+	
+	get addPlusOne() {
+        if(localStorage['addPlusOne'] == 'NaN') return true;
+		return localStorage['addPlusOne'] || false;
+	}, 
+	set addPlusOne(val) {
+		localStorage['addPlusOne'] = val;
+	},
+	
+	get addPlusOneCounter() {
+        if(localStorage['addPlusOneCounter'] == 'NaN') return true;
+		return localStorage['addPlusOneCounter'] || false;
+	}, 
+	set addPlusOneCounter(val) {
+		localStorage['addPlusOneCounter'] = val;
+	},
+	
+	
 	get addFacebook() {
         if(localStorage['addFacebook'] == 'NaN') return false;
 		return localStorage['addFacebook'] || false;

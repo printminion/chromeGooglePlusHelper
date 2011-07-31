@@ -157,6 +157,9 @@ function init() {
 		bkg.settings.addChromeBookmarks = true;
 		bkg.settings.addDelicious = true;
 		
+		bkg.settings.addPlusOne = true;
+		bkg.settings.addPlusOneCounter = true;
+		
 		bkg.settings.addChromeBookmarksToolbar = true;
 		
 		

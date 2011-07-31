@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_ext_name__",
-	"version": "0.0.21",
+	"version": "0.0.25",
 	"description": "__MSG_ext_description__",
 	"default_locale": "en",
 	"omnibox": { "keyword" : "plus" },
@@ -13,7 +13,7 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/chromeExtensionsCode.min.js"],
+      "js": ["js/assets.min.js", "js/chromeExtensionsCode.min.js"],
       "css": ["css/inject.css"]
     }
   ],

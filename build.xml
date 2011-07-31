@@ -4,7 +4,7 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="0.0.19" />
+	<property name="VERSION" value="0.0.26" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
@@ -17,6 +17,7 @@
 							
 				extension/js/analytics.js,
 				extension/js/app.js,
+				extension/js/assets.js,
 				extension/js/background.js,
 				extension/js/chromeBookmarks.js,
 				extension/js/chromeExtensionsCode.js,
@@ -50,6 +51,12 @@
 			</sources>
 		</jscomp>
 
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/assets.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="assets.js" />
+			</sources>
+		</jscomp>
+				
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/background.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="background.js" />

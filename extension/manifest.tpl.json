@@ -13,7 +13,7 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/chromeExtensionsCode.min.js"],
+      "js": ["js/assets.min.js", "js/chromeExtensionsCode.min.js"],
       "css": ["css/inject.css"]
     }
   ],

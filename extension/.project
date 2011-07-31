@@ -21,6 +21,11 @@
 			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/README</location>
 		</link>
 		<link>
+			<name>_prototypes</name>
+			<type>2</type>
+			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/_prototypes</location>
+		</link>
+		<link>
 			<name>build.xml</name>
 			<type>1</type>
 			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/build.xml</location>

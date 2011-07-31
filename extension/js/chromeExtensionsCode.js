@@ -2,11 +2,7 @@
  * you can't use here the background page
  */
 
-// In a content script
 var port = undefined;
-// chrome.extension.connect({
-// name : 'chrome-google-plus-helper'
-// });
 
 getPort().postMessage({
 	message : "registerPort"
@@ -50,6 +46,28 @@ function GPlusHelper() {
 		 * this.extendUI();
 		 */
 
+		
+		/*
+		 * add script
+		 */
+		
+		  (function() {
+			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		  
+		
+		var po = document.createElement('script'); 
+		po.type = 'text/javascript'; 
+		po.innerText = "function test(data){"
+			+ "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);"
+			+ "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);"
+			+ "\n};";
+		
+		var s = document.getElementsByTagName('script')[0]; 
+		s.parentNode.insertBefore(po, s);
+        
 		var url = this.getFullUrlByLocation(window.location);
 
 		var result = url.search(/plus.google.com/);
@@ -223,7 +241,7 @@ function GPlusHelper() {
 							action : "getSettings"
 						},
 						function(response) {
-							console.log('response.getSettings', response);
+							//console.log('response.getSettings', response);
 
 							var settings = response.settings;
 
@@ -231,12 +249,17 @@ function GPlusHelper() {
 									&& settings.addChromeBookmarksToolbar == 'true') {
 
 								var buttonObj = document.createElement("a");
-
 								buttonObj.href = '#';
-
+								
 								var attrClass = document
 										.createAttribute("class");
 								attrClass.nodeValue = 'd-h a-b-h-Jb rKsb7e d-s-r jw8A1e';
+
+								var attrClass2 = document
+								.createAttribute("aria-label");
+								attrClass2.nodeValue = 'Bookmarks';
+								buttonObj.setAttributeNode(attrClass2);
+									
 
 								(function(chromeBookmarsFolderId) {
 									buttonObj.onclick = function(e) {
@@ -417,7 +440,7 @@ function fetchTabInfo(selectedPacketName) {
 		var settings = response.settings;
 
 		for ( var i = 0; i < streamObj.childElementCount; i++) {
-			console.log('found post element...');
+			//console.log('found post element...');
 
 			postObj = streamObj.childNodes[i];
 
@@ -440,7 +463,7 @@ function fetchTabInfo(selectedPacketName) {
 };
 
 function extendPostArea(o, settings) {
-	console.log('extendPostArea...');
+	//console.log('extendPostArea...');
 
 	if (settings.addHashtags == 'true') {
 		uiExtender.addHashtags(o);
@@ -490,7 +513,7 @@ function extendPostArea(o, settings) {
 		}, 'Click to bookmark this post');
 
 	}
-
+	
 	if (settings.addDelicious == 'true') {
 
 		extentPostWithAction(placeholderObj, 'Delicious', function() {
@@ -499,11 +522,18 @@ function extendPostArea(o, settings) {
 
 	}
 
-	var placeholderIconsObj = o.querySelector("span.a-f-i-yj");
+	//.a-b-f-i-p span.a-f-i-yj
+	var placeholderIconsObj = o.querySelector(".a-b-f-i-p span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
 		console.log('error: failed to get the placeholder for incons');
 		return;
+	}
+
+	if (settings.addPlusOne == 'true') {
+
+		extentPostWithHTML(placeholderIconsObj, parsePostData(placeholderObj), settings, '...', function() {}, '...');
+
 	}
 
 	if (settings.addChromeBookmarks == 'true') {
@@ -603,8 +633,37 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	placeholderObj.appendChild(span);
 }
 
+
+function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback, title) {
+	if (!placeholderObj) {
+		return;
+	}
+
+	var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
+	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
+
+	var div = document.createElement("div");
+	var attrClass = document.createAttribute("id");
+	attrClass.nodeValue = 'plusone-' + data.id;
+	div.setAttributeNode(attrClass);
+	
+	var attrClass2 = document.createAttribute("class");
+	attrClass2.nodeValue = htmlClass;
+	div.setAttributeNode(attrClass2);
+	
+	
+	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count + ' callback="test" ></g:plusone>';
+	
+	var script = document.createElement("script");
+	script.innerText = 'gapi.plusone.go("' + 'plusone-' + data.id + '");';
+	
+	placeholderObj.appendChild(div);
+	placeholderObj.appendChild(script);
+
+}
+
 function parsePostData(o) {
-	console.log('parsePostData', o);
+	//console.log('parsePostData', o);
 
 	//var updateDiv = undefined;
 	var currentElement = o;
@@ -615,9 +674,7 @@ function parsePostData(o) {
 		if (currentElement.getAttribute('id')) {
 			var idBegin = currentElement.getAttribute('id').substring(0, 7);
 			if (idBegin == 'update-') {
-				//updateDiv = currentElement;
 				return parcePostDataElement(currentElement);
-				//break;
 			}
 			;
 
@@ -630,6 +687,17 @@ function parcePostDataElement(currentElement) {
 	if (!currentElement) {
 		return;
 	}
+	var data = {
+			id: '',
+			text : '',
+			url : '',
+			author : '',
+			authorUrl : ''
+
+		};
+	
+	data.id = currentElement.getAttribute('id');
+	
 	
 	// console.log(updateDiv);
 	var postUrlObj = currentElement.querySelector("a.a-Ja-h");
@@ -658,14 +726,13 @@ function parcePostDataElement(currentElement) {
 	var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
 			: '';
 
-	var data = {
-		text : postTextObj.innerText,
-		url : 'https://plus.google.com/' + postUrlObj.getAttribute('href'),
-		author : author,
-		authorUrl : authorUrl
+	data.text = postTextObj.innerText;
+	data.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
+	data.author = author;
+	data.authorUrl = authorUrl;
+	
 
-	};
-	console.log('data', data);
+	//console.log('data', data);
 
 	return data;
 }
@@ -697,6 +764,11 @@ function UIExtender() {
 
 function Actions() {
 
+	this.doPlusOne = function(data) {
+		console.log('doPlusOne', data);
+		//{"href": "http://www.example.com/", "state": "on"}
+	};
+	
 	this.doTweet = function(data) {
 		try {
 			getPort().postMessage({

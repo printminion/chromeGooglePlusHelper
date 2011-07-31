@@ -43,7 +43,13 @@
 		}
 		
 		
+		if (bkg.settings.addPlusOne == "true") {
+			$("#options_add_plusone_button").attr("checked", "true");
+		}
 		
+		if (bkg.settings.addPlusOneCounter == "true") {
+			$("#options_add_plusone_button_count").attr("checked", "true");
+		}
 		
 		if (bkg.settings.addChromeBookmarks == "true") {
 			$("#options_add_chrome_bookmark").attr("checked", "true");
@@ -341,6 +347,30 @@
 
 
 
+	<div class="option_row">
+			<div class="option_name">+1 Button</div>
+			<div class="option_picker">
+				<table border="0">
+					<tbody>
+						<tr>
+							<td class="option" title="Show plus one button">Enabled</td>
+							<td><input type="checkbox" id="options_add_plusone_button"
+							name="options_add_plusone_button" onchange="markDirty();" value="1" />
+							</td>
+						</tr>
+
+						<tr>
+							<td class="option" title="Show aggregate counter">Counter</td>
+							<td>
+							<input type="checkbox" id="options_add_plusone_button_count"
+							name="options_add_plusone_button_count" onchange="markDirty();" value="1" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
 					
 					
 					
@@ -416,7 +446,8 @@
 			$("#options_add_bookmark").attr("checked", false);
 			$("#options_add_bookmark_delicious").attr("checked", false);
 			
-			
+			$("#options_add_plusone_button").attr("checked", true);
+			$("#options_add_plusone_button_count").attr("checked", true);
 			
 			$("#options_add_chrome_bookmark").attr("checked", true);
 			$("#options_add_chrome_bookmark_toolbar").attr("checked", true);
@@ -450,37 +481,26 @@
 			bkg.settings.addTwitter = $("#options_add_twitter").attr("checked");
 			bkg.settings.addFacebook = $("#options_add_facebook").attr("checked");
 			
-			bkg.settings.addTranslate = $("#options_add_translate").attr(
-					"checked");
+			bkg.settings.addTranslate = $("#options_add_translate").attr("checked");
 		
-			bkg.settings.addHashtags = $("#options_add_hashtags").attr(
-			"checked");
+			bkg.settings.addHashtags = $("#options_add_hashtags").attr("checked");
 	
 			
 			
-			bkg.settings.addBookmarks = $("#options_add_bookmark").attr(
-					"checked");
+			bkg.settings.addBookmarks = $("#options_add_bookmark").attr("checked");
+			bkg.settings.addDelicious = $("#options_add_bookmark_delicious").attr("checked");
 			
-			bkg.settings.addDelicious = $("#options_add_bookmark_delicious").attr(
-			"checked");
+			bkg.settings.addPlusOne = $("#options_add_plusone_button").attr("checked");
+			bkg.settings.addPlusOneCounter = $("#options_add_plusone_button_count").attr("checked");
 			
-			bkg.settings.addChromeBookmarks = $("#options_add_chrome_bookmark").attr(
-			"checked");
+			bkg.settings.addChromeBookmarks = $("#options_add_chrome_bookmark").attr("checked");
+			bkg.settings.addChromeBookmarksToolbar = $("#options_add_chrome_bookmark_toolbar").attr("checked");
 			
-			bkg.settings.addChromeBookmarksToolbar = $("#options_add_chrome_bookmark_toolbar").attr(
-			"checked");
-			
-			
-			
-	
 			bkg.settings.addTranslateTo = $("#options_add_translate_to").val();
 
-			bkg.settings.notificationOn = $("#options_notificationOn").attr(
-					"checked");
-			bkg.settings.notificationSound = $("#options_notification_sound")
-					.val();
-			bkg.settings.notificationTime = $('#options_notification_time')
-					.val();
+			bkg.settings.notificationOn = $("#options_notificationOn").attr("checked");
+			bkg.settings.notificationSound = $("#options_notification_sound").val();
+			bkg.settings.notificationTime = $('#options_notification_time').val();
 
 			//Refresh the extension by reseting timer.
 			bkg.refreshConfiguration();
