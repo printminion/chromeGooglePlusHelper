@@ -60,7 +60,7 @@ function GPlusHelper() {
 		
 		var po = document.createElement('script'); 
 		po.type = 'text/javascript'; 
-		po.innerText = "function test(data){"
+		po.innerText = "function _onPlusOne(data){"
 			+ "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);"
 			+ "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);"
 			+ "\n};";
@@ -229,7 +229,10 @@ function GPlusHelper() {
 
 	this.initHomePageToolbar = function(settings) {
 		console.log('initHomePageToolbar...');
-		var miniToolbarObj = document.querySelector("div.oLO5kc");
+		var miniToolbarObj = document.querySelector("div.ZW.zG.d-r-q");//div.oLO5kc");
+		
+		
+		
 
 		if (!miniToolbarObj) {
 			return;
@@ -253,7 +256,7 @@ function GPlusHelper() {
 								
 								var attrClass = document
 										.createAttribute("class");
-								attrClass.nodeValue = 'd-h a-b-h-Jb rKsb7e d-s-r jw8A1e';
+								attrClass.nodeValue = 'd-k a-b-k-jb Vc d-r-q aX';//d-h a-b-h-Jb rKsb7e d-s-r jw8A1e';
 
 								var attrClass2 = document
 								.createAttribute("aria-label");
@@ -294,7 +297,7 @@ function GPlusHelper() {
 								})(response.chromeBookmarsFolderId);
 
 								buttonObj.setAttributeNode(attrClass);
-								buttonObj.innerHTML = '<span class="mZxz3d VAbDid mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';
+								buttonObj.innerHTML = '<span class="dX BG mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';//mZxz3d VAbDid 
 								miniToolbarObj.appendChild(buttonObj);
 
 							}
@@ -418,17 +421,17 @@ function fetchTabInfo(selectedPacketName) {
 	/*
 	 * get home stream
 	 */
-	var streamObj = document.querySelector("div.a-b-f-i-oa");
+	var streamObj = document.querySelector("div.er");//div.a-b-f-i-oa
 
 	/*
-	 * get post stream
+	 * get post stream on profile
 	 */
 	if (!streamObj) {
-		streamObj = document.querySelector("div.a-Wf-i-M");
+		streamObj = document.querySelector("div.a-Yh-oc-M");//div.a-Wf-i-M");
 	}
 
 	if (!streamObj) {
-		console.log('failed to get stram for extension');
+		console.log('failed to get stream for extension');
 		return;
 	}
 
@@ -476,7 +479,7 @@ function extendPostArea(o, settings) {
 //
 //	}
 	
-	var placeholderObj = o.querySelector("div.a-f-i-bg");
+	var placeholderObj = o.querySelector("div.Xn");//div.a-f-i-bg
 
 	if (!placeholderObj) {
 		console.log('error: failed to get the placeholder for actions');
@@ -523,10 +526,10 @@ function extendPostArea(o, settings) {
 	}
 
 	//.a-b-f-i-p span.a-f-i-yj
-	var placeholderIconsObj = o.querySelector(".a-b-f-i-p span.a-f-i-yj");
+	var placeholderIconsObj = o.querySelector("div.Xy");//.a-b-f-i-p span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
-		console.log('error: failed to get the placeholder for incons');
+		console.log('error: failed to get the placeholder for icons');
 		return;
 	}
 
@@ -591,7 +594,7 @@ function extentPostWithAction(placeholderObj, caption, callback, title) {
 	span.innerText = caption;
 
 	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = 'd-h';
+	attrClass.nodeValue = 'd-k';//d-h';
 	span.setAttributeNode(attrClass);
 
 	var attrAlt = document.createAttribute("title");
@@ -639,6 +642,11 @@ function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback,
 		return;
 	}
 
+	if (data.visibility != 'public') {
+		return;
+	}
+	
+	
 	var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
 	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
 
@@ -652,7 +660,7 @@ function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback,
 	div.setAttributeNode(attrClass2);
 	
 	
-	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count + ' callback="test" ></g:plusone>';
+	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
 	
 	var script = document.createElement("script");
 	script.innerText = 'gapi.plusone.go("' + 'plusone-' + data.id + '");';
@@ -692,25 +700,45 @@ function parcePostDataElement(currentElement) {
 			text : '',
 			url : '',
 			author : '',
-			authorUrl : ''
-
+			authorUrl : '',
+			visibility: 'public'
 		};
 	
 	data.id = currentElement.getAttribute('id');
 	
 	
+	/*
+	 * parse visibility status
+	 */
+	//<span role="button" class="d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb" title="Sharing details" tabindex="0" aria-haspopup="true">Public</span>
+	//<span role="button" class="d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb" title="Sharing details" tabindex="0" aria-haspopup="true">Limited</span>
+	
+	var postVisibilityObj = currentElement.querySelector("span.d-k.Ar.zr.Gp");//span.d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb");
+	
+	if (postVisibilityObj != undefined && postVisibilityObj.innerHTML != 'Public') {
+		data.visibility = 'limited';
+	}
+	
+	
+	
 	// console.log(updateDiv);
-	var postUrlObj = currentElement.querySelector("a.a-Ja-h");
+	var postUrlObj = currentElement.querySelector("a.a-da-k.a-b-k-jb.Fp");//a.a-Ja-h");
+	
+	
+	if(!postUrlObj) {
+		console.log('err:failed to parse post url');
+	}
+	
 	// console.log(postUrlObj);
 	/*
 	 * try to get comment
 	 */
 	var postTextObj = null;
 
-	postTextObj = currentElement.querySelector("div.a-b-f-i-u-ki");
+	postTextObj = currentElement.querySelector("div.Uj");//a-b-f-i-u-ki");
 
 	if (postTextObj && postTextObj.innerText == '') {
-		postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
+		postTextObj = currentElement.querySelector("div.Uj");//a-b-f-i-p-R");
 	}
 
 	if (!postTextObj) {
@@ -721,7 +749,7 @@ function parcePostDataElement(currentElement) {
 	 * get author
 	 */
 	// cs2K7c a-f-i-Zb a-f-i-Zb-U
-	var autorObj = currentElement.querySelector("a.cs2K7c");
+	var autorObj = currentElement.querySelector("a.Gq.jj.Vj");//a.cs2K7c");
 	var author = autorObj != undefined ? autorObj.innerHTML : '';
 	var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
 			: '';
@@ -738,6 +766,9 @@ function parcePostDataElement(currentElement) {
 }
 
 function UIExtender() {
+	
+	this.selBody = 12;
+	this.selAuthor = 12;
 	
 	this.addHashtags = function(postObj) {
 		var postBodyObj = postObj.querySelector("div.a-b-f-i-u-ki");
@@ -763,6 +794,7 @@ function UIExtender() {
 }
 
 function Actions() {
+	
 
 	this.doPlusOne = function(data) {
 		console.log('doPlusOne', data);
