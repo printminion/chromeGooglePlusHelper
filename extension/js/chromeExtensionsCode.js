@@ -3,6 +3,7 @@
  */
 
 var port = undefined;
+var assets = new Assets();
 
 getPort().postMessage({
 	message : "registerPort"
@@ -137,7 +138,7 @@ function GPlusHelper() {
 	this.initHomePage = function(bNotificationOn) {
 		console.log('initHomePage...');
 
-		var container = document.querySelector("div.a-b-f-i-oa");
+		var container = document.querySelector(assets.gpContentPane);
 		if (container == undefined) {
 			return;
 		}
@@ -169,8 +170,12 @@ function GPlusHelper() {
 				} catch (e) {
 					// TODO: handle exception
 				}
+				
+				/*
+				 * get post url
+				 */
 
-				if (classAttribute == 'a-Ja-h a-b-h-Jb a-f-i-Ad') {
+				if (classAttribute == assets.gpPostUrl) {
 					console.log('onPostAdded', lastPostId, e.target
 							.getAttribute('href'));
 
@@ -229,10 +234,7 @@ function GPlusHelper() {
 
 	this.initHomePageToolbar = function(settings) {
 		console.log('initHomePageToolbar...');
-		var miniToolbarObj = document.querySelector("div.ZW.zG.d-r-q");//div.oLO5kc");
-		
-		
-		
+		var miniToolbarObj = document.querySelector(assets.gpToolbar);//div.oLO5kc");
 
 		if (!miniToolbarObj) {
 			return;
@@ -256,7 +258,8 @@ function GPlusHelper() {
 								
 								var attrClass = document
 										.createAttribute("class");
-								attrClass.nodeValue = 'd-k a-b-k-jb Vc d-r-q aX';//d-h a-b-h-Jb rKsb7e d-s-r jw8A1e';
+								
+								attrClass.nodeValue = assets.gpToolbarButton;
 
 								var attrClass2 = document
 								.createAttribute("aria-label");
@@ -297,7 +300,7 @@ function GPlusHelper() {
 								})(response.chromeBookmarsFolderId);
 
 								buttonObj.setAttributeNode(attrClass);
-								buttonObj.innerHTML = '<span class="dX BG mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';//mZxz3d VAbDid 
+								buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';//mZxz3d VAbDid 
 								miniToolbarObj.appendChild(buttonObj);
 
 							}
@@ -421,13 +424,13 @@ function fetchTabInfo(selectedPacketName) {
 	/*
 	 * get home stream
 	 */
-	var streamObj = document.querySelector("div.er");//div.a-b-f-i-oa
+	var streamObj = document.querySelector(assets.gpContainerStream);//div.a-b-f-i-oa
 
 	/*
 	 * get post stream on profile
 	 */
 	if (!streamObj) {
-		streamObj = document.querySelector("div.a-Yh-oc-M");//div.a-Wf-i-M");
+		streamObj = document.querySelector(assets.gpContainerStreamProfile);//div.a-Wf-i-M");
 	}
 
 	if (!streamObj) {
@@ -479,7 +482,7 @@ function extendPostArea(o, settings) {
 //
 //	}
 	
-	var placeholderObj = o.querySelector("div.Xn");//div.a-f-i-bg
+	var placeholderObj = o.querySelector(assets.gpPostBottomControls);//div.a-f-i-bg
 
 	if (!placeholderObj) {
 		console.log('error: failed to get the placeholder for actions');
@@ -526,7 +529,7 @@ function extendPostArea(o, settings) {
 	}
 
 	//.a-b-f-i-p span.a-f-i-yj
-	var placeholderIconsObj = o.querySelector("div.Xy");//.a-b-f-i-p span.a-f-i-yj");
+	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);//.a-b-f-i-p span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
 		console.log('error: failed to get the placeholder for icons');
@@ -594,7 +597,7 @@ function extentPostWithAction(placeholderObj, caption, callback, title) {
 	span.innerText = caption;
 
 	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = 'd-k';//d-h';
+	attrClass.nodeValue = assets.gpPostBottomControlsStyle;//d-h';
 	span.setAttributeNode(attrClass);
 
 	var attrAlt = document.createAttribute("title");
@@ -722,7 +725,7 @@ function parcePostDataElement(currentElement) {
 	
 	
 	// console.log(updateDiv);
-	var postUrlObj = currentElement.querySelector("a.a-da-k.a-b-k-jb.Fp");//a.a-Ja-h");
+	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);//a.a-Ja-h");
 	
 	
 	if(!postUrlObj) {
@@ -735,7 +738,7 @@ function parcePostDataElement(currentElement) {
 	 */
 	var postTextObj = null;
 
-	postTextObj = currentElement.querySelector("div.Uj");//a-b-f-i-u-ki");
+	postTextObj = currentElement.querySelector(assets.gpPostBody);//a-b-f-i-u-ki");
 
 	if (postTextObj && postTextObj.innerText == '') {
 		postTextObj = currentElement.querySelector("div.Uj");//a-b-f-i-p-R");
@@ -744,17 +747,22 @@ function parcePostDataElement(currentElement) {
 	if (!postTextObj) {
 		postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
 	}
+
+	if (!postTextObj) {
+		console.log('failed to get body text');
+	} else {
+		data.text = postTextObj.innerText;
+	}
 	// a-f-i-u-ki
 	/*
 	 * get author
 	 */
 	// cs2K7c a-f-i-Zb a-f-i-Zb-U
-	var autorObj = currentElement.querySelector("a.Gq.jj.Vj");//a.cs2K7c");
+	var autorObj = currentElement.querySelector(assets.gpPostAuthor);//a.cs2K7c");
 	var author = autorObj != undefined ? autorObj.innerHTML : '';
 	var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
 			: '';
 
-	data.text = postTextObj.innerText;
 	data.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
 	data.author = author;
 	data.authorUrl = authorUrl;
@@ -771,7 +779,7 @@ function UIExtender() {
 	this.selAuthor = 12;
 	
 	this.addHashtags = function(postObj) {
-		var postBodyObj = postObj.querySelector("div.a-b-f-i-u-ki");
+		var postBodyObj = postObj.querySelector(assets.gpPostBody);
 
 		if (!postBodyObj) {
 			postBodyObj = postObj.querySelector("div.a-b-f-i-p-R");

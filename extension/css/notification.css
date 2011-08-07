@@ -5,6 +5,9 @@ body {
 	cursor: pointer;
 }
 
+.Jn {
+	display: none!important;
+}
 .a-f-i-bg,.a-f-i-Ia-D-h {
 	display: none;
 }
