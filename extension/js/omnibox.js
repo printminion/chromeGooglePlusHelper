@@ -18,25 +18,16 @@ chrome.omnibox.onInputEntered
 			var searchType = 'posts';
 
 			if (text.substring(0, 6) == 'posts ') {
-				text = 'http://www.google.com/webhp?hl=en&q='
-						+ encodeURIComponent(text.substring(6, text.length))
-						+ '+site:plus.google.com+inurl%3Aposts%2F*#sclient=psy&hl=en&safe=on&site=webhp&source=hp&q='
-						+ (text.substring(6, text.length))
-						+ '+site:plus.google.com+inurl%3Aposts%2F*&btnK=Google+Search&pbx=1&oq=&aq=&aqi=&aql=&gs_sm=&gs_upl=&fp=1&biw=1280&bih=685&bav=on.2,or.r_gc.r_pw.&cad=b';
 
+				text = 'https://plus.google.com/s/' + encodeURIComponent(text.substring(6, text.length)) + '/posts';
+					
 			} else if (text.substring(0, 9) == 'profiles ') {
 				searchType = 'posts';
 
-				text = 'http://www.google.com/search?q='
-						+ encodeURIComponent(text.substring(9, text.length))
-						+ '&tbs=prfl:e';
+				text = 'https://plus.google.com/s/' + encodeURIComponent(text.substring(9, text.length)) + '/people';
+				
 			} else {
-				text = 'http://www.google.com/webhp?hl=en&q='
-						+ encodeURIComponent(text)
-						+ '+site:plus.google.com+inurl%3Aposts%2F*#sclient=psy&hl=en&safe=on&site=webhp&source=hp&q='
-						+ encodeURIComponent(text)
-						+ '+site:plus.google.com+inurl%3Aposts%2F*&btnK=Google+Search&pbx=1&oq=&aq=&aqi=&aql=&gs_sm=&gs_upl=&fp=1&biw=1280&bih=685&bav=on.2,or.r_gc.r_pw.&cad=b';
-
+				text = 'https://plus.google.com/s/' + encodeURIComponent(text);
 			}
 
 			_gaq.push([ '_trackPageview', '/search/' + searchType ]);

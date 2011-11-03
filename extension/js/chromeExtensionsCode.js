@@ -5,9 +5,11 @@
 var port = undefined;
 var assets = new Assets();
 
-getPort().postMessage({
-	message : "registerPort"
-});
+//getPort().postMessage({
+//	message : "registerPort"
+//});
+
+getPort();
 
 var STATUS_LOADING = 1;
 var STATUS_READY = 2;
@@ -37,7 +39,24 @@ function getPort() {
 	return port;
 }
 
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	console.log('extension.onRequest', request);
+
+	switch (request.action) {
+	case 'initTab':
+		//_gaq.push([ '_trackPageview', '/openLink' ]);
+		getPort();
+		break;
+	default:
+		
+		break;
+	}
+});
+
+
 function GPlusHelper() {
+
+	var pageInfo = new PageInfo();
 
 	this.init = function() {
 
@@ -58,7 +77,13 @@ function GPlusHelper() {
 			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
 		  
-		
+		  (function() {
+			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			    ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
+			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		  
+		  
 		var po = document.createElement('script'); 
 		po.type = 'text/javascript'; 
 		po.innerText = "function _onPlusOne(data){"
@@ -86,7 +111,7 @@ function GPlusHelper() {
 		});
 
 		this.initHomePageToolbar();
-		this.initHomePage(data.notificationOn);
+		this.initHomePage();
 
 	};
 
@@ -97,47 +122,23 @@ function GPlusHelper() {
 		// https://plus.google.com/104512463398531242371/posts
 		// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
 
-		var pageInfo = {
-			url : url,
-			type : undefined,
-			notificationOn : false
-		};
+		this.pageInfo = new PageInfo();
+		
+		this.pageInfo.url = url;
+		this.pageInfo.type = this.pageInfo.getPageType(url);
+		this.pageInfo.notificationOn = this.pageInfo.ifNotificationPage(url);
 
-		var qRe = new RegExp(
-				"^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
-		var test = qRe.exec(url);
-
-		/*
-		 * check if user page
-		 */
-		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
-		test = qRe.exec(url);
-
-		/*
-		 * check home
-		 */
-		qRe = new RegExp("^https://plus.google.com/u/0/$");
-		test = qRe.exec(url);
-		pageInfo.notificationOn = (test || pageInfo.notificationOn) ? true
-				: false;
-
-		// https://plus.google.com/u/0/104512463398531242371/posts
-
-		/*
-		 * check home
-		 */
-		qRe = new RegExp("^https://plus.google.com/$");
-		test = qRe.exec(url);
-		pageInfo.notificationOn = (test || pageInfo.notificationOn) ? true
-				: false;
-
-		return pageInfo;
+		console.log('analyzePage... ..done', this.pageInfo);
+		
+		return this.pageInfo;
 
 	};
 
-	this.initHomePage = function(bNotificationOn) {
+	this.initHomePage = function() {
 		console.log('initHomePage...');
 
+		//bNotificationOn
+		
 		var container = document.querySelector(assets.gpContentPane);
 		if (container == undefined) {
 			return;
@@ -180,6 +181,14 @@ function GPlusHelper() {
 							.getAttribute('href'));
 
 					/*
+					 * TODO add notification - NOT
+					 */
+					
+					if (!component.pageInfo.notificationOn) {
+						console.log('...no notifications for this page');
+						return;
+					}
+					/*
 					 * check notifications settings
 					 */
 					chrome.extension.sendRequest({
@@ -193,6 +202,7 @@ function GPlusHelper() {
 							console.log('...no notification');
 							return;
 						}
+						
 						var postObj = document.querySelector('#'
 								+ response.lastPostId);
 
@@ -205,19 +215,12 @@ function GPlusHelper() {
 						/*
 						 * send notification
 						 */
-						var data = parcePostDataElement(postObj);
-						console.log('parcePostDataElement', data);
-						
-						getPort().postMessage(
-								{
-									message : "onNewPost",
-									id : postObj.id,
-									url : 'https://plus.google.com/'
-											+ e.target.getAttribute('href'),
-									html : postObj.innerHTML,
-									author: data.author,
-									text: data.text
-								});
+
+						var activity = parsePostDataElement(postObj);
+						console.log('parsePostDataElement', activity);
+
+//						getPort().postMessage({message : "onNewPost", activity: activity});
+						getPort().postMessage({message : "onNewPostApi", activity: activity});
 
 					});
 
@@ -312,7 +315,7 @@ function GPlusHelper() {
 	this.addHashTagsUrls = function(element, callback) {
 
 		
-		var replaceWith = '$1<a href="http://www.google.com/search?sourceid=chrome&ie=UTF-8&q=%23$2+site%3Aplus.google.com" target="_blank">#$2</a>';
+		var replaceWith = '$1<a href="https://plus.google.com/s/%23$2" target="_blank">#$2</a>';
 		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
 				replaceWith);
 
@@ -510,6 +513,23 @@ function extendPostArea(o, settings) {
 		extentPostWithAction(placeholderObj, 'Translate', function() {
 			actions.doTranslate(parsePostData(this));
 		}, 'Click to translate this post');
+
+		console.log('o', o);
+		
+		extentPostWithAction(placeholderObj, 'T2', function() {
+			//div. > div.vg
+			//div. > div.vg-translate
+			
+			
+			
+//			new google.translate.SectionalElement({
+//				    sectionalNodeClassName: 'goog-trans-section',
+//				    controlNodeClassName: 'goog-trans-control',
+//				    background: '#f4fa58'
+//				  }, 'google_sectional_element');
+			  
+		}, 'Click to translate this post');
+
 	}
 
 	if (settings.addBookmarks == 'true') {
@@ -528,6 +548,19 @@ function extendPostArea(o, settings) {
 
 	}
 
+	
+	extentPostWithAction(placeholderObj, 'N', function() {
+		
+		var activity = parsePostData(this);
+		console.log('parsePostDataElement', activity);
+
+		getPort().postMessage({message : "onNewPostApi", activity: activity, force: true});
+		
+		
+	}, 'parse and notify');
+
+	
+	
 	//.a-b-f-i-p span.a-f-i-yj
 	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);//.a-b-f-i-p span.a-f-i-yj");
 
@@ -673,6 +706,24 @@ function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback,
 
 }
 
+function addJavaScriptCode(code) {
+	if (!code) {
+		return;
+	}
+	
+	var script = document.createElement("script");
+	script.innerText = code;
+	placeholderObj.appendChild(div);
+	placeholderObj.appendChild(script);
+
+}
+
+/**
+ * Traverse parent elements till post div will be found
+ * 
+ * @param o
+ * @returns Activity
+ */
 function parsePostData(o) {
 	//console.log('parsePostData', o);
 
@@ -685,7 +736,7 @@ function parsePostData(o) {
 		if (currentElement.getAttribute('id')) {
 			var idBegin = currentElement.getAttribute('id').substring(0, 7);
 			if (idBegin == 'update-') {
-				return parcePostDataElement(currentElement);
+				return parsePostDataElement(currentElement);
 			}
 			;
 
@@ -694,84 +745,282 @@ function parsePostData(o) {
 	}
 }
 
-function parcePostDataElement(currentElement) {
+function parsePostDataElement(currentElement) {
 	if (!currentElement) {
 		return;
 	}
-	var data = {
-			id: '',
-			text : '',
-			url : '',
-			author : '',
-			authorUrl : '',
-			visibility: 'public'
-		};
+
+	console.log('parsePostDataElement', currentElement);
 	
-	data.id = currentElement.getAttribute('id');
+	var activity = new Activity();
 	
+	
+	activity.verb = "share";
+
+	activity.id = currentElement.getAttribute('id');
+	activity.id = activity.id.replace('update-', '');
 	
 	/*
 	 * parse visibility status
 	 */
-	//<span role="button" class="d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb" title="Sharing details" tabindex="0" aria-haspopup="true">Public</span>
-	//<span role="button" class="d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb" title="Sharing details" tabindex="0" aria-haspopup="true">Limited</span>
 	
-	var postVisibilityObj = currentElement.querySelector("span.d-k.Ar.zr.Gp");//span.d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb");
+	var postVisibilityObj = currentElement.querySelector(assets.gpActivityAccessType);
 	
 	if (postVisibilityObj != undefined && postVisibilityObj.innerHTML != 'Public') {
-		data.visibility = 'limited';
+		activity.visibility = 'limited';
 	}
 	
 	
 	
 	// console.log(updateDiv);
-	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);//a.a-Ja-h");
-	
-	
+	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);
 	if(!postUrlObj) {
 		console.log('err:failed to parse post url');
+		return;
 	}
+	
+	activity.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
+	activity.updated = undefined;// "2011-10-26T22:54:43.058Z"
+
+	
 	
 	// console.log(postUrlObj);
 	/*
-	 * try to get comment
+	 * try to get activity text
 	 */
-	var postTextObj = null;
+	var postTextObj = currentElement.querySelector(assets.gpActivity);
 
-	postTextObj = currentElement.querySelector(assets.gpPostBody);//a-b-f-i-u-ki");
+	if (postTextObj) {
+		
+		var activityTextObj = postTextObj.querySelector(assets.gpActivityNote);
+		
+		if (activityTextObj) {
+			activity.title = activityTextObj.innerText;
+		} else {
 
-	if (postTextObj && postTextObj.innerText == '') {
-		postTextObj = currentElement.querySelector("div.Uj");//a-b-f-i-p-R");
+			console.log('failed to get gpActivityNote:' + assets.gpActivityNote);
+
+			activityTextObj = postTextObj.querySelector(assets.gpActivityText);
+			
+			if (!activityTextObj) {
+				console.log('failed to get gpActivityText:' + assets.gpActivityText);
+			} else {
+				activity.title = activityTextObj.innerText;
+			}
+			
+			
+		}
+		
+		
 	}
 
-	if (!postTextObj) {
-		postTextObj = currentElement.querySelector("div.a-b-f-i-p-R");
-	}
-
-	if (!postTextObj) {
-		console.log('failed to get body text');
-	} else {
-		data.text = postTextObj.innerText;
-	}
-	// a-f-i-u-ki
 	/*
-	 * get author
+	 * try to get activity attachement
 	 */
-	// cs2K7c a-f-i-Zb a-f-i-Zb-U
-	var autorObj = currentElement.querySelector(assets.gpPostAuthor);//a.cs2K7c");
-	var author = autorObj != undefined ? autorObj.innerHTML : '';
-	var authorUrl = autorObj != undefined ? autorObj.getAttribute('href')
-			: '';
+	var activityAttachementObj = currentElement.querySelector(assets.gpActivityAttachementAuthor);
 
-	data.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
-	data.author = author;
-	data.authorUrl = authorUrl;
+	if (activityAttachementObj) {
+		
+		activity.object = activity.getObjectActivity();
+		
+		var obj = activityAttachementObj.querySelector(assets.gpActivityAttachementAuthorImage);
+		activity.object.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
+
+		var obj = activityAttachementObj.querySelector(assets.gpActivityAttachementAuthorName);
+		activity.object.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
+		activity.object.actor.displayName = obj != undefined ? obj.innerText : undefined;
+		activity.object.actor.url = obj != undefined ? "https://plus.google.com/" + obj.getAttribute('oid') : undefined;
+
+		
+		activity.object.id = undefined;
+		activity.object.url = undefined;
+		activity.object.content = "";
+		activity.object.annotation = activity.title;
+
+		
+		/*
+		 * get author
+		 */
+		var autorObj = currentElement.querySelector(assets.gpPostAuthor);
+		if (autorObj) {
+			activity.actor.displayName = autorObj != undefined ? autorObj.innerHTML : '';
+					
+			var obj = currentElement.querySelector('.Nm');
+
+			activity.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
+			activity.actor.url = "https://plus.google.com/" + obj != undefined ? obj.getAttribute('oid') : undefined;
+
+			obj = currentElement.querySelector('.Nm img');
+			activity.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
+			
+		}
+		
+	}
+	
 	
 
-	//console.log('data', data);
-
-	return data;
+	console.log('activity', activity);
+	
+	return activity;
 }
+
+
+
+//function parsePostDataElementOld(currentElement) {
+//	if (!currentElement) {
+//		return;
+//	}
+//	console.log('parsePostDataElementOld', currentElement);
+//	var data = {
+//			id: '',
+//			text : '',
+//			url : '',
+//			author : '',
+//			visibility: 'public'
+//		};
+//	
+//	
+//	data.id = currentElement.getAttribute('id');
+//	data.id = data.id.replace('update-', '');
+//	
+//	/*
+//	 * parse visibility status
+//	 */
+//	
+//	var postVisibilityObj = currentElement.querySelector("span.d-k.Ar.zr.Gp");//span.d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb");
+//	
+//	if (postVisibilityObj != undefined && postVisibilityObj.innerHTML != 'Public') {
+//		data.visibility = 'limited';
+//	}
+//	
+//	
+//	
+//	// console.log(updateDiv);
+//	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);
+//	
+//	
+//	if(!postUrlObj) {
+//		console.log('err:failed to parse post url');
+//	}
+//	
+//	// console.log(postUrlObj);
+//	/*
+//	 * try to get activity text
+//	 */
+//	var postTextObj = currentElement.querySelector(assets.gpActivity);
+//
+//	if (postTextObj) {
+//		
+//		var activityTextObj = postTextObj.querySelector(assets.gpActivityNote);
+//		
+//		if (activityTextObj) {
+//			data.text = activityTextObj.innerText;
+//		} else {
+//
+//			console.log('failed to get gpActivityNote:' + assets.gpActivityNote);
+//
+//			activityTextObj = postTextObj.querySelector(assets.gpActivityText);
+//			
+//			if (!activityTextObj) {
+//				console.log('failed to get gpActivityText:' + assets.gpActivityText);
+//			} else {
+//				data.text = activityTextObj.innerText;
+//			}
+//			
+//			
+//		}
+//		
+//		
+//	}
+//
+//	
+//	// a-f-i-u-ki
+//	/*
+//	 * get author
+//	 */
+//	// cs2K7c a-f-i-Zb a-f-i-Zb-U
+//	var autorObj = currentElement.querySelector(assets.gpPostAuthor);
+//	var author = autorObj != undefined ? autorObj.innerHTML : '';
+//
+//	data.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
+//	data.author = author;
+//	
+//	var autorPictureObj = currentElement.querySelector('.Nm');
+//	data.authorOID = autorPictureObj != undefined ? autorPictureObj.getAttribute('oid') : undefined;
+//	
+//	autorPictureObj = currentElement.querySelector('.Nm img');
+//	data.authorImage = autorPictureObj != undefined ? autorPictureObj.getAttribute('src') : undefined;
+//	
+//
+//	console.log('data', data);
+//
+//	return data;
+//}
+
+function PageInfo() {
+		this.url = undefined;
+		this.type = undefined;
+		this.notificationOn = false;
+		
+		this.PageTypeEnum  = {
+				UNKNOWN: undefined,
+				HOME: 'home'
+		};
+		
+		this.ifNotificationPage = function(url) {
+		
+			if (this.getPageType(url) == this.PageTypeEnum.HOME) {
+				return true;	
+			}
+			
+			
+		};
+		
+		this.getPageType = function(url) {
+			
+			var qRe = new RegExp("^https://plus.google.com/$");
+			var test = qRe.exec(url);
+			
+			console.log('getPageType', "^https://plus.google.com/$", test);
+			
+			if (test) {
+				return this.PageTypeEnum.HOME;
+			} else {
+				return this.PageTypeEnum.UNKNOWN;
+			}
+			
+			
+			qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
+			var urlTest = qRe.exec(url);
+			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+					: false;
+			
+			/*
+			 * check if user page
+			 */
+			qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
+			urlTest = qRe.exec(url);
+			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+					: false;	
+			/*
+			 * check home
+			 */
+			qRe = new RegExp("^https://plus.google.com/u/0/$");
+			urlTest = qRe.exec(url);
+			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+					: false;
+
+			// https://plus.google.com/u/0/104512463398531242371/posts
+
+			/*
+			 * check home
+			 */
+			qRe = new RegExp("^https://plus.google.com/$");
+			urlTest = qRe.exec(url);
+			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+					: false;
+		};
+};
 
 function UIExtender() {
 	
@@ -799,6 +1048,61 @@ function UIExtender() {
 
 	};
 	
+}
+
+function Activity() {
+
+	this.title = undefined;
+	this.updated = undefined;// "2011-10-26T22:54:43.058Z"
+	this.id = undefined; // "z13xjpmy4pjhvpivt225v3i5yxbsuz102",
+	this.url = undefined;//			"https://plus.google.com/104482086818095930400/posts/MKMmLWaorZw",
+
+	this.actor = {
+		"id" : undefined,
+		"displayName" : undefined,
+		"url" : undefined,
+		"image" : {
+			"url" : undefined
+		}
+	};
+	
+	this.verb = "share";
+
+	//objectType = note|activity
+	
+	this.object = {
+		"objectType" : "note",
+		"content" : undefined,
+		"originalContent" : "",
+		"url" : undefined,
+		"attachments" : [ {
+			"objectType" : "article",
+			"displayName" : undefined,
+			"content" : undefined,
+			"url" : undefined
+		} ]
+	};
+	
+	
+	this.getObjectActivity = function() {
+
+		return {
+				"objectType": "activity",
+				"id": undefined,
+				"actor": {
+					"id": undefined,
+					"displayName": undefined,
+					"url": undefined,
+					"image": {
+						"url":undefined
+					}
+				},
+				"content": undefined,
+				"url": undefined,
+			};
+		
+	};
+
 }
 
 function Actions() {

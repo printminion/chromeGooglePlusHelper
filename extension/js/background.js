@@ -3,6 +3,7 @@
  */
 var ports = {};
 var notificationsArr = {};
+var notificationsCacheArr = {};
 
 var animationFrames = 36;
 var animationSpeed = 50; // ms
@@ -58,8 +59,29 @@ chrome.extension.onConnect.addListener(function(port) {
 			break;
 		case 'onNewPost':
 			_gaq.push([ '_trackPageview', '/notify' ]);
-			doNotify(data);
+			doNotify(data.activity);
 			break;
+		case 'onNewPostApi':
+			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
+
+			var script = document.createElement("script");
+
+			if (data.force) {
+				script.src = 'https://www.googleapis.com/plus/v1/activities/'
+						+ data.activity.id
+						+ '?alt=json&pp=1&callback=onNewPostApi&key='
+						+ assets.googlePlusAPIKey;
+			} else {
+				script.src = 'https://www.googleapis.com/plus/v1/activities/'
+						+ data.activity.id
+						+ '?alt=json&pp=1&callback=doNotify&key='
+						+ assets.googlePlusAPIKey;
+			}
+
+			document.body.appendChild(script);
+
+			break;
+
 		case 'doOpenLink':
 			_gaq.push([ '_trackPageview', '/openLink' ]);
 			doOpenLink(data);
@@ -110,7 +132,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log('settings', bkg.settings);
 		sendResponse({
 			settings : bkg.settings,
-			chromeBookmarsFolderId: bkg.bookmarks.parentId
+			chromeBookmarsFolderId : bkg.bookmarks.parentId
 		});
 
 		break;
@@ -141,6 +163,8 @@ function init() {
 	loggedInImage = document.getElementById('icon');
 	canvasContext = canvas.getContext('2d');
 
+	checkConnectionToTabs();
+
 	app.onStart(function() {
 		/*
 		 * installed part
@@ -156,13 +180,12 @@ function init() {
 		bkg.settings.addBookmarks = false;
 		bkg.settings.addChromeBookmarks = true;
 		bkg.settings.addDelicious = true;
-		
+
 		bkg.settings.addPlusOne = true;
 		bkg.settings.addPlusOneCounter = true;
-		
+
 		bkg.settings.addChromeBookmarksToolbar = true;
-		
-		
+
 		bkg.settings.addTranslateTo = 'en';
 
 		bkg.settings.notificationOn = true;
@@ -174,15 +197,72 @@ function init() {
 		/*
 		 * set default values
 		 */
+		var bkg = chrome.extension.getBackgroundPage();
 		bkg.settings.addChromeBookmarks = true;
 		bkg.settings.addDelicious = true;
 		bkg.settings.addChromeBookmarksToolbar = true;
-		
 
 		console.log("Extension Updated", bkg.settings);
-		// window.open('options'+ POSTFIX + '.html');
+		window.open('options' + POSTFIX + '.html');
 
 	});
+
+}
+
+function checkConnectionToTabs() {
+
+	chrome.windows.getAll({
+		populate : true
+	}, function(windows) {
+
+		var countPlusTabs = 0;
+		for ( var i in windows) {
+			// console.log('window', windows[i]);
+			for ( var j in windows[i].tabs) {
+				// console.log('tab', windows[i].tabs[j]);
+				// windows[i].tabs[j].url
+				// windows[i].tabs[j].id
+				var url = windows[i].tabs[j].url;
+				var qRe = new RegExp("^https://plus.google.com/");
+				var test = qRe.exec(url);
+				
+				if (test) {
+					countPlusTabs++;
+					var tab = windows[i].tabs[j];
+					console.log('test tab', tab);
+					chrome.tabs.update(tab.id, {url: tab.url}, function(tab){
+						console.log('tab updated', tab);
+
+						chrome.tabs.sendRequest(tab.id, {action: 'initTab'}, function(tab){
+							console.log('tab updated', tab);
+						});
+
+					});
+					
+					
+					
+				}
+			}
+		}
+
+	});
+
+	// chrome.tabs.getAllInWindow(integer windowId, function callback)
+	//	
+	// chrome.tabs.sendRequest(integer tabId, any request, function
+	// responseCallback)
+
+	/*
+	 * go through all windows
+	 */
+
+	/*
+	 * go through all tabs
+	 */
+
+	/*
+	 * reload google+ tabs
+	 */
 
 }
 
@@ -205,6 +285,50 @@ function checkTab(callback, sender) {
 
 		}
 
+	});
+
+}
+
+function doSpeak(text) {
+	console.log('doSpeak', text);
+
+	text = text.replace(/#/g, ' hash ');
+
+	text = text.replace('http://', '');
+	text = text.replace('https://', '');
+
+	var options = {
+		lang : "en-US",
+		gender: "male",
+		pitch : 1,
+		rate : 0.5,
+		volume : 1
+	};
+
+	var utteranceIndex = 1;
+
+	console.log(utteranceIndex + ': ' + JSON.stringify(options));
+	options.onEvent = function(event) {
+		console.log(utteranceIndex + ': ' + JSON.stringify(event));
+		// if (highlightText) {
+		// text.setSelectionRange(0, event.charIndex);
+		// }
+		if (event.type == 'end' || event.type == 'interrupted'
+				|| event.type == 'cancelled' || event.type == 'error') {
+			chrome.tts.isSpeaking(function(isSpeaking) {
+				if (!isSpeaking) {
+					console.log('TTS isSpeaking: Idle');
+					// ttsStatus.innerHTML = 'Idle';
+					// ttsStatusBox.style.background = '#fff';
+				}
+			});
+		}
+	};
+
+	chrome.tts.speak(text, options, function() {
+		if (chrome.extension.lastError) {
+			console.log('TTS Error: ' + chrome.extension.lastError.message);
+		}
 	});
 
 }
@@ -296,26 +420,52 @@ chrome.pageAction.onClicked.addListener(function(tab) {
 });
 
 function doOpenLink(data) {
-console.log('doOpenLink', data);
+	console.log('doOpenLink', data);
 	chrome.tabs.create({
 		url : data.url
 	});
 
 }
 
-function doNotify(data) {
+function getCachedNotificationbyId(id) {
+	if (notificationsCacheArr.hasOwnProperty(id)) {
+		var notification = notificationsCacheArr[id];
+		console.log('got notification [' + notification + ']');
+		
+		//delete notificationsCacheArr[id];
 
-	if (data.html == undefined) {
+		return notification;
+	}
+}
+
+function onNewPostApi(activity) {
+	doNotify(activity, true);
+}
+
+function doNotify(activity, force) {
+
+	console.log('doNotify', activity);
+
+	if (activity == undefined) {
 		return;
 	}
 
-	if (data.html == '') {
+	if (activity.error) {
+		console.log('doNotify:error', activity.error);
 		return;
 	}
 
-	if (notificationsArr.hasOwnProperty(data.id)) {
-		console.log('skip notification [' + data.id + ']');
+	if (activity.title == '') {
 		return;
+	}
+
+	notificationsCacheArr[activity.id] = activity;
+
+	if (!force) {
+		if (notificationsArr.hasOwnProperty(activity.id)) {
+			console.log('skip notification [' + activity.id + ']');
+			return;
+		}
 	}
 
 	/*
@@ -323,21 +473,14 @@ function doNotify(data) {
 	 */
 	var notification = webkitNotifications
 			.createHTMLNotification('notification_helper' + POSTFIX + '.html'
-					+ "?" + "id=" + data.id + 
-					"&url=" + encodeURIComponent(data.url) + 
-					"&author=" + encodeURIComponent(data.author) + 
-					"&html="+ encodeURIComponent(data.html) +
-					"&text="+ encodeURIComponent(data.text)
-							
-			);
+					+ "?" + "id=" + activity.id);
 
 	console.log('notification_helper' + POSTFIX + '.html' + "?" + "id="
-			+ data.id + "&url=" + encodeURIComponent(data.url) + "&html="
-			+ encodeURIComponent(data.html));
+			+ activity.id);
 	/*
 	 * add notification to the stack
 	 */
-	notificationsArr[data.id] = true;
+	notificationsArr[activity.id] = true;
 
 	/*
 	 * Then show the notification.
@@ -349,6 +492,11 @@ var REFRESH_RATE = 5000;
 
 var t = 0;// setTimeout("checkUpdate()", REFRESH_RATE);
 
+/**
+ * run check for update on all connected pages
+ * 
+ * @returns {Boolean}
+ */
 function checkUpdate() {
 
 	console.log('checkUpdate');

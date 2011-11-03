@@ -5,14 +5,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Notification</title>
 
-<link rel="stylesheet" href="css/plus.css" type="text/css" />
 <link rel="stylesheet" href="css/notification.css" type="text/css" />
 <link rel="stylesheet" href="css/inject.css" type="text/css" />
+<link rel="stylesheet" href="css/scrollbar.css" type="text/css" />
 
-<script src="js/notification.js"></script>
 
 <style type="text/css">
-
 .mk-bookmarked {
 	top: 0px;
 	right: -3px;
@@ -21,17 +19,112 @@
 .mk-bookmark {
 	top: 0px;
 	right: -3px;
+	z-index: 1000;
+}
+
+
+/* Styles specific to this particular page */
+.scroll-pane
+{
+	width: 100%;
+	height: 77px;
+	overflow: auto;
+}
+.horizontal-only
+{
+	height: auto;
+	max-height: 200px;
+}
+
+.jspDrag {
+	background: rgba(0, 0, 0, 0.2)!important;
+	border-left: 1px solid #CCC;
+	border-right: 1px solid #CCC;
 }
 
 </style>
+
+<!-- styles needed by jScrollPane -->
+<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+
+<!-- latest jQuery direct from google's CDN -->
+<script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
+
+<!-- the mousewheel plugin - optional to provide mousewheel support -->
+<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+
+<!-- the jScrollPane script -->
+<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>
+
+<script src="js/notification.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+//	$('.scroll-pane').jScrollPane();
+});
+		
+</script>
 </head>
 
-<base href="https://plus.google.com/" />
 <body id="body" onload="notify.init();" class="cl">
 
-<button id="-mk-bookmark" class="mk-bookmarked"></button>
+	<button id="-mk-bookmark" class="mk-bookmarked"></button>
 
-	<div class="a-b-f-i-oa"></div>
+	<div id="update-z13pvb0ohlb3txxhf04ceb3blzbdj3by2rk0k" class="md gi xi" style="">
+		<div class="Ve jn">
+			<div class="jr">
+
+				<a href="./110260043240685719403" class="Nm"><img
+					src="https://lh6.googleusercontent.com/-Z-rqolK8tsA/AAAAAAAAAAI/AAAAAAAAAAA/g2Mc2vja-Sw/photo.jpg?sz=48"
+					title="Matt Steiner" class="Fn Yi"></a>
+
+				<a href="./110260043240685719403" class="sharedNm"><img
+					src="https://lh6.googleusercontent.com/-Z-rqolK8tsA/AAAAAAAAAAI/AAAAAAAAAAA/g2Mc2vja-Sw/photo.jpg?sz=48"
+					title="Matt Steiner" class="Fn Yi"></a>
+
+				<div class="Ex">
+					<span class="eE"><a href="./110260043240685719403"
+						class="yn Hf cg" oid="110260043240685719403">Matt Steiner</a></span><span
+						class="mo fj"> &nbsp;-&nbsp; <span class="Qh kn"><a
+							href="110260043240685719403/posts/VkoPgien4fk" target="_blank"
+							class="c-G-j c-i-j-ua hl" title="Oct 30, 2011 12:07:43 AM">12:07
+								AM</a></span><span role="button" class="a-j Rh Fo il"
+						title="Sharing details" tabindex="0" aria-haspopup="true">Public</span></span>
+				</div>
+			</div>
+			<div class="Bx">
+				<div class="Us Gk">
+					<div class="go RD">
+						<div class="vg scroll-pane"><p>I am a big fan of the New York Times. They
+							have diverse and interesting stories. However, I don't think they
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							include enough photos with their stories. It's like they're
+							trying to save on the cost of color ink...online.
+							</p>
+							</div>
+					</div>
+					<div class="Jm"></div>
+				</div>
+				<div class="ri"></div>
+			</div>
+		</div>
+	</div>
+
 
 </body>
+
 </html>

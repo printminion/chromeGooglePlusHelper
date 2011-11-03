@@ -305,3 +305,10 @@ a {
 	font-weight: bold;
 	top: 1px;
 }
+
+#options {
+	min-height: 600px;
+}
+#tts {
+	min-height: 600px;
+}

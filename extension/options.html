@@ -15,6 +15,21 @@
 		/*
 		 * 
 		 */
+		 
+		$('.d-Aa').click(function() {
+			$('.d-Aa').removeClass('d-Aa-Pa');
+			$(this).addClass('d-Aa-Pa');
+			
+			$('#options_tab').hide();
+			$('#tts_tab').hide();
+			
+			
+			$($(this).attr('href') + '_tab').show();
+			
+			
+		});
+		
+		
 
 		if (bkg.settings.addTwitter == "true") {
 			$("#options_add_twitter").attr("checked", "true");
@@ -28,9 +43,9 @@
 			$("#options_add_translate").attr("checked", "true");
 		}
 		
-		if (bkg.settings.addHashtags == "true") {
+		/* if (bkg.settings.addHashtags == "true") {
 			$("#options_add_hashtags").attr("checked", "true");
-		}
+		} */
 		
 		
 		
@@ -93,7 +108,11 @@
 					style="-webkit-user-select: none;">Configuration</div>
 				<div class="d-Aa-qa-cq" style="-webkit-user-select: none;">Configuration</div>
 			</a> 
-			
+			<a href="#tts" class="d-Aa d-s-r a-Aa-Zl" aria-selected="true"
+				role="tab" style="-webkit-user-select: none;"><div
+					class="d-Aa-qa" style="-webkit-user-select: none;">TTS</div>
+				<div class="d-Aa-qa-cq" style="-webkit-user-select: none;">TTS</div>
+			</a>
 			<!-- <a href="#about" class="d-Aa d-s-r a-Aa-Zl" aria-selected="true"
 				role="tab" style="-webkit-user-select: none;"><div
 					class="d-Aa-qa" style="-webkit-user-select: none;">About</div>
@@ -103,7 +122,8 @@
 				<!---->
 			</div>
 		</div>
-
+	
+<div id="options_tab">
 		<div style="display: none;">
 			<script type="text/javascript">
 				_writeMessage('description_body');
@@ -190,13 +210,13 @@
 						</select>
 						</td>
 					</tr>
-
+<!-- 
 					<tr>
 						<td class="option" title="We will add linked hashtags on the fly">Hashtags</td>
 						<td><input type="checkbox" id="options_add_hashtags"
 							name="options_add_hashtags" onchange="markDirty();" value="1" />
 						</td>
-					</tr>
+					</tr>-->
 
 					<!-- <tr>
 						<td class="option" title="Bookmark in Google Lists">Bookmark</td>
@@ -403,6 +423,16 @@
 			<!---->
 		</div>
 
+
+</div>
+<div id="tts_tab">
+tts
+		<div class="clear">
+			<!---->
+		</div>
+
+</div>
+
 		<!-- 
 <div id="title_license" class="section-header first"><script type="text/javascript">_writeMessage('license_title');</script></div>
 <div id="body_license"><script type="text/javascript">_writeMessage('license_body');</script></div>
@@ -441,7 +471,7 @@
 			$("#options_add_facebook").attr("checked", true);
 			
 			$("#options_add_translate").attr("checked", true);
-			$("#options_add_hashtags").attr("checked", true);
+			//$("#options_add_hashtags").attr("checked", true);
 			
 			$("#options_add_bookmark").attr("checked", false);
 			$("#options_add_bookmark_delicious").attr("checked", false);
@@ -483,7 +513,7 @@
 			
 			bkg.settings.addTranslate = $("#options_add_translate").attr("checked");
 		
-			bkg.settings.addHashtags = $("#options_add_hashtags").attr("checked");
+			//bkg.settings.addHashtags = $("#options_add_hashtags").attr("checked");
 	
 			
 			

@@ -1,31 +1,51 @@
 function Assets() {
 	this._setAccount = 'UA-3508250-20';
 
+	this.googlePlusAPIKey = 'AIzaSyDCBHpRfBABlpMH8cMlGjpplL4oilR3mro';
+	
+	
 	this.gpContentPane = "#contentPane";
-	this.gpContainer = "div.Wq";// a-b-f-i-oa";
+	this.gpContainer = "div.or";// a-b-f-i-oa";
 
-	this.gpContainerStream = "div.Wq";
-	this.gpContainerStreamProfile = "div.a-Bh-fc-K";
+	this.gpContainerStream = "div.Sq";
+	this.gpContainerStreamProfile = "div.c-ng-L1-P"; //post
 
-	this.gpPostUrl = "a-Y-k a-c-k-eb Bp";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
-	this.gpPostUrlSelector = "a.a-Y-k.a-c-k-eb.Bp";// 'a-Ja-h a-b-h-Jb
+	this.gpPostUpperControls = "div.jr";// div.Xy";
+
+	this.gpPostAuthor = "A.yn.Hf.cg";// "a.Gq.jj.Vj";
+	
+	this.gpPostUrl = "c-G-j c-i-j-ua hl";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
+	this.gpPostUrlSelector = "A.c-G-j.c-i-j-ua.hl";// 'a-Ja-h a-b-h-Jb
 													// a-f-i-Ad'";
 
-	this.gpPostBody = "div.uj";// div.Uj";
-	this.gpPostAuthor = "a.yq.Ii.wj";// "a.Gq.jj.Vj";
+	
+	this.gpActivityAccessType = "span.a-j.Rh.Fo.il";// div.Uj";
+	
+	this.gpActivity = "div.Us.Gk";
+	this.gpActivityNote = "div.vg";
+	this.gpActivityShare = "div.Jm";
+	
+	
+	this.gpActivityText = "div.Ph.Sx";// div.Uj";
+	
+	this.gpActivityAttachementAuthor = "Ux";
+	this.gpActivityAttachementAuthorImage = "img";
+	this.gpActivityAttachementAuthorName = "a";
+	
+	
+	this.gpActivityAttachement = "Tx";
+	
+	
+	this.gpPostBody = "div.go.RD";// div.Uj";
+	this.gpPostBody2 = "div.vg";// post
 
-	this.gpToolbar = "div.l1 aH d-q-p";// div.ZW.zG.d-r-q";
+	this.gpPostBottomControls = "div.dl";// div.Xn";
+	this.gpPostBottomControlsStyle = 'a-j';// div.Xn";
+	
+	this.gpToolbar = "div.YY.kQ.a-l-k";// div.ZW.zG.d-r-q";
 
-	this.gpToolbarButton = 'd-k a-c-k-eb Mc d-q-p';// d-k a-b-k-jb Vc d-r-q
-													// aX';//d-h a-b-h-Jb rKsb7e
-													// d-s-r jw8A1e';
-	this.gpToolbarButtonInner = 'p1 cH';
+	this.gpToolbarButton = 'a-j c-i-j-ua Kb a-l-k';
+	this.gpToolbarButtonInner = 'Gja mQ ';
 
-	this.gpPostBottomControls = "div.Jn";// div.Xn";
-	this.gpPostBottomControlsStyle = 'd-k';// div.Xn";
-
-	// div.Bu
-
-	this.gpPostUpperControls = "div.Uy";// div.Xy";
 
 }

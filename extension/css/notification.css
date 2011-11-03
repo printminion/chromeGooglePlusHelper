@@ -1,15 +1,108 @@
 body {
-	font: normal 13px arial, sans-serif;
-	visibility: visible;
-	padding: 0px;
+	font: normal 13px arial, sans-serif !important;
+	visibility: visible !important;
+	padding: 0px !important;
+	margin: 0px !important;
+	cursor: pointer !important;
+	min-height: 100px;
+}
+
+.a-j:hover,.c-G-j:hover {
+	text-decoration: underline;
+}
+
+a:hover,a:active {
+	text-decoration: underline;
+}
+
+a {
+	color: #36C;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.a-j:hover,.c-G-j:hover {
+	text-decoration: underline;
+}
+
+a:hover,a:active {
+	text-decoration: underline;
+}
+
+.c-G-j {
+	color: #36C;
 	cursor: pointer;
 }
 
-.Jn {
-	display: none!important;
+.fj,.hl,.fj .il,.Id {
+	color: #999;
 }
-.a-f-i-bg,.a-f-i-Ia-D-h {
+
+.cg {
+	font-weight: bold;
+}
+
+.Bl {
+	display: none !important;
+}
+
+.jr {
+	position: relative;
+}
+
+.Nm,.sharedNm {
+	width: 48px !important;
+	height: 48px !important";
+}
+
+.sharedNm {
+	position: absolute;
+	left: 0px;
+	top: 48px;
 	display: none;
+}
+
+/*
+	hide edit
+ */
+.a-Q-j.Qw.Go {
+	display: none !important;
+}
+
+.a-Ca {
+	display: none !important;
+}
+
+/*
+ top controls
+ */
+.Ex {
+	position: absolute !important;
+	top: 0px !important;
+	left: 52px !important;
+}
+
+/*
+ body
+ */
+.vg {
+	position: absolute !important;
+	top: 20px !important;
+	left: 52px !important;
+	width: 246px !important;
+	height: 200px;
+}
+
+.vg p {
+	margin-top: -19px;
+	padding-bottom: 5px;
+}
+
+/*
+ hide limited, expand post, location
+*/
+div.dl,.c-jb,span.a-j.Rh.Fo.il,span.kk {
+	display: none !important;
 }
 
 a {

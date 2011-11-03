@@ -20,7 +20,7 @@
 	"background_page": "background.min.html",
 	"options_page": "options.min.html",
 	"permissions": [
-		"tabs", "notifications", "bookmarks"
+		"tabs", "notifications", "bookmarks", "tts" 
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

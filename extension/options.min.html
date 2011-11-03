@@ -29,9 +29,9 @@
 			$("#options_add_translate").attr("checked", "true");
 		}
 		
-		if (bkg.settings.addHashtags == "true") {
+		/*if (bkg.settings.addHashtags == "true") {
 			$("#options_add_hashtags").attr("checked", "true");
-		}
+		}*/
 		
 		
 		
@@ -192,12 +192,13 @@
 						</td>
 					</tr>
 
+<!-- 
 					<tr>
 						<td class="option" title="We will add linked hashtags on the fly">Hashtags</td>
 						<td><input type="checkbox" id="options_add_hashtags"
 							name="options_add_hashtags" onchange="markDirty();" value="1" />
 						</td>
-					</tr>
+					</tr>-->
 
 					<!-- <tr>
 						<td class="option" title="Bookmark in Google Lists">Bookmark</td>
@@ -442,7 +443,7 @@
 			$("#options_add_facebook").attr("checked", true);
 			
 			$("#options_add_translate").attr("checked", true);
-			$("#options_add_hashtags").attr("checked", true);
+			//$("#options_add_hashtags").attr("checked", true);
 			
 			$("#options_add_bookmark").attr("checked", false);
 			$("#options_add_bookmark_delicious").attr("checked", false);
@@ -484,7 +485,7 @@
 			
 			bkg.settings.addTranslate = $("#options_add_translate").attr("checked");
 		
-			bkg.settings.addHashtags = $("#options_add_hashtags").attr("checked");
+			//bkg.settings.addHashtags = $("#options_add_hashtags").attr("checked");
 	
 			
 			

@@ -1,18 +1,30 @@
 var t = 0;
 
-var CONF_TIMEOUT = chrome.extension.getBackgroundPage().settings.notificationTime;
-var CONF_TIMEOUT_AFTER_MOUSEOUT = chrome.extension.getBackgroundPage().settings.notificationTime;
-
 var bMouseOver = false;
 var bMouseOverTimerOff = true;
 
+/**
+ * @returns {Notify}
+ */
 function Notify() {
 
-	this.data = undefined;
+	var CONF_TIMEOUT = 3000;
+	var CONF_TIMEOUT_AFTER_MOUSEOUT = 3000;
+
+	this.activity = undefined;
 
 	this.init = function() {
 
+		try {
+			this.CONF_TIMEOUT = chrome.extension.getBackgroundPage().settings.notificationTime;
+			this.CONF_TIMEOUT_AFTER_MOUSEOUT = chrome.extension
+					.getBackgroundPage().settings.notificationTime;
+		} catch (e) {
+			// TODO: handle exception
+		}
+
 		this.initData();
+		this.populateHtml(this.activity);
 		this.initBookmarker();
 		this.alertSound();
 		this.bindWindowEvents();
@@ -41,14 +53,24 @@ function Notify() {
 
 		}
 		;
+
+		if (this.activity.annotation) {
+			bkg.doSpeak(this.activity.actor.displayName + ' '
+					+ this.activity.verb + ' ' + this.activity.annotation);
+		} else {
+			bkg.doSpeak(this.activity.actor.displayName + ' '
+					+ this.activity.verb + ' ' + this.activity.title);
+		}
+
 	};
 	this.startTimer = function() {
-		t = setTimeout("notify.beforeClose()", CONF_TIMEOUT);
+		t = setTimeout("notify.beforeClose()", this.CONF_TIMEOUT);
 	};
 
 	this.startTimerAfterMouseOut = function() {
 		bMouseOverTimerOff = false;
-		t = setTimeout("notify.afterMouseOut()", CONF_TIMEOUT_AFTER_MOUSEOUT);
+		t = setTimeout("notify.afterMouseOut()",
+				this.CONF_TIMEOUT_AFTER_MOUSEOUT);
 	};
 
 	this.afterMouseOut = function() {
@@ -62,7 +84,8 @@ function Notify() {
 		if (!bMouseOver && bMouseOverTimerOff) {
 			window.close();
 		} else {
-			t = setTimeout("notify.beforeClose()", CONF_TIMEOUT_AFTER_MOUSEOUT);
+			t = setTimeout("notify.beforeClose()",
+					this.CONF_TIMEOUT_AFTER_MOUSEOUT);
 		}
 	};
 
@@ -96,7 +119,7 @@ function Notify() {
 					console.log('click', bMouseOver);
 
 					chrome.extension.getBackgroundPage().doOpenLink({
-						url : component.data.url
+						url : component.activity.url
 					});
 
 					window.close();
@@ -117,9 +140,11 @@ function Notify() {
 					e.stopPropagation();
 
 					if (e.target.getAttribute('class') == 'mk-bookmark') {
-						component.addChromeBookmark(e.target, component.data);
+						component.addChromeBookmark(e.target,
+								component.activity);
 					} else {
-						component.removeChromeBookmark(e.target, component.data);
+						component.removeChromeBookmark(e.target,
+								component.activity);
 					}
 
 					return false;
@@ -136,7 +161,7 @@ function Notify() {
 			chrome.extension.sendRequest({
 				action : "checkChromeBookmarked",
 				values : {
-					url : component.data.url
+					url : component.activity.url
 				}
 			}, function(bookmarked) {
 
@@ -158,13 +183,13 @@ function Notify() {
 
 	};
 
-	this.addChromeBookmark = function(element, data) {
-		console.log('doChromeBookmark', element, data);
+	this.addChromeBookmark = function(element, activity) {
+		console.log('doChromeBookmark', element, activity);
 		chrome.extension.sendRequest({
 			action : "doChromeBookmark",
 			values : {
-				url : data.url,
-				text : data.author + ': ' + data.text
+				url : activity.url,
+				text : activity.actor.displayName + ': ' + activity.title
 			}
 		}, function(bookmarked) {
 			element.setAttribute('title',
@@ -174,12 +199,12 @@ function Notify() {
 
 	};
 
-	this.removeChromeBookmark = function(element, data) {
-		console.log('removeChromeBookmark', element, data);
+	this.removeChromeBookmark = function(element, activity) {
+		console.log('removeChromeBookmark', element, activity);
 		chrome.extension.sendRequest({
 			action : "removeChromeBookmark",
 			values : {
-				url : data.url
+				url : activity.url
 			}
 		}, function(bookmarked) {
 			element.setAttribute('title', 'Click to bookmark this post');
@@ -200,37 +225,154 @@ function Notify() {
 			query[part[0]] = decodeURIComponent(part[1]);
 		}
 
-		this.data = query;
+		var bkg = chrome.extension.getBackgroundPage();
 
-		console.log(this.data);
+		this.activity = bkg.getCachedNotificationbyId(query.id);
+
+		console.log('activity', this.activity);
 
 	};
 
 	this.bindEvents = function() {
 
-		var container = document.querySelector(".a-b-f-i-oa");
-
-		var html = this.data.html;
+//		var container = document.querySelector(".a-b-f-i-oa");
+//		container.innerHTML = html;
+		
+		var html = this.activity.title;
 
 		html = html.replace('"//', '"https://');
-
-		container.innerHTML = html;
 
 		var containers = document.querySelectorAll("a");
 
 		for (i in containers) {
 
-			/*
-			 * if (containers[i].addEventListener) {
-			 * containers[i].addEventListener('click', function(e) {
-			 * e.stopPropagation(); console.log(e);
-			 * chrome.extension.getBackgroundPage().doOpenLink({ url : this.href
-			 * });
-			 * 
-			 * return false; }, false); }
-			 */
+			if (containers[i].addEventListener) {
+				containers[i].addEventListener('click', function(e) {
+					e.stopPropagation();
+					console.log(e);
+					chrome.extension.getBackgroundPage().doOpenLink({
+						url : this.href
+					});
+
+					return false;
+				}, false);
+			}
 
 		}
+	};
+
+	this.populateHtml = function(activity) {
+
+		if (!activity) {
+			console.log('[e]nothing to populateHtml');
+			return;
+		}
+		/*
+		 * add text
+		 */
+
+		var container = document.querySelector("div.vg");
+
+		// if (this.activity.annotation) {
+		// container.innerHTML = activity.annotation;
+		// } else {
+
+		if (activity.object.content) {
+
+			container.innerHTML = activity.object.content;
+			// activity.object.url
+
+		} else {
+			container.innerHTML = activity.title;
+		}
+
+		// }
+
+		/*
+		 * add name
+		 */
+
+		container = document.querySelector("a.yn.Hf.cg");
+
+		if (container) {
+
+			container.setAttribute('href', activity.actor.url);
+			container.setAttribute('oid', activity.actor.id);
+			container.innerText = activity.actor.displayName;
+		}
+
+		/*
+		 * add picture
+		 */
+		container = document.querySelector("a.Nm");
+		if (container) {
+
+			container.setAttribute('href', activity.actor.url);
+			container.setAttribute('title', activity.actor.displayName);
+
+			container = container.querySelector("img");
+
+			if (container) {
+				container.setAttribute('src', activity.actor.image.url
+						+ '?sz=48');
+				container.setAttribute('title', activity.actor.displayName);
+			}
+
+		}
+
+		/*
+		 * add name2
+		 */
+		container = document.querySelector("a.sharedNm");
+
+		if (container && activity.object.actor) {
+			container.style.display = 'block';
+
+			var actor = activity.object.actor;
+
+			container.setAttribute('href', actor.url);
+			container.setAttribute('title', actor.displayName);
+
+			container = container.querySelector("img");
+
+			if (container) {
+				container.setAttribute('src', actor.image.url + '?sz=48');
+				container.setAttribute('title', actor.displayName);
+			}
+
+		}
+
+		/*
+		 * set date
+		 */
+
+		container = document.querySelector("a.c-G-j.c-i-j-ua.hl");
+
+		if (container) {
+
+			// 2011-10-29T14:58:55.696Z
+			var time = activity.updated.split('T');
+			time = time[1].split('.'); // 14:58:55.696Z
+			time = time[0].split(':'); // 14:58:55
+
+			container.setAttribute('href', activity.url);
+			container.setAttribute('title', activity.updated);
+			container.innerText = time[0] + ':' + time[1];
+		}
+
+		/*
+		 * attachements
+		 */
+
+		// "attachments": [
+		// {
+		// "objectType": "article",
+		// "displayName": "Android Developers Blog: Android 4.0 Graphics and
+		// Animations",
+		// "url":
+		// "http://android-developers.blogspot.com/2011/11/android-40-graphics-and-animations.html"
+		// }
+		// ]
 	};
 }
 
