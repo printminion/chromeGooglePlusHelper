@@ -2,12 +2,14 @@
 <html>
 <head>
 <title>Helper for Google+ Extension Options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="shortcut icon" HREF="img/icon16.png">
 <link rel="stylesheet" type="text/css" href="css/options.css">
 
 <script type="text/javascript" src="lib/i18n.js"></script>
 <script type="text/javascript" src="js/options.js"></script>
 <script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
+
 
 <script type="text/javascript">
 	//Restores select box state to saved value from localStorage.
@@ -16,16 +18,16 @@
 		 * 
 		 */
 		 
+		 $('#tts_tab').hide();
+		 
 		$('.d-Aa').click(function() {
 			$('.d-Aa').removeClass('d-Aa-Pa');
 			$(this).addClass('d-Aa-Pa');
 			
 			$('#options_tab').hide();
 			$('#tts_tab').hide();
-			
-			
+
 			$($(this).attr('href') + '_tab').show();
-			
 			
 		});
 		
@@ -46,7 +48,6 @@
 		/* if (bkg.settings.addHashtags == "true") {
 			$("#options_add_hashtags").attr("checked", "true");
 		} */
-		
 		
 		
 		if (bkg.settings.addBookmarks == "true") {
@@ -83,8 +84,15 @@
 
 		$("#options_notification_sound").val(bkg.settings.notificationSound);
 		$('#options_notification_time').val(bkg.settings.notificationTime);
-
+		
+		if (bkg.settings.ttsON) {
+			$("#options_ttsOn").attr("checked", "true");
+		}
+	
+		
+		
 	});
+	
 </script>
 
 </head>
@@ -232,14 +240,7 @@
 							name="options_add_bookmark_delicious" onchange="markDirty();" value="1" />
 						</td>
 					</tr>
-					
-					
-					
-
 				</table>
-
-
-
 			</div>
 		</div>
 
@@ -252,15 +253,11 @@
 			<div class="option_name">Notifications</div>
 			<div class="option_picker">
 
-
-
 				<table border="0">
 					<tbody>
 						<tr>
 							<td colspan="2" style="color: #999;">
-							
 							For proper work of the notifications you should open one tab with the Google+ site <a href="https://plus.google.com/">plus.google.com</a> and don't close it ;).
-							
 							</td>
 						</tr>
 					
@@ -319,8 +316,6 @@
 								</span>
 							</td>
 						</tr>
-
-
 						<tr>
 							<td class="option">Display</td>
 							<td><select id="options_notification_time"
@@ -398,7 +393,233 @@
 		<div class="clear">
 			<!---->
 		</div>
-		<div class="buttons">
+</div>
+<div id="tts_tab">
+		<div class="option_row">
+			<div class="option_name">TTS</div>
+			<div class="option_picker">
+
+				<table border="0">
+					<tbody>
+						<tr>
+							<td colspan="2" style="color: #999;">
+							For proper work of the Text To Speach (TTS) you need to have installed voices on your computer. 
+							For more info check <a href="https://www.google.com/">google.com</a>.
+							</td>
+						</tr>
+						<tr>
+							<td class="option">Enabled</td>
+							<td><input type="checkbox" id="options_ttsOn"
+							name="options_ttsOn" onchange="markDirty();" value="1" />
+							</td>
+						</tr>
+
+						<tr>
+							<td class="option">Voice</td>
+							<td><select id="options_tts_language" onchange="markDirty();">
+									<option value="">Unspecified</option>
+									<option value="native">native</option>
+								</select>
+							</td>
+						</tr>
+
+
+						<tr>
+							<td class="option">Language</td>
+							<td><select id="options_tts_lang"  onchange="markDirty();">
+ <option value="">Unspecified</option>
+  <option value="af">Afrikaans</option>
+  <option value="sq">shqipe</option>
+  <option value="am">አማርኛ</option>
+  <option value="ar">العربية</option>
+  <option value="hy">Հայերէն</option>
+  <option value="az">azərbaycanca</option>
+  <option value="eu">euskara</option>
+  <option value="be">беларуская</option>
+  <option value="bn">বাংলা</option>
+  <option value="bh">Bihari</option>
+  <option value="bs">bosanski</option>
+  <option value="br">Breton</option>
+  <option value="bg">български</option>
+  <option value="ca">català</option>
+  <option value="zh">中文</option>
+  <option value="zh-CN">中文（简体中文）</option>
+  <option value="zh-TW">中文 (繁體中文)</option>
+  <option value="co">Corsican</option>
+  <option value="hr">hrvatski</option>
+  <option value="cs">čeština</option>
+  <option value="da">dansk</option>
+  <option value="nl">Nederlands</option>
+  <option value="en">English</option>
+  <option value="en-AU">English (Australia)</option>
+  <option value="en-CA">English (Canada)</option>
+  <option value="en-NZ">English (New Zealand)</option>
+  <option value="en-ZA">English (South Africa)</option>
+  <option value="en-GB">English (United Kingdom)</option>
+  <option value="en-US" selected="">English (United States)</option>
+  <option value="eo">esperanto</option>
+  <option value="et">eesti</option>
+  <option value="fo">føroyskt</option>
+  <option value="fil">Filipino</option>
+  <option value="fi">suomi</option>
+  <option value="fr">français</option>
+  <option value="fr-CA">français (Canada)</option>
+  <option value="fr-FR">français (France)</option>
+  <option value="fr-CH">français (Suisse)</option>
+  <option value="gl">galego</option>
+  <option value="ka">ქართული</option>
+  <option value="de">Deutsch</option>
+  <option value="de-AT">Deutsch (Österreich)</option>
+  <option value="de-DE">Deutsch (Deutschland)</option>
+  <option value="de-CH">Deutsch (Schweiz)</option>
+  <option value="el">Ελληνικά</option>
+  <option value="gn">Guarani</option>
+  <option value="gu">ગુજરાતી</option>
+  <option value="ha">Hausa</option>
+  <option value="haw"> ʻōlelo Hawaiʻi</option>
+  <option value="he">עברית</option>
+  <option value="hi">हिन्दी</option>
+  <option value="hu">magyar</option>
+  <option value="is">íslenska</option>
+  <option value="id">Bahasa Indonesia</option>
+  <option value="ia">Interlingua</option>
+  <option value="ga">Gaeilge</option>
+  <option value="it">italiano</option>
+  <option value="it-IT">italiano (Italia)</option>
+  <option value="it-CH">italiano (Svizzera)</option>
+  <option value="ja">日本語</option>
+  <option value="jw">Javanese</option>
+  <option value="kn">ಕನ್ನಡ</option>
+  <option value="kk">Қазақ</option>
+  <option value="km">ភាសាខ្មែរ</option>
+  <option value="ky">Kirghiz</option>
+  <option value="ko">한국어</option>
+  <option value="ku">Kurdish</option>
+  <option value="lo">Lao</option>
+  <option value="la">Latin</option>
+  <option value="lv">latviešu</option>
+  <option value="ln">Lingala</option>
+  <option value="lt">lietuvių</option>
+  <option value="mk">македонски</option>
+  <option value="ms">Bahasa Melayu</option>
+  <option value="ml">മലയാളം</option>
+  <option value="mt">Malti</option>
+  <option value="mr">मराठी</option>
+  <option value="mo">mo</option>
+  <option value="mn">Mongolian</option>
+  <option value="ne">नेपाली</option>
+  <option value="no">norsk</option>
+  <option value="nb">norsk bokmål</option>
+  <option value="nn">nynorsk</option>
+  <option value="oc">Occitan</option>
+  <option value="or">ଓଡ଼ିଆ</option>
+  <option value="om">Oromoo</option>
+  <option value="ps">پښتو</option>
+  <option value="fa">فارسی</option>
+  <option value="pl">polski</option>
+  <option value="pt">português</option>
+  <option value="pt-BR">português (Brasil)</option>
+  <option value="pt-PT">português (Portugal)</option>
+  <option value="pa">ਪੰਜਾਬੀ</option>
+  <option value="qu">Quechua</option>
+  <option value="ro">română</option>
+  <option value="rm">rumantsch</option>
+  <option value="ru">русский</option>
+  <option value="gd">Scottish Gaelic</option>
+  <option value="sr">Српски</option>
+  <option value="sh">Serbo-Croatian</option>
+  <option value="sn">chiShona</option>
+  <option value="sd">Sindhi</option>
+  <option value="si">සිංහල</option>
+  <option value="sk">slovenčina</option>
+  <option value="sl">slovenščina</option>
+  <option value="so">Soomaali</option>
+  <option value="st">Southern Sotho</option>
+  <option value="es">español</option>
+  <option value="es-419">español (Latinoamérica)</option>
+  <option value="su">Sundanese</option>
+  <option value="sw">Kiswahili</option>
+  <option value="sv">svenska</option>
+  <option value="tg">Tajik</option>
+  <option value="ta">தமிழ்</option>
+  <option value="tt">Tatar</option>
+  <option value="te">తెలుగు</option>
+  <option value="th">ไทย</option>
+  <option value="ti">ትግርኛ</option>
+  <option value="to">lea fakatonga</option>
+  <option value="tr">Türkçe</option>
+  <option value="tk">Turkmen</option>
+  <option value="tw">Twi</option>
+  <option value="ug">Uighur</option>
+  <option value="uk">українська</option>
+  <option value="ur">اردو</option>
+  <option value="uz">Ўзбек</option>
+  <option value="vi">Tiếng Việt</option>
+  <option value="cy">Cymraeg</option>
+  <option value="fy">Western Frisian</option>
+  <option value="xh">Xhosa</option>
+  <option value="yi">Yiddish</option>
+  <option value="yo">Èdè Yorùbá</option>
+  <option value="zu">isiZulu</option>
+						</select>
+							</td>
+						</tr>
+			<tr>
+						<td class="option"></td>
+						<td>
+			    			<div id="ttsTextTest" contenteditable="true" style="padding: 4px; margin-top:10px; margin-right:20px; overflow:hidden">Enter text to read</div>
+ 						 	<span style="color: #999;">Enter text here and test</span>
+ 						 		<span class="va-Q-bb">
+									<button onclick="doSpeakOption();" style="float: none;">
+										<script type="text/javascript">_writeMessage('button_tts_speak');</script>
+									</button>
+								</span>
+								<span class="va-Q-bb">
+									<button onclick="doStopSpeakOption();" style="float: none;">
+										<script type="text/javascript">_writeMessage('button_tts_stop');</script>
+									</button>
+								</span>
+ 						</td>
+					</tr>
+
+					</tbody>
+				</table>
+
+			</div>
+	</div>		
+ 
+	<div class="option_row">
+		<div class="option_name">Voice</div>
+		<div class="option_picker">
+			<table border="0">
+					<tr>
+						<td class="option">Rate</td>
+						<td>
+						    <input id="rate" type="range" min="0.5" max="4.0" value="1.0" step="0.1" style="cursor: pointer;" onchange="markDirty();">
+						</td>
+					</tr>
+					<tr>
+						<td class="option">Pitch</td>
+						<td>
+						     <input id="pitch" type="range" min="0.0" max="2.0" value="1.0" step="0.2" style="cursor: pointer;" onchange="markDirty();">
+						</td>
+					</tr>
+					<tr>
+						<td class="option">Volume</td>
+						<td>
+						     <input id="volume" type="range" min="0.0" max="1.0" value="1.0" step="0.1" style="cursor: pointer;" onchange="markDirty();">
+							</td>
+						</tr>
+			</table>
+</div>
+</div>
+</div>
+		
+		<div class="clear">
+			<!---->
+		</div>
+
+<div class="buttons">
 			<span id="save_status"><script type="text/javascript">
 				_writeMessage('status_save');
 			</script> </span>
@@ -422,16 +643,6 @@
 		<div class="clear">
 			<!---->
 		</div>
-
-
-</div>
-<div id="tts_tab">
-tts
-		<div class="clear">
-			<!---->
-		</div>
-
-</div>
 
 		<!-- 
 <div id="title_license" class="section-header first"><script type="text/javascript">_writeMessage('license_title');</script></div>
@@ -490,6 +701,11 @@ tts
 
 			$('#options_notification_time').val("5000");
 
+			/*
+			 * TTS
+			 */
+			$("#options_ttsOn").attr("checked", true);
+			
 			saveOptions();
 			return false;
 		}
@@ -532,6 +748,11 @@ tts
 			bkg.settings.notificationSound = $("#options_notification_sound").val();
 			bkg.settings.notificationTime = $('#options_notification_time').val();
 
+			/*
+			 * tts
+			 */
+			 bkg.settings.ttsOn = $("#options_ttsOn").attr("checked");
+				
 			//Refresh the extension by reseting timer.
 			bkg.refreshConfiguration();
 

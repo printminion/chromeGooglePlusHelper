@@ -6,29 +6,19 @@
 <title>Notification</title>
 
 <link rel="stylesheet" href="css/notification.css" type="text/css" />
-<link rel="stylesheet" href="css/inject.css" type="text/css" />
+<link rel="stylesheet" href="css/bookmark.css" type="text/css" />
 <link rel="stylesheet" href="css/scrollbar.css" type="text/css" />
 
 
 <style type="text/css">
-.mk-bookmarked {
-	top: 0px;
-	right: -3px;
-}
-
-.mk-bookmark {
-	top: 0px;
-	right: -3px;
-	z-index: 1000;
-}
-
 
 /* Styles specific to this particular page */
 .scroll-pane
 {
 	width: 100%;
-	height: 77px;
+	height: 80px;
 	overflow: auto;
+	margin-left: 4px;
 }
 .horizontal-only
 {
@@ -36,86 +26,152 @@
 	max-height: 200px;
 }
 
-.jspDrag {
-	background: rgba(0, 0, 0, 0.2)!important;
-	border-left: 1px solid #CCC;
-	border-right: 1px solid #CCC;
+.template {
+	display: none
 }
 
 </style>
 
-<!-- styles needed by jScrollPane -->
-<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
-
-<!-- latest jQuery direct from google's CDN -->
-<script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
-
-<!-- the mousewheel plugin - optional to provide mousewheel support -->
-<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
-
-<!-- the jScrollPane script -->
-<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>
-
+<script src="js/mustache.js"></script>
 <script src="js/notification.js"></script>
 
-
-<script type="text/javascript">
-$(document).ready(function() {
-//	$('.scroll-pane').jScrollPane();
-});
-		
-</script>
 </head>
 
-<body id="body" onload="notify.init();" class="cl">
+<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
 
+<textarea class="template">
 	<button id="-mk-bookmark" class="mk-bookmarked"></button>
+	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
+	
+	<button id="-mk-tts" class="on"></button>
+	
+	
+	
+	<style>
+	body {
+		height: {{cssBodyHeight}}}px;
+	}
+	
+	.scroll-pane {
+		height: {{cssScrollPaneHeight}}}px!important;
+	}
+	
+	
+		
+	{{#hideActor}}
+	.actor2 {
+		display: none;
+	}
+	
+	#object {
+		border-left: 0px solid #4D90F0;
+		padding-left: 0px;
+	}
+	
+	{{/hideActor}}
+	
+	{{#hidePhotoInfo}}
+		.B-u-mj {
+		}
+		
+		.B-u-nd-nb {
+			display: none;
+		}
+		
+		
+	{{/hidePhotoInfo}}
+	
+	</style>
+	
 
-	<div id="update-z13pvb0ohlb3txxhf04ceb3blzbdj3by2rk0k" class="md gi xi" style="">
+	<div id="update-{{id}}" class="md gi xi">
 		<div class="Ve jn">
 			<div class="jr">
-
-				<a href="./110260043240685719403" class="Nm"><img
-					src="https://lh6.googleusercontent.com/-Z-rqolK8tsA/AAAAAAAAAAI/AAAAAAAAAAA/g2Mc2vja-Sw/photo.jpg?sz=48"
-					title="Matt Steiner" class="Fn Yi"></a>
-
-				<a href="./110260043240685719403" class="sharedNm"><img
-					src="https://lh6.googleusercontent.com/-Z-rqolK8tsA/AAAAAAAAAAI/AAAAAAAAAAA/g2Mc2vja-Sw/photo.jpg?sz=48"
-					title="Matt Steiner" class="Fn Yi"></a>
+			{{#actor}}
+				<a href="{{url}}" class="Nm" target="_blank">
+				{{#image}}<img src="{{url}}"{{/image}} title="{{displayName}}" class="Fn Yi">
+				</a>
+			{{/actor}}
+			
+			{{#object}}
+				{{#actor}}
+					<a href="{{url}}" class="sharedNm actor2" target="_blank">
+					{{#image}}<img src="{{url}}"{{/image}} title="{{displayName}}" class="Fn Yi">
+					</a>
+				{{/actor}}
+			{{/object}}
 
 				<div class="Ex">
-					<span class="eE"><a href="./110260043240685719403"
-						class="yn Hf cg" oid="110260043240685719403">Matt Steiner</a></span><span
-						class="mo fj"> &nbsp;-&nbsp; <span class="Qh kn"><a
-							href="110260043240685719403/posts/VkoPgien4fk" target="_blank"
-							class="c-G-j c-i-j-ua hl" title="Oct 30, 2011 12:07:43 AM">12:07
-								AM</a></span><span role="button" class="a-j Rh Fo il"
-						title="Sharing details" tabindex="0" aria-haspopup="true">Public</span></span>
+					<span class="eE">
+						{{#actor}}
+						<a href="{{url}}" class="yn Hf cg" oid="{{id}}">{{displayName}}</a>
+						{{/actor}}	
+					</span>
+					<span class="mo fj"> &nbsp;-&nbsp; <span class="Qh kn">
+					<a href="{{url}}" target="_blank" class="c-G-j c-i-j-ua hl" title="{{updated}}">{{updatedTime}}</a>
+					</span>
+					<!-- 
+					&nbsp;-&nbsp;
+					<span class="a-j Rh Fo il" title="Sharing details">Public</span></span>
+					 -->
 				</div>
 			</div>
 			<div class="Bx">
 				<div class="Us Gk">
 					<div class="go RD">
-						<div class="vg scroll-pane"><p>I am a big fan of the New York Times. They
-							have diverse and interesting stories. However, I don't think they
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							include enough photos with their stories. It's like they're
-							trying to save on the cost of color ink...online.
-							</p>
+						<div class="vg scroll-pane">
+						
+						{{#annotation}}
+						{{{annotation}}}<br>
+						{{/annotation}}
+						
+						{{#object}}
+						<div id="object">
+							{{#actor}}
+								<span class="eE actor2"><a href="{{url}}" class="yn Hf" oid="{{id}}">{{displayName}}</a>:</span>
+							{{/actor}}
+						
+							{{{content}}}
+
+							{{#attachments}}
+							
+							<!-- {{objectType}} -->
+
+							<div class="B-u-C dE">
+							<div class="clear"><!--  --></div>
+							<img class="B-u-mj" src="https://s2.googleusercontent.com/s2/favicons?domain={{urlClean}}">
+							<div class="B-u-Y">
+								<a href="{{url}}" class="ot-anchor B-u-Y-j">{{{displayName}}}</a>
 							</div>
+
+							{{#showVideoInfo}}
+							{{#image}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/image}}
+							{{/showVideoInfo}}
+							
+							<div class="B-u-nd-nb">{{{content}}}</div>
+
+							<!-- {{#fullImage}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/fullImage}}-->
+							
+							{{#image}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/image}}
+						
+							<div class="B-u-Va"></div>
+							</div>
+							
+							{{/attachments}}
+						</div>
+
+						{{/object}}
+						
+						
+						
+						
+						</div>
 					</div>
 					<div class="Jm"></div>
 				</div>
@@ -123,6 +179,8 @@ $(document).ready(function() {
 			</div>
 		</div>
 	</div>
+</textarea>
+
 
 
 </body>

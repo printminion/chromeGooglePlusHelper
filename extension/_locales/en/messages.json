@@ -32,6 +32,9 @@
 	"popup_searchresults": {
 		"message": "Search results in"
 	},
+	"mnu_search_on_googleplus": {
+		"message": "Search on Google+"
+	},
 	"button_show": {
 		"message": "Open"
 	},
@@ -117,6 +120,13 @@
 	"button_play": {
 		"message": "Play"
 	},
+	"button_tts_speak": {
+		"message": "Speak"
+	},
+	"button_tts_stop": {
+		"message": "Stop"
+	},
+
 	"button_save": {
 		"message": "Save"
 	},

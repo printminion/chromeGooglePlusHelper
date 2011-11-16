@@ -64,22 +64,29 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'onNewPostApi':
 			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
 
-			var script = document.createElement("script");
-
+			var request = 'https://www.googleapis.com/plus/v1/activities/'
+							+ data.activity.id
+							+ '?alt=json';
+;
+			var callback = undefined;
+			
 			if (data.force) {
-				script.src = 'https://www.googleapis.com/plus/v1/activities/'
-						+ data.activity.id
-						+ '?alt=json&pp=1&callback=onNewPostApi&key='
-						+ assets.googlePlusAPIKey;
+				callback = 'onNewPostApi';
+				doApiCall(request, onNewPostApi);
 			} else {
-				script.src = 'https://www.googleapis.com/plus/v1/activities/'
-						+ data.activity.id
-						+ '?alt=json&pp=1&callback=doNotify&key='
-						+ assets.googlePlusAPIKey;
+				callback = 'doNotify';
+				doApiCall(request, doNotify);
 			}
+			
+			
+			if (false) {
 
-			document.body.appendChild(script);
-
+				var script = document.createElement("script");
+				script.src = request + '&key=' + assets.googlePlusAPIKey + '&callback=' + callback;
+				document.body.appendChild(script);
+			
+			}
+			
 			break;
 
 		case 'doOpenLink':
@@ -153,6 +160,38 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 
 });
+
+function doApiCall(url, callback) {
+	
+console.log('doApiCall', url, 'callback');
+//url = url + 'oauth_token=' + googleAuth.getAccessToken();
+	
+	var xhr = new XMLHttpRequest();
+	
+	
+	
+	xhr.onreadystatechange = function() {
+	  if (xhr.readyState == 4) {
+		  if (xhr.status == 200) {
+			  // JSON.parse does not evaluate the attacker's scripts.
+			  callback(JSON.parse(xhr.responseText));
+		  } else if (xhr.status == 401) {
+			  
+				googleAuth.authorize(function() {
+					console.log('OAuth:', googleAuth.getAccessToken());
+				});
+			  
+			  
+		  }
+	   }
+	};
+
+	xhr.open("GET", url, true);
+	xhr.setRequestHeader('Authorization', 'OAuth ' + googleAuth.getAccessToken());
+	xhr.send();
+	
+}
+
 
 function init() {
 
@@ -247,23 +286,6 @@ function checkConnectionToTabs() {
 
 	});
 
-	// chrome.tabs.getAllInWindow(integer windowId, function callback)
-	//	
-	// chrome.tabs.sendRequest(integer tabId, any request, function
-	// responseCallback)
-
-	/*
-	 * go through all windows
-	 */
-
-	/*
-	 * go through all tabs
-	 */
-
-	/*
-	 * reload google+ tabs
-	 */
-
 }
 
 function checkTab(callback, sender) {
@@ -331,6 +353,14 @@ function doSpeak(text) {
 		}
 	});
 
+}
+
+function doShutUp(id) {
+	chrome.tts.isSpeaking(function(speaking){
+		if (speaking) {
+			chrome.tts.stop();
+		}
+	});
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, change, tab) {
@@ -444,7 +474,7 @@ function onNewPostApi(activity) {
 
 function doNotify(activity, force) {
 
-	console.log('doNotify', activity);
+	//console.log('doNotify', activity);
 
 	if (activity == undefined) {
 		return;

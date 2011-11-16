@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <project name="create extension" default="createextension">
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="0.0.29" />
+	<property name="VERSION" value="0.0.36" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
@@ -21,6 +21,7 @@
 				extension/js/background.js,
 				extension/js/chromeBookmarks.js,
 				extension/js/chromeExtensionsCode.js,
+				extension/js/contextMenu.js,
 				extension/js/notification.js,
 				extension/js/omnibox.js,
 				extension/js/options.js,
@@ -76,6 +77,12 @@
 			</sources>
 		</jscomp>
 
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/contextMenu.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="contextMenu.js" />
+			</sources>
+		</jscomp>
+	
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/notification.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="notification.js" />
@@ -94,10 +101,6 @@
 			</sources>
 		</jscomp>
 
-
-
-
 	</target>
-
 
 </project>

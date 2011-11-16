@@ -105,6 +105,14 @@ var settings = {
 		localStorage['notificationOn'] = val;
 	},
 	
+	get ttsOn() {
+        if(localStorage['ttsOn'] == 'NaN' || localStorage['ttsOn'] == undefined) return false;
+		return localStorage['ttsOn'] == 'true' ? true : false;
+	},
+	set ttsOn(val) {
+		localStorage['ttsOn'] = val;
+	},
+	
 	get notificationSound() {
         if(localStorage['notificationSound'] == 'NaN') return 'sound/01.mp3';
 		return localStorage['notificationSound'];

@@ -98,7 +98,7 @@ function Notify() {
 				bMouseOver = true;
 				bodyObj.setAttribute('class', 'selected');
 
-				console.log('mouseover', bMouseOver);
+				//console.log('mouseover', bMouseOver);
 			}, false);
 
 			(function(component) {
@@ -153,6 +153,32 @@ function Notify() {
 			})(this);
 
 		}
+		
+		var ttsObj = document.querySelector("button#-mk-tts");
+
+		if (ttsObj.addEventListener) {
+
+			(function(component) {
+				ttsObj.addEventListener('click', function(e) {
+					e.stopPropagation();
+
+					if (e.target.getAttribute('class') == '-mk-tts') {
+						component.addChromeBookmark(e.target,
+								component.activity);
+					} else {
+						component.removeChromeBookmark(e.target,
+								component.activity);
+					}
+
+					return false;
+
+				}, true);
+			})(this);
+
+		}
+		
+		
+		
 
 	};
 
@@ -183,6 +209,29 @@ function Notify() {
 
 	};
 
+	this.initTTS = function() {
+		(function(component) {
+			chrome.extension.sendRequest({
+				action : "checkChromeBookmarked"
+			}, function(ttsON) {
+
+				var bookmarkObj = document.querySelector("#-mk-bookmark");
+				if (bookmarked) {
+					bookmarkObj.setAttribute('class', 'mk-bookmarked');
+					bookmarkObj.setAttribute('title',
+							'Click to remove bookmark this post');
+				} else {
+					bookmarkObj.setAttribute('class', 'mk-bookmark');
+					bookmarkObj.setAttribute('title',
+							'Click to bookmark this post');
+				}
+				;
+
+			});
+
+		})(this);
+
+	};
 	this.addChromeBookmark = function(element, activity) {
 		console.log('doChromeBookmark', element, activity);
 		chrome.extension.sendRequest({
@@ -267,112 +316,78 @@ function Notify() {
 			console.log('[e]nothing to populateHtml');
 			return;
 		}
-		/*
-		 * add text
-		 */
 
-		var container = document.querySelector("div.vg");
+		activity.updatedTime = this._getTime(activity.updated);
 
-		// if (this.activity.annotation) {
-		// container.innerHTML = activity.annotation;
-		// } else {
-
-		if (activity.object.content) {
-
-			container.innerHTML = activity.object.content;
-			// activity.object.url
-
-		} else {
-			container.innerHTML = activity.title;
-		}
-
-		// }
-
-		/*
-		 * add name
-		 */
-
-		container = document.querySelector("a.yn.Hf.cg");
-
-		if (container) {
-
-			container.setAttribute('href', activity.actor.url);
-			container.setAttribute('oid', activity.actor.id);
-			container.innerText = activity.actor.displayName;
-		}
-
-		/*
-		 * add picture
-		 */
-		container = document.querySelector("a.Nm");
-		if (container) {
-
-			container.setAttribute('href', activity.actor.url);
-			container.setAttribute('title', activity.actor.displayName);
-
-			container = container.querySelector("img");
-
-			if (container) {
-				container.setAttribute('src', activity.actor.image.url
-						+ '?sz=48');
-				container.setAttribute('title', activity.actor.displayName);
+		try {
+			if (!activity.object.actor) {
+				activity.hideActor = true;
 			}
-
+		} catch (e) {
+			// TODO: handle exception
 		}
-
-		/*
-		 * add name2
-		 */
-		container = document.querySelector("a.sharedNm");
-
-		if (container && activity.object.actor) {
-			container.style.display = 'block';
-
-			var actor = activity.object.actor;
-
-			container.setAttribute('href', actor.url);
-			container.setAttribute('title', actor.displayName);
-
-			container = container.querySelector("img");
-
-			if (container) {
-				container.setAttribute('src', actor.image.url + '?sz=48');
-				container.setAttribute('title', actor.displayName);
+		
+		//hidePhotoInfo
+		try {
+			if (activity.object.attachments[0].objectType == 'photo') {
+				activity.hidePhotoInfo = true;
 			}
+		} catch (e) {}
+		
+		try {
+			if (activity.object.attachments[0].objectType == 'video') {
+				activity.showVideoInfo = true;
+			}
+		} catch (e) {}
+		
+		try {
+			if (activity.object.attachments[0].objectType == 'photo-album') {
+				activity.showPhotoAlbumInfo = true;
+			}
+		} catch (e) {}		
+		
+			
+		try {
+			activity.object.attachments[0].urlClean = activity.object.attachments[0].url.match(/:\/\/(.[^/]+)/)[1];
+		} catch (e) {};
 
-		}
+		activity.cssBodyHeight = 150;
 
-		/*
-		 * set date
-		 */
+		if (activity.object.objectType == "note") {
+			try {
+				if (activity.object.content.length < 150) {
+					activity.cssBodyHeight = 100;
+				};
+				
+			} catch (e) {};
+		}		
+		activity.cssScrollPaneHeight = activity.cssBodyHeight - 20;
+		
+		activity.cssVisibility = 'public';
+		
+		
+		
+		var container = document.querySelector(".template");
+		var html = Mustache.to_html(container.innerText, activity).replace(/^\s*/mg, '');
+		
+		var container = document.querySelector("#body");
+		container.innerHTML = html;
+		
+		return;
+	};
+	
+	this._getTime = function(date) {
+		// 2011-10-29T14:58:55.696Z
+		var time = date.split('T');
+		time = time[1].split('.'); // 14:58:55.696Z
+		time = time[0].split(':'); // 14:58:55
 
-		container = document.querySelector("a.c-G-j.c-i-j-ua.hl");
-
-		if (container) {
-
-			// 2011-10-29T14:58:55.696Z
-			var time = activity.updated.split('T');
-			time = time[1].split('.'); // 14:58:55.696Z
-			time = time[0].split(':'); // 14:58:55
-
-			container.setAttribute('href', activity.url);
-			container.setAttribute('title', activity.updated);
-			container.innerText = time[0] + ':' + time[1];
-		}
-
-		/*
-		 * attachements
-		 */
-
-		// "attachments": [
-		// {
-		// "objectType": "article",
-		// "displayName": "Android Developers Blog: Android 4.0 Graphics and
-		// Animations",
-		// "url":
-		// "http://android-developers.blogspot.com/2011/11/android-40-graphics-and-animations.html"
-		// }
-		// ]
+		return time[0] + ':' + time[1];
+	};
+	
+	this.unload = function() {
+		var bkg = chrome.extension.getBackgroundPage();
+		bkg.doShutUp(undefined);
 	};
 }
 

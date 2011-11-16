@@ -1,7 +1,12 @@
 function Assets() {
 	this._setAccount = 'UA-3508250-20';
 
-	this.googlePlusAPIKey = 'AIzaSyDCBHpRfBABlpMH8cMlGjpplL4oilR3mro';
+	this.googlePlusAPIKey = 'AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo';
+	
+	this.oauth2_client_id = '1026646529651-91gfbnhithvjat5r77b5d2qnu3hrcmer.apps.googleusercontent.com';
+	this.oauth2_client_secret = 'FBFxYcmTXGiz8cLO0wiR2QOC';
+	this.oauth2_api_scope = 'https://www.googleapis.com/auth/plus.me';
+	
 	
 	
 	this.gpContentPane = "#contentPane";

@@ -51,15 +51,24 @@ a:hover,a:active {
 }
 
 .Nm,.sharedNm {
-	width: 48px !important;
-	height: 48px !important";
+	width: 50px !important;
+	height: 50px !important;
+}
+
+.Nm img {
+	width: 50px !important;
+	height: 50px !important;
 }
 
 .sharedNm {
 	position: absolute;
-	left: 0px;
-	top: 48px;
-	display: none;
+	left: 25px;
+	top: 50px;
+}
+
+.sharedNm img {
+	width: 25px !important;
+	height: 25px !important;
 }
 
 /*
@@ -79,7 +88,7 @@ a:hover,a:active {
 .Ex {
 	position: absolute !important;
 	top: 0px !important;
-	left: 52px !important;
+	left: 69px !important;
 }
 
 /*
@@ -88,21 +97,9 @@ a:hover,a:active {
 .vg {
 	position: absolute !important;
 	top: 20px !important;
-	left: 52px !important;
+	left: 50px !important;
 	width: 246px !important;
 	height: 200px;
-}
-
-.vg p {
-	margin-top: -19px;
-	padding-bottom: 5px;
-}
-
-/*
- hide limited, expand post, location
-*/
-div.dl,.c-jb,span.a-j.Rh.Fo.il,span.kk {
-	display: none !important;
 }
 
 a {
@@ -132,4 +129,98 @@ a {
 	-webkit-border-bottom-right-radius: 5px;
 	border-bottom: 1px solid #EBEBEB;
 	border-right: 1px solid #EBEBEB;
+}
+
+.B-u-C {
+	position: relative;
+	margin-top: 5px;
+}
+
+.B-u-Y {
+	position: relative;
+	left: 18px;
+	margin-top: -17px;
+}
+
+#object { /* border-left: 1px solid #EAEAEA; */
+	border-left: 1px solid #4D90F0;
+	padding-left: 5px;
+}
+
+.clear {
+	clear: both;
+	height: 1px;
+	margin-bottom: -1px;
+	font-size: 1px;
+	line-height: 1px;
+}
+
+#-mk-visibility {
+	background: no-repeat
+		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
+		-235px;
+	width: 13px !important;
+	height: 13px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	position: absolute;
+	left: 53px;
+	top : 1px;
+	z-index: 20;
+}
+
+#-mk-visibility.public {
+	background-position: 0 -235px;
+}
+
+#-mk-visibility.limited {
+	background-position: 0 -130px;
+}
+
+#-mk-visibility.extended {
+	background-position: 0 -163px;
+}
+
+#-mk-visibility.locked {
+	background-position: 0 -81px;
+}
+
+#-mk-visibility.corp {
+	background-position: 0 -19px;
+}
+
+#-mk-visibility.circles {
+	background-position: 0 -284px;
+}
+
+#-mk-visibility.circle {
+	background-position: 0 -336px;
+}
+
+
+
+#-mk-tts {
+	background: no-repeat
+		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
+		-235px;
+	width: 13px !important;
+	height: 13px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	position: absolute;
+	left: 3px;
+	top : 53px;
+	z-index: 20;
+}
+
+#-mk-tts.on {
+	background-position: 0 -235px;
+}
+
+#-mk-tts.off {
+	background-position: 0 -130px;
 }

@@ -40,6 +40,16 @@ function playSound() {
 	}
 }
 
+function doSpeakOption() {
+	var bkg = chrome.extension.getBackgroundPage();
+	bkg.doSpeak($("#ttsTextTest").text());
+}
+
+function doStopSpeakOption() {
+	var bkg = chrome.extension.getBackgroundPage();
+	bkg.doShutUp('options');
+}
+
 function error(msg) {
 	var s = document.querySelector('#status');
 	s.innerHTML = typeof msg == 'string' ? msg : "failed";

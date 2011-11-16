@@ -2,17 +2,13 @@
 <head>
 
 <script type="text/javascript">
-
-var POSTFIX = '';
-
+	var POSTFIX = '';
 </script>
 
 <script src="js/assets.js"></script>
 
 <script type="text/javascript">
-
-var assets = new Assets();
-
+	var assets = new Assets();
 </script>
 
 
@@ -22,13 +18,29 @@ var assets = new Assets();
 <script src="js/omnibox.js"></script>
 <script src="js/chromeBookmarks.js"></script>
 <script src="js/background.js"></script>
+<script src="js/contextMenu.js"></script>
+<script src="oauth2/oauth2.js"></script>
+
+<script type="text/javascript">
+
+var googleAuth = new OAuth2('google', {
+	  client_id: assets.oauth2_client_id,
+	  client_secret: assets.oauth2_client_secret,
+	  api_scope: assets.oauth2_api_scope
+	});
+
+	googleAuth.authorize(function() {
+		console.log('OAuth:', googleAuth.getAccessToken());
+	});
+	
+</script>
 
 
 </head>
 
 <body onload="init();">
 	<img id="icon" src="images/icon19.png">
-	<canvas id="canvas" width="19" height="19" ></canvas>
+	<canvas id="canvas" width="19" height="19"></canvas>
 
 </body>
 </html>

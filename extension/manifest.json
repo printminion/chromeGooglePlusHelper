@@ -15,12 +15,26 @@
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
       "js": ["js/assets.js", "js/chromeExtensionsCode.js"],
       "css": ["css/inject.css"]
+    },
+    {
+	    "matches": ["http://www.google.com/robots.txt*"],
+	    "js": ["oauth2/oauth2_inject.js"],
+	    "css": ["css/empty.css"],
+	    "run_at": "document_start"
     }
   ],
 	"background_page": "background.html",
 	"options_page": "options.html",
 	"permissions": [
-		"tabs", "notifications", "bookmarks", "tts" 
+		"tabs", 
+		"notifications", 
+		"bookmarks", 
+		"tts", 
+		"contextMenus", 
+		"https://accounts.google.com/o/oauth2/token", 
+		"management", 
+		"http://*/*",
+		"https://*/*"
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",
