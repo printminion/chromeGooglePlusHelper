@@ -1,10 +1,10 @@
 function Assets() {
 	this._setAccount = 'UA-3508250-20';
-
-	this.googlePlusAPIKey = 'AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo';
+	
+	this.googlePlusAPIKey = 'AIzaSyDQFlyxMQP6nVYRhDkE7X6guDs6AVZA4xw';
 	
 	this.oauth2_client_id = '1026646529651-91gfbnhithvjat5r77b5d2qnu3hrcmer.apps.googleusercontent.com';
-	this.oauth2_client_secret = 'FBFxYcmTXGiz8cLO0wiR2QOC';
+	this.oauth2_client_secret = 'v_ZTcekaW9qO3npisNM4rxQP';
 	this.oauth2_api_scope = 'https://www.googleapis.com/auth/plus.me';
 	
 	
@@ -19,7 +19,7 @@ function Assets() {
 
 	this.gpPostAuthor = "A.yn.Hf.cg";// "a.Gq.jj.Vj";
 	
-	this.gpPostUrl = "c-G-j c-i-j-ua hl";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
+	this.gpPostUrl = "md gi xi";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
 	this.gpPostUrlSelector = "A.c-G-j.c-i-j-ua.hl";// 'a-Ja-h a-b-h-Jb
 													// a-f-i-Ad'";
 

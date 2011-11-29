@@ -213,8 +213,9 @@ a {
 	vertical-align: bottom;
 	position: absolute;
 	left: 3px;
-	top : 53px;
+	bottom : 3px;
 	z-index: 20;
+	display: none;
 }
 
 #-mk-tts.on {

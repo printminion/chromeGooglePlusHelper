@@ -13,7 +13,7 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/assets.js", "js/chromeExtensionsCode.js"],
+      "js": ["js/activityParser.js", "js/assets.js", "js/chromeExtensionsCode.js"],
       "css": ["css/inject.css"]
     },
     {
@@ -32,9 +32,9 @@
 		"tts", 
 		"contextMenus", 
 		"https://accounts.google.com/o/oauth2/token", 
-		"management", 
-		"http://*/*",
-		"https://*/*"
+		"management",
+		"https://*/*",
+		"http://*/*"	
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",

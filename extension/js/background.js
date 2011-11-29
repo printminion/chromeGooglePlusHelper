@@ -66,8 +66,8 @@ chrome.extension.onConnect.addListener(function(port) {
 
 			var request = 'https://www.googleapis.com/plus/v1/activities/'
 							+ data.activity.id
-							+ '?alt=json';
-;
+							+ '?alt=json&pp=1&key=' + assets.googlePlusAPIKey;
+
 			var callback = undefined;
 			
 			if (data.force) {
@@ -79,13 +79,13 @@ chrome.extension.onConnect.addListener(function(port) {
 			}
 			
 			
-			if (false) {
-
-				var script = document.createElement("script");
-				script.src = request + '&key=' + assets.googlePlusAPIKey + '&callback=' + callback;
-				document.body.appendChild(script);
-			
-			}
+//			if (false) {
+//
+//				var script = document.createElement("script");
+//				script.src = request + '&key=' + assets.googlePlusAPIKey + '&callback=' + callback;
+//				document.body.appendChild(script);
+//			
+//			}
 			
 			break;
 
@@ -138,8 +138,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 		console.log('settings', bkg.settings);
 		sendResponse({
-			settings : bkg.settings,
-			chromeBookmarsFolderId : bkg.bookmarks.parentId
+			settings : bkg.settings
 		});
 
 		break;
@@ -175,13 +174,18 @@ console.log('doApiCall', url, 'callback');
 		  if (xhr.status == 200) {
 			  // JSON.parse does not evaluate the attacker's scripts.
 			  callback(JSON.parse(xhr.responseText));
-		  } else if (xhr.status == 401) {
-			  
+		  } else if (xhr.status == 401 || xhr.status == 403 || xhr.status == 0) {
+
+				console.log('error on fetching activity:', xhr.status, JSON.parse(xhr.responseText));
+				console.log('try to get oAuth token:', googleAuth.getAccessToken());
+
 				googleAuth.authorize(function() {
 					console.log('OAuth:', googleAuth.getAccessToken());
 				});
 			  
 			  
+		  } else {
+				console.log('error on fetching activity:', xhr.status, JSON.parse(xhr.responseText));
 		  }
 	   }
 	};

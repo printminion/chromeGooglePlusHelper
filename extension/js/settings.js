@@ -134,6 +134,14 @@ var settings = {
 			return true;
 		}
 		return false;
+	},
+	
+	get isApiEnabled() {
+        if(localStorage['isApiEnabled'] == 'NaN') return false;
+		return localStorage['isApiEnabled'] || false;
+	}, 
+	set isApiEnabled(val) {
+		localStorage['isApiEnabled'] = val;
 	}
 	
 };

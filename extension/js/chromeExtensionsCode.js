@@ -3,11 +3,13 @@
  */
 
 var port = undefined;
-var assets = new Assets();
 
-//getPort().postMessage({
-//	message : "registerPort"
-//});
+var assets = new Assets();
+var activityParser = new GPlusActivityParser(assets);
+
+// getPort().postMessage({
+// message : "registerPort"
+// });
 
 getPort();
 
@@ -44,15 +46,14 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 	switch (request.action) {
 	case 'initTab':
-		//_gaq.push([ '_trackPageview', '/openLink' ]);
+		// _gaq.push([ '_trackPageview', '/openLink' ]);
 		getPort();
 		break;
 	default:
-		
+
 		break;
 	}
 });
-
 
 function GPlusHelper() {
 
@@ -66,34 +67,42 @@ function GPlusHelper() {
 		 * this.extendUI();
 		 */
 
-		
 		/*
 		 * add script
 		 */
-		
-		  (function() {
-			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
-		  
-		  (function() {
-			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			    ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
-			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
-		  
-		  
-		var po = document.createElement('script'); 
-		po.type = 'text/javascript'; 
+
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+					: 'http://www')
+					+ '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://'
+					: 'http://')
+					+ 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+
+		var po = document.createElement('script');
+		po.type = 'text/javascript';
 		po.innerText = "function _onPlusOne(data){"
-			+ "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);"
-			+ "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);"
-			+ "\n};";
-		
-		var s = document.getElementsByTagName('script')[0]; 
+				+ "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);"
+				+ "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);"
+				+ "\n};";
+
+		var s = document.getElementsByTagName('script')[0];
 		s.parentNode.insertBefore(po, s);
-        
+
 		var url = this.getFullUrlByLocation(window.location);
 
 		var result = url.search(/plus.google.com/);
@@ -123,13 +132,13 @@ function GPlusHelper() {
 		// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
 
 		this.pageInfo = new PageInfo();
-		
+
 		this.pageInfo.url = url;
 		this.pageInfo.type = this.pageInfo.getPageType(url);
 		this.pageInfo.notificationOn = this.pageInfo.ifNotificationPage(url);
 
 		console.log('analyzePage... ..done', this.pageInfo);
-		
+
 		return this.pageInfo;
 
 	};
@@ -137,8 +146,8 @@ function GPlusHelper() {
 	this.initHomePage = function() {
 		console.log('initHomePage...');
 
-		//bNotificationOn
-		
+		// bNotificationOn
+
 		var container = document.querySelector(assets.gpContentPane);
 		if (container == undefined) {
 			return;
@@ -151,83 +160,81 @@ function GPlusHelper() {
 		(function(component) {
 			container.addEventListener('DOMNodeInserted', function(e) {
 
-				// console.log('DOMNodeInserted', e.target.id, e.target);
-
-				// a-b-f-i-p-R
-
-				var idBegin = e.target.id ? e.target.id.substring(0, 7)
+				var idPrefix = e.target.id ? e.target.id.substring(0, 7)
 						: undefined;
 
-				if (idBegin == 'update-') {
-					lastPostId = e.target.id;
-					console.log('onBeforePostAdded', lastPostId);
+				if (idPrefix != 'update-') {
 					return;
 				}
 
-				var classAttribute = undefined;
+				lastPostId = e.target.id;
+				console.log('onBeforePostAdded', lastPostId);
 
-				try {
-					classAttribute = e.target.getAttribute('class');
-				} catch (e) {
-					// TODO: handle exception
-				}
-				
 				/*
 				 * get post url
 				 */
 
-				if (classAttribute == assets.gpPostUrl) {
-					console.log('onPostAdded', lastPostId, e.target
-							.getAttribute('href'));
-
-					/*
-					 * TODO add notification - NOT
-					 */
-					
-					if (!component.pageInfo.notificationOn) {
-						console.log('...no notifications for this page');
-						return;
-					}
-					/*
-					 * check notifications settings
-					 */
-					chrome.extension.sendRequest({
-						action : "checkNotificationON",
-						lastPostId : lastPostId
-					}, function(response) {
-						console.log('response.notificationOn',
-								response.notificationOn);
-
-						if (!response.notificationOn) {
-							console.log('...no notification');
-							return;
-						}
-						
-						var postObj = document.querySelector('#'
-								+ response.lastPostId);
-
-						if (!postObj) {
-							console.log('failed to get html by ' + '#'
-									+ response.lastPostId);
-							return;
-						}
-
-						/*
-						 * send notification
-						 */
-
-						var activity = parsePostDataElement(postObj);
-						console.log('parsePostDataElement', activity);
-
-//						getPort().postMessage({message : "onNewPost", activity: activity});
-						getPort().postMessage({message : "onNewPostApi", activity: activity});
-
-					});
-
-					lastPostId = undefined;
-					fetchTabInfo("fetchOnUpdate");
-
+				if (e.target.getAttribute('class') != assets.gpPostUrl) {
+					console.log('[i]set assets.gpPostUrl = "md gi xi;"');
+					return;
 				}
+
+				console.log('onPostAdded', lastPostId, e.target
+						.getAttribute('href'));
+
+				/*
+				 * TODO add notification - NOT
+				 */
+
+				if (!component.pageInfo.notificationOn) {
+					console.log('...no notifications for this page');
+					return;
+				}
+				/*
+				 * check notifications settings
+				 */
+				chrome.extension.sendRequest({
+					action : "getSettings"
+				},
+						function(response) {
+							console.log('response.getSettings',
+									response.settings);
+
+							if (!response.settings.notificationOn) {
+								console.log('...no notification');
+								return;
+							}
+
+//							var postObj = document.querySelector('#' + lastPostId);
+//
+//							if (!postObj) {
+//								console.log('failed to get html by ' + '#'
+//										+ lastPostId);
+//								return;
+//							}
+
+							/*
+							 * send notification
+							 */
+
+							var activity = activityParser.parsePostDataElement(e.target);
+							console.log('parsePostDataElement', activity);
+
+							// if (response.settings.isApiEnabled) {
+							getPort().postMessage({
+								message : "onNewPostApi",
+								activity : activity,
+								force : true
+							});
+							// } else {
+							// getPort().postMessage({message : "onNewPost",
+							// activity: activity});
+							// }
+
+						});
+
+				lastPostId = undefined;
+				fetchTabInfo("fetchOnUpdate");
 
 			}, false);
 
@@ -237,7 +244,7 @@ function GPlusHelper() {
 
 	this.initHomePageToolbar = function(settings) {
 		console.log('initHomePageToolbar...');
-		var miniToolbarObj = document.querySelector(assets.gpToolbar);//div.oLO5kc");
+		var miniToolbarObj = document.querySelector(assets.gpToolbar);// div.oLO5kc");
 
 		if (!miniToolbarObj) {
 			return;
@@ -249,7 +256,7 @@ function GPlusHelper() {
 							action : "getSettings"
 						},
 						function(response) {
-							//console.log('response.getSettings', response);
+							// console.log('response.getSettings', response);
 
 							var settings = response.settings;
 
@@ -258,17 +265,16 @@ function GPlusHelper() {
 
 								var buttonObj = document.createElement("a");
 								buttonObj.href = '#';
-								
+
 								var attrClass = document
 										.createAttribute("class");
-								
+
 								attrClass.nodeValue = assets.gpToolbarButton;
 
 								var attrClass2 = document
-								.createAttribute("aria-label");
+										.createAttribute("aria-label");
 								attrClass2.nodeValue = 'Bookmarks';
 								buttonObj.setAttributeNode(attrClass2);
-									
 
 								(function(chromeBookmarsFolderId) {
 									buttonObj.onclick = function(e) {
@@ -280,30 +286,35 @@ function GPlusHelper() {
 															values : {
 																url : 'chrome://bookmarks/?#'
 																		+ chromeBookmarsFolderId,
-																target: 'bookmarks'
+																target : 'bookmarks'
 															}
 														}, function() {
 														});
-										
-										/*
-										
-										console.log('show bookmarks');
-										//var streamObj = document.querySelector("div.a-b-f-i-oa");
-										//var streamObj = document.querySelector("#contentPane");
-										var streamObj = document.querySelector(".a-p-M");
-										
-										
-										if (streamObj) {
-											streamObj.style.display = 'none';
-										}
 
-										*/
+										/*
+										 * 
+										 * console.log('show bookmarks'); //var
+										 * streamObj =
+										 * document.querySelector("div.a-b-f-i-oa");
+										 * //var streamObj =
+										 * document.querySelector("#contentPane");
+										 * var streamObj =
+										 * document.querySelector(".a-p-M");
+										 * 
+										 * 
+										 * if (streamObj) {
+										 * streamObj.style.display = 'none'; }
+										 * 
+										 */
 										return false;
 									};
 								})(response.chromeBookmarsFolderId);
 
 								buttonObj.setAttributeNode(attrClass);
-								buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';//mZxz3d VAbDid 
+								buttonObj.innerHTML = '<span class="'
+										+ assets.gpToolbarButtonInner
+										+ ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
+																									// VAbDid
 								miniToolbarObj.appendChild(buttonObj);
 
 							}
@@ -314,20 +325,19 @@ function GPlusHelper() {
 
 	this.addHashTagsUrls = function(element, callback) {
 
-		
 		var replaceWith = '$1<a href="https://plus.google.com/s/%23$2" target="_blank">#$2</a>';
 		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
 				replaceWith);
 
 		if (element.innerHTML != hashtagged) {
-			
-			var hashtagged = element.innerHTML.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
-					replaceWith);
-			
+
+			var hashtagged = element.innerHTML.replace(
+					/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
+
 			callback(hashtagged);
-			
+
 		}
-		
+
 		callback(undefined);
 
 	};
@@ -427,13 +437,13 @@ function fetchTabInfo(selectedPacketName) {
 	/*
 	 * get home stream
 	 */
-	var streamObj = document.querySelector(assets.gpContainerStream);//div.a-b-f-i-oa
+	var streamObj = document.querySelector(assets.gpContainerStream);// div.a-b-f-i-oa
 
 	/*
 	 * get post stream on profile
 	 */
 	if (!streamObj) {
-		streamObj = document.querySelector(assets.gpContainerStreamProfile);//div.a-Wf-i-M");
+		streamObj = document.querySelector(assets.gpContainerStreamProfile);// div.a-Wf-i-M");
 	}
 
 	if (!streamObj) {
@@ -449,7 +459,7 @@ function fetchTabInfo(selectedPacketName) {
 		var settings = response.settings;
 
 		for ( var i = 0; i < streamObj.childElementCount; i++) {
-			//console.log('found post element...');
+			// console.log('found post element...');
 
 			postObj = streamObj.childNodes[i];
 
@@ -472,102 +482,113 @@ function fetchTabInfo(selectedPacketName) {
 };
 
 function extendPostArea(o, settings) {
-	//console.log('extendPostArea...');
+	// console.log('extendPostArea...');
 
 	if (settings.addHashtags == 'true') {
 		uiExtender.addHashtags(o);
 	}
 	;
 
-	
-//	if (settings.addHashtagsComments == 'true') {
-//		var commentsObj = o.querySelectorAll("span.a-f-i-W-p");
-//
-//	}
-	
-	var placeholderObj = o.querySelector(assets.gpPostBottomControls);//div.a-f-i-bg
+	// if (settings.addHashtagsComments == 'true') {
+	// var commentsObj = o.querySelectorAll("span.a-f-i-W-p");
+	//
+	// }
+
+	var placeholderObj = o.querySelector(assets.gpPostBottomControls);// div.a-f-i-bg
 
 	if (!placeholderObj) {
 		console.log('error: failed to get the placeholder for actions');
 		return;
 	}
 
-	
-
-	
 	if (settings.addTwitter == 'true') {
 		extentPostWithAction(placeholderObj, 'Tweet', function() {
-			actions.doTweet(parsePostData(this));
+			actions.doTweet(getActivityData(this));
 		}, 'Click to tweet this post');
 	}
-	
+
 	if (settings.addFacebook == 'true') {
 
 		extentPostWithAction(placeholderObj, 'Facebook', function() {
-			actions.doFacebook(parsePostData(this));
+			actions.doFacebook(getActivityData(this));
 		}, 'Click to post on Facebook');
 
 	}
 
 	if (settings.addTranslate == 'true') {
 		extentPostWithAction(placeholderObj, 'Translate', function() {
-			actions.doTranslate(parsePostData(this));
-		}, 'Click to translate this post');
-
-		console.log('o', o);
-		
-		extentPostWithAction(placeholderObj, 'T2', function() {
-			//div. > div.vg
-			//div. > div.vg-translate
-			
-			
-			
-//			new google.translate.SectionalElement({
-//				    sectionalNodeClassName: 'goog-trans-section',
-//				    controlNodeClassName: 'goog-trans-control',
-//				    background: '#f4fa58'
-//				  }, 'google_sectional_element');
-			  
+			actions.doTranslate(getActivityData(this));
 		}, 'Click to translate this post');
 
 	}
+
+//	if (settings.addTranslate == 'true') {
+//		extentPostWithAction(placeholderObj, 'Translate', function() {
+//			actions.doTranslate(getActivityData(this));
+//		}, 'Click to translate this post');
+//
+//		console.log('o', o);
+//
+//		extentPostWithAction(placeholderObj, 'T2', function() {
+//			// div. > div.vg
+//			// div. > div.vg-translate
+//
+//			// new google.translate.SectionalElement({
+//			// sectionalNodeClassName: 'goog-trans-section',
+//			// controlNodeClassName: 'goog-trans-control',
+//			// background: '#f4fa58'
+//			// }, 'google_sectional_element');
+//
+//		}, 'Click to translate this post');
+//
+//	}
 
 	if (settings.addBookmarks == 'true') {
 
 		extentPostWithAction(placeholderObj, 'Bookmark', function() {
-			actions.doBookmark(parsePostData(this));
+			actions.doBookmark(getActivityData(this));
 		}, 'Click to bookmark this post');
 
 	}
-	
+
 	if (settings.addDelicious == 'true') {
 
 		extentPostWithAction(placeholderObj, 'Delicious', function() {
-			actions.doDelicious(parsePostData(this));
+			actions.doDelicious(getActivityData(this));
 		}, 'Click to bookmark this post on Delicious');
 
 	}
 
-	
 	extentPostWithAction(placeholderObj, 'N', function() {
-		
-		var activity = parsePostData(this);
-		console.log('parsePostDataElement', activity);
 
-		getPort().postMessage({message : "onNewPostApi", activity: activity, force: true});
-		
-		
+		var activity = getActivityData(this);
+		console.log('getActivityDataElement', activity);
+
+		getPort().postMessage({
+			message : "onNewPostApi",
+			activity : activity,
+			force : true
+		});
+
 	}, 'parse and notify');
 
-	extentPostWithAction(placeholderObj, 'Ne', function() {
-		
-		var activity = parsePostData(this);
-		console.log('parsePostDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id );
-		
-	}, 'parse and notify');	
-	
-	//.a-b-f-i-p span.a-f-i-yj
-	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);//.a-b-f-i-p span.a-f-i-yj");
+	extentPostWithAction(
+			placeholderObj,
+			'Ne',
+			function() {
+
+				var activity = getActivityData(this);
+				console
+						.log(
+								'getActivityDataElement',
+								'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id='
+										+ activity.id);
+
+			}, 'parse and notify');
+
+	// .a-b-f-i-p span.a-f-i-yj
+	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
+																			// span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
 		console.log('error: failed to get the placeholder for icons');
@@ -576,13 +597,15 @@ function extendPostArea(o, settings) {
 
 	if (settings.addPlusOne == 'true') {
 
-		extentPostWithHTML(placeholderIconsObj, parsePostData(placeholderObj), settings, '...', function() {}, '...');
+		extentPostWithHTML(placeholderIconsObj, getActivityData(placeholderObj),
+				settings, '...', function() {
+				}, '...');
 
 	}
 
 	if (settings.addChromeBookmarks == 'true') {
 
-		var postData = parsePostData(placeholderObj);
+		var postData = getActivityData(placeholderObj);
 		chrome.extension.sendRequest({
 			action : "checkChromeBookmarked",
 			values : {
@@ -595,7 +618,7 @@ function extendPostArea(o, settings) {
 				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmarked',
 						function(element) {
 							actions.doChromeBookmark(element.target,
-									parsePostData(this));
+									getActivityData(this));
 						}, 'Click to remove bookmark this post');
 
 			} else {
@@ -603,7 +626,7 @@ function extendPostArea(o, settings) {
 				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmark',
 						function(element) {
 							actions.doChromeBookmark(element.target,
-									parsePostData(this));
+									getActivityData(this));
 						}, 'Click to bookmark this post');
 
 			}
@@ -635,7 +658,7 @@ function extentPostWithAction(placeholderObj, caption, callback, title) {
 	span.innerText = caption;
 
 	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = assets.gpPostBottomControlsStyle;//d-h';
+	attrClass.nodeValue = assets.gpPostBottomControlsStyle;// d-h';
 	span.setAttributeNode(attrClass);
 
 	var attrAlt = document.createAttribute("title");
@@ -677,8 +700,8 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	placeholderObj.appendChild(span);
 }
 
-
-function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback, title) {
+function extentPostWithHTML(placeholderObj, data, settings, htmlClass,
+		callback, title) {
 	if (!placeholderObj) {
 		return;
 	}
@@ -686,26 +709,27 @@ function extentPostWithHTML(placeholderObj, data, settings, htmlClass, callback,
 	if (data.visibility != 'public') {
 		return;
 	}
-	
-	
-	var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
-	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
+
+	var count = settings.addPlusOneCounter == 'true' ? 'count="true"'
+			: 'count="false"';
+	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count'
+			: 'mk-plusone';
 
 	var div = document.createElement("div");
 	var attrClass = document.createAttribute("id");
 	attrClass.nodeValue = 'plusone-' + data.id;
 	div.setAttributeNode(attrClass);
-	
+
 	var attrClass2 = document.createAttribute("class");
 	attrClass2.nodeValue = htmlClass;
 	div.setAttributeNode(attrClass2);
-	
-	
-	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
-	
+
+	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count
+			+ ' callback="_onPlusOne" ></g:plusone>';
+
 	var script = document.createElement("script");
 	script.innerText = 'gapi.plusone.go("' + 'plusone-' + data.id + '");';
-	
+
 	placeholderObj.appendChild(div);
 	placeholderObj.appendChild(script);
 
@@ -715,7 +739,7 @@ function addJavaScriptCode(code) {
 	if (!code) {
 		return;
 	}
-	
+
 	var script = document.createElement("script");
 	script.innerText = code;
 	placeholderObj.appendChild(div);
@@ -729,10 +753,10 @@ function addJavaScriptCode(code) {
  * @param o
  * @returns Activity
  */
-function parsePostData(o) {
-	//console.log('parsePostData', o);
+function getActivityData(o) {
+	// console.log('getActivityData', o);
 
-	//var updateDiv = undefined;
+	// var updateDiv = undefined;
 	var currentElement = o;
 
 	while (currentElement.parentElement) {
@@ -741,7 +765,7 @@ function parsePostData(o) {
 		if (currentElement.getAttribute('id')) {
 			var idBegin = currentElement.getAttribute('id').substring(0, 7);
 			if (idBegin == 'update-') {
-				return parsePostDataElement(currentElement);
+				return activityParser.parsePostDataElement(currentElement);
 			}
 			;
 
@@ -750,288 +774,75 @@ function parsePostData(o) {
 	}
 }
 
-function parsePostDataElement(currentElement) {
-	if (!currentElement) {
-		return;
-	}
-
-	console.log('parsePostDataElement', currentElement);
-	
-	var activity = new Activity();
-	
-	
-	activity.verb = "share";
-
-	activity.id = currentElement.getAttribute('id');
-	activity.id = activity.id.replace('update-', '');
-	
-	/*
-	 * parse visibility status
-	 */
-	
-	var postVisibilityObj = currentElement.querySelector(assets.gpActivityAccessType);
-	
-	if (postVisibilityObj != undefined && postVisibilityObj.innerHTML != 'Public') {
-		activity.visibility = 'limited';
-	}
-	
-	
-	
-	// console.log(updateDiv);
-	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);
-	if(!postUrlObj) {
-		console.log('err:failed to parse post url');
-		return;
-	}
-	
-	activity.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
-	activity.updated = undefined;// "2011-10-26T22:54:43.058Z"
-
-	
-	
-	// console.log(postUrlObj);
-	/*
-	 * try to get activity text
-	 */
-	var postTextObj = currentElement.querySelector(assets.gpActivity);
-
-	if (postTextObj) {
-		
-		var activityTextObj = postTextObj.querySelector(assets.gpActivityNote);
-		
-		if (activityTextObj) {
-			activity.title = activityTextObj.innerText;
-		} else {
-
-			console.log('failed to get gpActivityNote:' + assets.gpActivityNote);
-
-			activityTextObj = postTextObj.querySelector(assets.gpActivityText);
-			
-			if (!activityTextObj) {
-				console.log('failed to get gpActivityText:' + assets.gpActivityText);
-			} else {
-				activity.title = activityTextObj.innerText;
-			}
-			
-			
-		}
-		
-		
-	}
-
-	/*
-	 * try to get activity attachement
-	 */
-	var activityAttachementObj = currentElement.querySelector(assets.gpActivityAttachementAuthor);
-
-	if (activityAttachementObj) {
-		
-		activity.object = activity.getObjectActivity();
-		
-		var obj = activityAttachementObj.querySelector(assets.gpActivityAttachementAuthorImage);
-		activity.object.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
-
-		var obj = activityAttachementObj.querySelector(assets.gpActivityAttachementAuthorName);
-		activity.object.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
-		activity.object.actor.displayName = obj != undefined ? obj.innerText : undefined;
-		activity.object.actor.url = obj != undefined ? "https://plus.google.com/" + obj.getAttribute('oid') : undefined;
-
-		
-		activity.object.id = undefined;
-		activity.object.url = undefined;
-		activity.object.content = "";
-		activity.object.annotation = activity.title;
-
-		
-		/*
-		 * get author
-		 */
-		var autorObj = currentElement.querySelector(assets.gpPostAuthor);
-		if (autorObj) {
-			activity.actor.displayName = autorObj != undefined ? autorObj.innerHTML : '';
-					
-			var obj = currentElement.querySelector('.Nm');
-
-			activity.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
-			activity.actor.url = "https://plus.google.com/" + obj != undefined ? obj.getAttribute('oid') : undefined;
-
-			obj = currentElement.querySelector('.Nm img');
-			activity.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
-			
-		}
-		
-	}
-	
-	
-
-	console.log('activity', activity);
-	
-	return activity;
-}
-
-
-
-//function parsePostDataElementOld(currentElement) {
-//	if (!currentElement) {
-//		return;
-//	}
-//	console.log('parsePostDataElementOld', currentElement);
-//	var data = {
-//			id: '',
-//			text : '',
-//			url : '',
-//			author : '',
-//			visibility: 'public'
-//		};
-//	
-//	
-//	data.id = currentElement.getAttribute('id');
-//	data.id = data.id.replace('update-', '');
-//	
-//	/*
-//	 * parse visibility status
-//	 */
-//	
-//	var postVisibilityObj = currentElement.querySelector("span.d-k.Ar.zr.Gp");//span.d-h a-b-f-i-aGdrWb a-b-f-i-lj62Ve a-f-i-Mb");
-//	
-//	if (postVisibilityObj != undefined && postVisibilityObj.innerHTML != 'Public') {
-//		data.visibility = 'limited';
-//	}
-//	
-//	
-//	
-//	// console.log(updateDiv);
-//	var postUrlObj = currentElement.querySelector(assets.gpPostUrlSelector);
-//	
-//	
-//	if(!postUrlObj) {
-//		console.log('err:failed to parse post url');
-//	}
-//	
-//	// console.log(postUrlObj);
-//	/*
-//	 * try to get activity text
-//	 */
-//	var postTextObj = currentElement.querySelector(assets.gpActivity);
-//
-//	if (postTextObj) {
-//		
-//		var activityTextObj = postTextObj.querySelector(assets.gpActivityNote);
-//		
-//		if (activityTextObj) {
-//			data.text = activityTextObj.innerText;
-//		} else {
-//
-//			console.log('failed to get gpActivityNote:' + assets.gpActivityNote);
-//
-//			activityTextObj = postTextObj.querySelector(assets.gpActivityText);
-//			
-//			if (!activityTextObj) {
-//				console.log('failed to get gpActivityText:' + assets.gpActivityText);
-//			} else {
-//				data.text = activityTextObj.innerText;
-//			}
-//			
-//			
-//		}
-//		
-//		
-//	}
-//
-//	
-//	// a-f-i-u-ki
-//	/*
-//	 * get author
-//	 */
-//	// cs2K7c a-f-i-Zb a-f-i-Zb-U
-//	var autorObj = currentElement.querySelector(assets.gpPostAuthor);
-//	var author = autorObj != undefined ? autorObj.innerHTML : '';
-//
-//	data.url = 'https://plus.google.com/' + postUrlObj.getAttribute('href');
-//	data.author = author;
-//	
-//	var autorPictureObj = currentElement.querySelector('.Nm');
-//	data.authorOID = autorPictureObj != undefined ? autorPictureObj.getAttribute('oid') : undefined;
-//	
-//	autorPictureObj = currentElement.querySelector('.Nm img');
-//	data.authorImage = autorPictureObj != undefined ? autorPictureObj.getAttribute('src') : undefined;
-//	
-//
-//	console.log('data', data);
-//
-//	return data;
-//}
-
 function PageInfo() {
-		this.url = undefined;
-		this.type = undefined;
-		this.notificationOn = false;
-		
-		this.PageTypeEnum  = {
-				UNKNOWN: undefined,
-				HOME: 'home'
-		};
-		
-		this.ifNotificationPage = function(url) {
-		
-			if (this.getPageType(url) == this.PageTypeEnum.HOME) {
-				return true;	
-			}
-			
-			
-		};
-		
-		this.getPageType = function(url) {
-			
-			var qRe = new RegExp("^https://plus.google.com/$");
-			var test = qRe.exec(url);
-			
-			console.log('getPageType', "^https://plus.google.com/$", test);
-			
-			if (test) {
-				return this.PageTypeEnum.HOME;
-			} else {
-				return this.PageTypeEnum.UNKNOWN;
-			}
-			
-			
-			qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
-			var urlTest = qRe.exec(url);
-			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-					: false;
-			
-			/*
-			 * check if user page
-			 */
-			qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
-			urlTest = qRe.exec(url);
-			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-					: false;	
-			/*
-			 * check home
-			 */
-			qRe = new RegExp("^https://plus.google.com/u/0/$");
-			urlTest = qRe.exec(url);
-			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-					: false;
+	this.url = undefined;
+	this.type = undefined;
+	this.notificationOn = false;
 
-			// https://plus.google.com/u/0/104512463398531242371/posts
+	this.PageTypeEnum = {
+		UNKNOWN : undefined,
+		HOME : 'home'
+	};
 
-			/*
-			 * check home
-			 */
-			qRe = new RegExp("^https://plus.google.com/$");
-			urlTest = qRe.exec(url);
-			this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-					: false;
-		};
+	this.ifNotificationPage = function(url) {
+
+		if (this.getPageType(url) == this.PageTypeEnum.HOME) {
+			return true;
+		}
+
+	};
+
+	this.getPageType = function(url) {
+
+		var qRe = new RegExp("^https://plus.google.com/$");
+		var test = qRe.exec(url);
+
+		console.log('getPageType', "^https://plus.google.com/$", test);
+
+		if (test) {
+			return this.PageTypeEnum.HOME;
+		} else {
+			return this.PageTypeEnum.UNKNOWN;
+		}
+
+		qRe = new RegExp(
+				"^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
+		var urlTest = qRe.exec(url);
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+				: false;
+
+		/*
+		 * check if user page
+		 */
+		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
+		urlTest = qRe.exec(url);
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+				: false;
+		/*
+		 * check home
+		 */
+		qRe = new RegExp("^https://plus.google.com/u/0/$");
+		urlTest = qRe.exec(url);
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+				: false;
+
+		// https://plus.google.com/u/0/104512463398531242371/posts
+
+		/*
+		 * check home
+		 */
+		qRe = new RegExp("^https://plus.google.com/$");
+		urlTest = qRe.exec(url);
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
+				: false;
+	};
 };
 
 function UIExtender() {
-	
+
 	this.selBody = 12;
 	this.selAuthor = 12;
-	
+
 	this.addHashtags = function(postObj) {
 		var postBodyObj = postObj.querySelector(assets.gpPostBody);
 
@@ -1052,7 +863,7 @@ function UIExtender() {
 		}
 
 	};
-	
+
 }
 
 function Activity() {
@@ -1060,7 +871,7 @@ function Activity() {
 	this.title = undefined;
 	this.updated = undefined;// "2011-10-26T22:54:43.058Z"
 	this.id = undefined; // "z13xjpmy4pjhvpivt225v3i5yxbsuz102",
-	this.url = undefined;//			"https://plus.google.com/104482086818095930400/posts/MKMmLWaorZw",
+	this.url = undefined;// "https://plus.google.com/104482086818095930400/posts/MKMmLWaorZw",
 
 	this.actor = {
 		"id" : undefined,
@@ -1070,11 +881,11 @@ function Activity() {
 			"url" : undefined
 		}
 	};
-	
+
 	this.verb = "share";
 
-	//objectType = note|activity
-	
+	// objectType = note|activity
+
 	this.object = {
 		"objectType" : "note",
 		"content" : undefined,
@@ -1087,37 +898,35 @@ function Activity() {
 			"url" : undefined
 		} ]
 	};
-	
-	
+
 	this.getObjectActivity = function() {
 
 		return {
-				"objectType": "activity",
-				"id": undefined,
-				"actor": {
-					"id": undefined,
-					"displayName": undefined,
-					"url": undefined,
-					"image": {
-						"url":undefined
-					}
-				},
-				"content": undefined,
-				"url": undefined,
-			};
-		
+			"objectType" : "activity",
+			"id" : undefined,
+			"actor" : {
+				"id" : undefined,
+				"displayName" : undefined,
+				"url" : undefined,
+				"image" : {
+					"url" : undefined
+				}
+			},
+			"content" : undefined,
+			"url" : undefined,
+		};
+
 	};
 
 }
 
 function Actions() {
-	
 
 	this.doPlusOne = function(data) {
 		console.log('doPlusOne', data);
-		//{"href": "http://www.example.com/", "state": "on"}
+		// {"href": "http://www.example.com/", "state": "on"}
 	};
-	
+
 	this.doTweet = function(data) {
 		try {
 			getPort().postMessage({
@@ -1208,7 +1017,7 @@ function Actions() {
 			alert('failed open window');
 		}
 	};
-	
+
 	this.doFacebook = function(data) {
 		try {
 			getPort().postMessage({
@@ -1216,16 +1025,12 @@ function Actions() {
 				values : []
 			});
 
-			window
-					.open(
-							'http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596'
-									+ '&u='
-									+ encodeURIComponent(data.url)
-									+ '&t='
-									+ encodeURIComponent(data.author
-											+ ' on Google+')
-									,
-								'sharer','toolbar=0,status=0,resizable=1,width=626,height=436');
+			window.open(
+					'http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596'
+							+ '&u=' + encodeURIComponent(data.url) + '&t='
+							+ encodeURIComponent(data.author + ' on Google+'),
+					'sharer',
+					'toolbar=0,status=0,resizable=1,width=626,height=436');
 
 		} catch (e) {
 			alert('failed open window');

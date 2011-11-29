@@ -17,7 +17,7 @@
 
 // This script servers as an intermediary between oauth2.js and
 
-alert('hallo oauth2_inject');
+//alert('hallo oauth2_inject');
 // Get all ? params from this URL
 var url = window.location.href;
 var params = url.substring(url.indexOf('?'));
