@@ -572,19 +572,19 @@ function extendPostArea(o, settings) {
 
 	}, 'parse and notify');
 
-	extentPostWithAction(
-			placeholderObj,
-			'Ne',
-			function() {
+	extentPostWithAction(placeholderObj, 'pN', function() {
 
 				var activity = getActivityData(this);
-				console
-						.log(
-								'getActivityDataElement',
+				console.log('getActivityDataElement',
 								'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id='
 										+ activity.id);
-
-			}, 'parse and notify');
+				getPort().postMessage({
+					message : "onNewPost",
+					activity : activity,
+					force : true
+				});
+				
+	}, 'parse and notify');
 
 	// .a-b-f-i-p span.a-f-i-yj
 	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p

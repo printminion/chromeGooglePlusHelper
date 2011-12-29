@@ -3,98 +3,104 @@ var saveButton;
 
 var bkg = chrome.extension.getBackgroundPage();
 
-// Saves options to localStorage.
-function save_options() {
-//	bkg.settings.pollInterval = parseInt($('#refresh-interval').val()) * 60000;
-//	bkg.settings.timeout = 1000 * 15;
+function Options() {
 
-//	bkg.settings.soundAlert = $('#sound-alert').val();
+	// Saves options to localStorage.
+	this.save_options = function() {
+		// bkg.settings.pollInterval = parseInt($('#refresh-interval').val()) *
+		// 60000;
+		// bkg.settings.timeout = 1000 * 15;
 
-	console.log($('#options_hide_probe_labels').attr('checked'));
-	console.log(parseFloat($('#options_global_threshold_ratio').val()));
+		// bkg.settings.soundAlert = $('#sound-alert').val();
 
-	refresh_extension();
+		console.log($('#options_hide_probe_labels').attr('checked'));
+		console.log(parseFloat($('#options_global_threshold_ratio').val()));
 
-	$('#save_status').fadeIn('fast');
-	$('#save_status').fadeOut(3000);
-}
+		refresh_extension();
 
-// Refresh the extension by reseting timer.
-function refresh_extension() {
-	bkg.refresh();
-}
+		$('#save_status').fadeIn('fast');
+		$('#save_status').fadeOut(3000);
+	};
 
-function playSound() {
-	var urlSound = $('#options_notification_sound').val();
+	// Refresh the extension by reseting timer.
+	this.refresh_extension = function() {
+		bkg.refresh();
+	};
 
-	/*
-	 * BUG: http://code.google.com/p/chromium/issues/detail?id=25972
-	 */
+	this.playSound = function() {
+		var urlSound = $('#options_notification_sound').val();
 
-	if (urlSound) {
-		pingSound = document.createElement('audio');
-		pingSound.setAttribute('src', urlSound);
-		pingSound.setAttribute('id', 'ping');
-		pingSound.load();
-		pingSound.play();
-	}
-}
+		/*
+		 * BUG: http://code.google.com/p/chromium/issues/detail?id=25972
+		 */
 
-function doSpeakOption() {
-	var bkg = chrome.extension.getBackgroundPage();
-	bkg.doSpeak($("#ttsTextTest").text());
-}
+		if (urlSound) {
+			pingSound = document.createElement('audio');
+			pingSound.setAttribute('src', urlSound);
+			pingSound.setAttribute('id', 'ping');
+			pingSound.load();
+			pingSound.play();
+		}
+	};
 
-function doStopSpeakOption() {
-	var bkg = chrome.extension.getBackgroundPage();
-	bkg.doShutUp('options');
-}
+	this.doSpeakOption = function() {
+		var bkg = chrome.extension.getBackgroundPage();
+		bkg.doSpeak($("#ttsTextTest").text());
+	};
 
-function error(msg) {
-	var s = document.querySelector('#status');
-	s.innerHTML = typeof msg == 'string' ? msg : "failed";
-	s.className = 'fail';
+	this.doStopSpeakOption = function() {
+		var bkg = chrome.extension.getBackgroundPage();
+		bkg.doShutUp('options');
+	};
 
-	// console.log(arguments);
-}
+	this.error = function(msg) {
+		var s = document.querySelector('#status');
+		s.innerHTML = typeof msg == 'string' ? msg : "failed";
+		s.className = 'fail';
 
-function searchAddress(adress) {
-	showAddress(adress, function() {
-		markDirty();
-	});
-}
+		// console.log(arguments);
+	};
 
-function _initOptionsPage() {
-	saveButton = document.getElementById("save_button");
-	if (bkg.settings.isFirstRun) {
-		markDirty();
-	} else {
+	this.searchAddress = function(adress) {
+		showAddress(adress, function() {
+			markDirty();
+		});
+	};
+
+	this._initOptionsPage = function() {
+		saveButton = document.getElementById("save_button");
+		if (bkg.settings.isFirstRun) {
+			markDirty();
+		} else {
+			markClean();
+		}
+
+	};
+
+	this.saveOptions = function() {
 		markClean();
-	}
 
+		save_options();
+		return false;
+	};
+
+	this.resetOptions = function() {
+		// $('#refresh-interval').val("30");
+		$('#sound-alert').val("");
+		$("#options_global_threshold_ratio").val(3);
+		$("#options_hide_probe_labels").attr("checked", false);
+
+		saveOptions();
+		return false;
+	};
+
+	this.markDirty = function() {
+		saveButton.disabled = false;
+	};
+
+	this.markClean = function() {
+		saveButton.disabled = true;
+	};
 }
 
-function saveOptions() {
-	markClean();
-
-	save_options();
-	return false;
-}
-
-function resetOptions() {
-//	$('#refresh-interval').val("30");
-	$('#sound-alert').val("");
-	$("#options_global_threshold_ratio").val(3);
-	$("#options_hide_probe_labels").attr("checked", false);
-
-	saveOptions();
-	return false;
-}
-
-function markDirty() {
-	saveButton.disabled = false;
-}
-
-function markClean() {
-	saveButton.disabled = true;
-}
+var options = new Options();

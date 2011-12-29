@@ -21,8 +21,8 @@ var settings = {
 	},
 	
 	get addHashtags() {
-        //if(localStorage['addHashtags'] == 'NaN') return true;
-		//return localStorage['addHashtags'] || true;
+        // if(localStorage['addHashtags'] == 'NaN') return true;
+		// return localStorage['addHashtags'] || true;
 		return false;
 	},
 	set addHashtags(val) {

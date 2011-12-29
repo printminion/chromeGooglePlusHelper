@@ -53,13 +53,16 @@ chrome.extension.onConnect.addListener(function(port) {
 
 		case 'doDelicious':
 			_gaq.push([ '_trackPageview', '/bookmark-delicious' ]);
+			
 			break;
 		case 'onActivatePageAction':
 			chrome.pageAction.show(port.tab.id);
+			
 			break;
 		case 'onNewPost':
 			_gaq.push([ '_trackPageview', '/notify' ]);
-			doNotify(data.activity);
+			doNotify(data.activity, true);
+			
 			break;
 		case 'onNewPostApi':
 			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
@@ -92,11 +95,14 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'doOpenLink':
 			_gaq.push([ '_trackPageview', '/openLink' ]);
 			doOpenLink(data);
+			
 			break;
 		case 'registerPort':
+			
 			break;
 		default:
 			console.log('unknown message', data.message, data);
+		
 			break;
 		}
 
@@ -111,26 +117,33 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	case 'doOpenLink':
 		_gaq.push([ '_trackPageview', '/openLink' ]);
 		doOpenLink(request.values);
+		
 		break;
 	case 'doFacebook':
 		_gaq.push([ '_trackPageview', '/facebook' ]);
+		
 		break;
 	case 'doChromeBookmark':
 		bookmarks.addBookmark(request.values, sendResponse);
 		_gaq.push([ '_trackPageview', '/bookmark-chrome/add' ]);
+		
 		break;
 	case 'doDelicious':
 		_gaq.push([ '_trackPageview', '/bookmark-delicious' ]);
+		
 		break;
 	case 'checkChromeBookmarked':
 		bookmarks.checkBookmark(request.values, sendResponse);
+		
 		break;
 	case 'removeChromeBookmark':
 		_gaq.push([ '_trackPageview', '/bookmark-chrome/remove' ]);
 		bookmarks.removeBookmark(request.values, sendResponse);
+		
 		break;
 	case 'fetchTabInfo':
 		checkTab(sendResponse, sender);
+		
 		break;
 	case 'getSettings':
 		_gaq.push([ '_trackPageview', '/settings' ]);
@@ -464,7 +477,7 @@ function doOpenLink(data) {
 function getCachedNotificationbyId(id) {
 	if (notificationsCacheArr.hasOwnProperty(id)) {
 		var notification = notificationsCacheArr[id];
-		console.log('got notification [' + notification + ']');
+		console.log('got notification', notification);
 		
 		//delete notificationsCacheArr[id];
 

@@ -66,7 +66,7 @@
 	"sorry_no_content": {
 		"message": "Sorry, nothing to see here."
 	},
-	"options_header_title": {
+	"option_header_title": {
 		"message": "Helper for Google+"
 	},
 	"description_title": {
@@ -75,7 +75,7 @@
 	"description_body": {
 		"message": "%putdescription here%"
 	},
-	"options_title": {
+	"option_title": {
 		"message": "Options"
 	},
 	"button_findme": {
@@ -87,7 +87,7 @@
 	"status_saved": {
 		"message": "Saved... ..please reload Google+ Tabs"
 	},
-	"options_update_frequency_title": {
+	"option_update_frequency_title": {
 		"message": "Update every:"
 	},
 	"minutes": {
@@ -99,13 +99,13 @@
 			}
 		}
 	},
-	"options_sound_alert_title": {
+	"option_sound_alert_title": {
 		"message": "Sound Alert"
 	},
-	"options_sound_alert_none": {
+	"option_sound_alert_none": {
 		"message": "None"
 	},
-	"options_sound_alert_value": {
+	"option_sound_alert_value": {
 		"message": "Alert $VALUE$",
 		"placeholders": {
 			"value": {
