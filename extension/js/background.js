@@ -64,9 +64,11 @@ chrome.extension.onConnect.addListener(function(port) {
 			doNotify(data.activity, true);
 			
 			break;
-		case 'onNewPostApi':
+		case 'onNewPostViaApi':
 			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
 
+			assets.googlePlusAPIKey = settings.apiKey;
+			
 			var request = 'https://www.googleapis.com/plus/v1/activities/'
 							+ data.activity.id
 							+ '?alt=json&pp=1&key=' + assets.googlePlusAPIKey;
@@ -74,8 +76,8 @@ chrome.extension.onConnect.addListener(function(port) {
 			var callback = undefined;
 			
 			if (data.force) {
-				callback = 'onNewPostApi';
-				doApiCall(request, onNewPostApi);
+				callback = 'onNewPostViaApi';
+				doApiCall(request, onNewPostViaApi);
 			} else {
 				callback = 'doNotify';
 				doApiCall(request, doNotify);
@@ -336,13 +338,25 @@ function doSpeak(text) {
 	text = text.replace('http://', '');
 	text = text.replace('https://', '');
 
+	
+//	var options = {
+//		lang : "en-US",
+//		gender: "male",
+//		pitch : 1,
+//		rate : 0.5,
+//		volume : 1
+//	};
+	
 	var options = {
-		lang : "en-US",
-		gender: "male",
-		pitch : 1,
-		rate : 0.5,
-		volume : 1
-	};
+			  lang: settings.ttsLang
+			, gender: settings.ttsGender
+			, pitch: settings.ttsPitch
+			, rate: settings.ttsRate
+			, volume: settings.ttsVolume
+		};
+	
+	
+	
 
 	var utteranceIndex = 1;
 
@@ -485,7 +499,7 @@ function getCachedNotificationbyId(id) {
 	}
 }
 
-function onNewPostApi(activity) {
+function onNewPostViaApi(activity) {
 	doNotify(activity, true);
 }
 

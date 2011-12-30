@@ -13,10 +13,12 @@
 
 <script type="text/javascript">
 	//Restores select box state to saved value from localStorage.
-/* 	var tabs = {tabs:{
-					{name: 'options'}
-					,{name: 'tts'}}
-				}; */
+/* var tabs = { tabs: {
+					  {name: 'options'}
+					, {name: 'tts'}
+					, {name: 'api'}
+					, {name: 'about'}
+			}}; */
 
 	var optionsValues = {
 			 options: {
@@ -39,26 +41,48 @@
 			, option_tts_rate: { type: "val", default: "1.0", value: "1.0"}
 			, option_tts_pitch: { type: "val", default: "1.0", value: "1.0"}
 			, option_tts_volume: { type: "val", default: "1.0", value: "1.0"}
-			
-			
-			
-			
 			}
 			};
-	$(function() {
-	   $('#tts_tab').hide();
-		 
-		$('.d-Aa').click(function() {
-			$('.d-Aa').removeClass('d-Aa-Pa');
-			$(this).addClass('d-Aa-Pa');
-			
-			$('#option_tab').hide();
-			$('#tts_tab').hide();
 
-			$($(this).attr('href') + '_tab').show();
-			
-		});
+	
+	function selectTab(tab) {
+		if (tab == undefined || tab == '') {
+			tab = "options";
+		}
+		tab = tab.replace('#', '');
 		
+		$('.d-Aa').removeClass('d-Aa-Pa');
+		$('#-x-' + tab).addClass('d-Aa-Pa');
+		
+		$('#options_tab').hide();
+		$('#tts_tab').hide();
+		$('#api_tab').hide();
+		$('#about_tab').hide();
+		
+
+		$('#' + tab + '_tab').show();
+		
+	}
+	
+	
+	$(document).ready(function() {
+		
+	   var currentTab = location.hash.replace('#', '');
+		
+	   selectTab(currentTab);
+		
+	   $('.d-Aa').click(function() {
+			selectTab($(this).attr('href'));
+		});
+	   //d-Aa-qa-cq
+/* 		$('.d-Aa').hover(
+		  function () {
+		  	$('div', this).removeClass('d-Aa-qa').addClass('d-Aa-qa-cq');
+		  }, 
+		  function () {
+			$('div', this).removeClass('d-Aa-qa-cq').addClass('d-Aa-qa');
+		  }
+		); */
 		
 
 		if (bkg.settings.addTwitter == "true") {
@@ -113,9 +137,21 @@
 		$("#option_notification_sound").val(bkg.settings.notificationSound);
 		$('#option_notification_time').val(bkg.settings.notificationTime);
 		
-		if (localStorage['ttsOn'] == "true") {
+		/*
+		 * TTS
+		 */
+		if (bkg.settings.ttsOn == "true") {
 			$("#option_ttsOn").attr("checked", "true");
 		}
+		
+		/*
+		 * KEY
+		 */
+		 
+		$('#option_apiKey').val(bkg.settings.apiKey);
+		 
+		
+		
 		
 	});
 	
@@ -137,27 +173,27 @@
 		</div>
 
 		<div class="d-Aa-ua d-Aa-ua-Fa">
-			<a href="#options" class="d-Aa d-s-r a-Aa-Zl d-Aa-Pa"
-				style="-webkit-user-select: none;"><div class="d-Aa-qa"
-					style="-webkit-user-select: none;">Configuration</div>
-				<div class="d-Aa-qa-cq" style="-webkit-user-select: none;">Configuration</div>
+			<a href="#options" id="-x-options" class="d-Aa d-s-r a-Aa-Zl d-Aa-Pa">
+				<div class="d-Aa-qa">Configuration</div>
 			</a> 
-			<a href="#tts" class="d-Aa d-s-r a-Aa-Zl" aria-selected="true"
-				 style="-webkit-user-select: none;"><div
-					class="d-Aa-qa" style="-webkit-user-select: none;">TTS</div>
-				<div class="d-Aa-qa-cq" style="-webkit-user-select: none;">TTS</div>
+			<a href="#tts" id="-x-tts" class="d-Aa d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">TTS</div>
 			</a>
-			<!-- <a href="#about" class="d-Aa d-s-r a-Aa-Zl" aria-selected="true"
-				 style="-webkit-user-select: none;"><div
-					class="d-Aa-qa" style="-webkit-user-select: none;">About</div>
-				<div class="d-Aa-qa-cq" style="-webkit-user-select: none;">About</div>
-			</a> -->
+			
+			<a href="#api" id="-x-api" class="d-Aa d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">API</div>
+			</a>
+			
+			<a href="#about" id="-x-about" class="d-Aa d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">About</div>
+			</a>
+			
 			<div class="clear">
 				<!---->
 			</div>
 		</div>
 	
-<div id="option_tab">
+<div id="options_tab">
 		<div style="display: none;">
 			<script type="text/javascript">
 				_writeMessage('description_body');
@@ -630,6 +666,50 @@
 </div>
 </div>
 </div>
+
+<div id="api_tab">
+	
+	<div class="option_row">
+		<div class="option_name">Api-Key</div>
+		<div class="option_picker">
+			<input id="option_apiKey" onchange="markDirty();" placeholder="api-key">
+			<span class="va-Q-bb">
+				<button style="float: none;">
+					Test
+				</button>
+			</span>
+		
+		</div>
+	</div>
+	
+	<div class="option_row">
+		<div class="option_name"></div>
+		<div class="option_picker"  style="color: #999; width: 400px;">
+		The Google+ API currently provides read-only access to public data.<br><br>
+		You need to create the API key due limited usage quota per API key (1000 requests per day).
+		<br><br>
+		Login to Google APIs Console with your Google account to <a href="https://code.google.com/apis/console" target="_blank">obtain your Google+ API key</a>.
+		
+		<iframe style="margin-top: 5px; margin-bottom: 5px;" width="420" height="315" src="http://www.youtube.com/embed/Gne4U-pqLIk" frameborder="0" allowfullscreen></iframe>
+		
+		Also you can check <a href="http://www.googleplusers.com/google-plus-api-key-to-create-your-profile-widget.html" target="_blank">this tutorial</a>.
+		</div>
+	</div>
+
+</div>
+
+<div id="about_tab">
+
+<div class="option_row" style="color: #999;">
+	Created by <a href="https://plus.google.com/104512463398531242371">m.kupriyanov</a>.
+</div>
+					
+	<div class="option_row">
+				<div class="option_name"></div>
+				<div class="option_picker"></div>
+	</div>
+
+</div>
 		
 		<div class="clear">
 			<!---->
@@ -756,8 +836,13 @@
 			/*
 			 * tts
 			 */
-			 bkg.settings.ttsOn = $("#option_ttsOn").attr("checked");
-				
+			bkg.settings.ttsOn = $("#option_ttsOn").attr("checked");
+			
+			
+			
+			bkg.settings.apiKey = $("#option_apiKey").val();
+			
+			
 			//Refresh the extension by reseting timer.
 			bkg.refreshConfiguration();
 

@@ -113,6 +113,55 @@ var settings = {
 		localStorage['ttsOn'] = val;
 	},
 	
+	get ttsLang() {
+        if (localStorage['ttsLang'] == 'NaN' || localStorage['ttsLang'] == undefined) return "en-US";
+		return localStorage['ttsLang'];
+	},
+	set ttsLang(val) {
+		localStorage['ttsLang'] = val;
+	},
+
+	get ttsGender() {
+        if (localStorage['ttsGender'] == 'NaN' || localStorage['ttsGender'] == undefined) return "female";
+		return localStorage['ttsGender'];
+	},
+	set ttsGender(val) {
+		localStorage['ttsGender'] = val;
+	},
+    
+	get ttsPitch() {
+        if (localStorage['ttsPitch'] == 'NaN' || localStorage['ttsPitch'] == undefined) return 1;
+		return localStorage['ttsPitch'];
+	},
+	set ttsPitch(val) {
+		localStorage['ttsPitch'] = val;
+	},
+	
+	get ttsRate() {
+        if (localStorage['ttsRate'] == 'NaN' || localStorage['ttsRate'] == undefined) return 0.5;
+		return localStorage['ttsRate'];
+	},
+	set ttsRate(val) {
+		localStorage['ttsRate'] = val;
+	},
+    
+	get ttsVolume() {
+        if (localStorage['ttsVolume'] == 'NaN' || localStorage['ttsVolume'] == undefined) return 1;
+		return localStorage['ttsVolume'];
+	},
+	set ttsVolume(val) {
+		localStorage['ttsVolume'] = val;
+	},
+
+	
+	get apiKey() {
+        if (localStorage['apiKey'] == 'NaN' || localStorage['apiKey'] == undefined) return undefined;
+		return localStorage['apiKey'];
+	},
+	set apiKey(val) {
+		localStorage['apiKey'] = val;
+	},
+	
 	get notificationSound() {
         if(localStorage['notificationSound'] == 'NaN') return 'sound/01.mp3';
 		return localStorage['notificationSound'];

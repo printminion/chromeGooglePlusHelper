@@ -55,6 +55,9 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
+/**
+ * @returns {GPlusHelper}
+ */
 function GPlusHelper() {
 
 	var pageInfo = new PageInfo();
@@ -220,16 +223,20 @@ function GPlusHelper() {
 							var activity = activityParser.parsePostDataElement(e.target);
 							console.log('parsePostDataElement', activity);
 
-							// if (response.settings.isApiEnabled) {
-							getPort().postMessage({
-								message : "onNewPostApi",
-								activity : activity,
-								force : true
-							});
-							// } else {
-							// getPort().postMessage({message : "onNewPost",
-							// activity: activity});
-							// }
+							if (response.settings.isApiEnabled) {
+								getPort().postMessage({
+									message : "onNewPostViaApi",
+									activity: activity,
+									force : true
+								});
+							
+							} else {
+								
+								getPort().postMessage({
+									message : "onNewPost",
+									activity: activity
+								});
+							}
 
 						});
 
@@ -565,7 +572,7 @@ function extendPostArea(o, settings) {
 		console.log('getActivityDataElement', activity);
 
 		getPort().postMessage({
-			message : "onNewPostApi",
+			message : "onNewPostViaApi",
 			activity : activity,
 			force : true
 		});

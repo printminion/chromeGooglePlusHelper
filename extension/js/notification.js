@@ -54,6 +54,10 @@ function Notify() {
 		}
 		;
 
+		if (!bkg.settings.ttsOn) {
+			return;
+		}
+		
 		if (this.activity.annotation) {
 			bkg.doSpeak(this.activity.actor.displayName + ' '
 					+ this.activity.verb + ' ' + this.activity.annotation);
@@ -63,6 +67,7 @@ function Notify() {
 		}
 
 	};
+	
 	this.startTimer = function() {
 		t = setTimeout("notify.beforeClose()", this.CONF_TIMEOUT);
 	};
