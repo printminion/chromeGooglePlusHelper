@@ -29,9 +29,12 @@ var googleAuth = new OAuth2('google', {
 	  api_scope: assets.oauth2_api_scope
 	});
 
-	googleAuth.authorize(function() {
+if (settings.apiKey == undefined || settings.apiKey == '') {
+	console.log('settings.apiKey', settings.apiKey);	
+}
+/* 	googleAuth.authorize(function() {
 		console.log('OAuth:', googleAuth.getAccessToken());
-	});
+	}); */
 	
 </script>
 

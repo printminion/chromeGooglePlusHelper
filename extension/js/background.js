@@ -67,6 +67,13 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'onNewPostViaApi':
 			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
 
+			if (settings.apiKey == undefined || settings.apiKey == '') {
+				_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
+				//doOpenLink('options' + POSTFIX + '.html#api');
+				window.open('options' + POSTFIX + '.html#api', 'options');
+				return;
+			}
+			
 			assets.googlePlusAPIKey = settings.apiKey;
 			
 			var request = 'https://www.googleapis.com/plus/v1/activities/'
@@ -194,19 +201,21 @@ console.log('doApiCall', url, 'callback');
 				console.log('error on fetching activity:', xhr.status, JSON.parse(xhr.responseText));
 				console.log('try to get oAuth token:', googleAuth.getAccessToken());
 
-				googleAuth.authorize(function() {
-					console.log('OAuth:', googleAuth.getAccessToken());
-				});
+//				googleAuth.authorize(function() {
+//					console.log('OAuth:', googleAuth.getAccessToken());
+//				});
 			  
-			  
+				callback(JSON.parse(xhr.responseText));
+				
 		  } else {
+			    callback(JSON.parse(xhr.responseText));
 				console.log('error on fetching activity:', xhr.status, JSON.parse(xhr.responseText));
 		  }
 	   }
 	};
 
 	xhr.open("GET", url, true);
-	xhr.setRequestHeader('Authorization', 'OAuth ' + googleAuth.getAccessToken());
+	//xhr.setRequestHeader('Authorization', 'OAuth ' + googleAuth.getAccessToken());
 	xhr.send();
 	
 }
@@ -250,7 +259,7 @@ function init() {
 		bkg.settings.notificationSound = 'sound/01.mp3';
 		bkg.settings.notificationTime = 5000;
 
-		window.open('options' + POSTFIX + '.html');
+		window.open('options' + POSTFIX + '.html', 'options');
 	}, function() {
 		/*
 		 * set default values
@@ -261,7 +270,7 @@ function init() {
 		bkg.settings.addChromeBookmarksToolbar = true;
 
 		console.log("Extension Updated", bkg.settings);
-		window.open('options' + POSTFIX + '.html');
+		window.open('options' + POSTFIX + '.html', 'options');
 
 	});
 
@@ -287,9 +296,9 @@ function checkConnectionToTabs() {
 				if (test) {
 					countPlusTabs++;
 					var tab = windows[i].tabs[j];
-					console.log('test tab', tab);
+//					console.log('test tab', tab);
 					chrome.tabs.update(tab.id, {url: tab.url}, function(tab){
-						console.log('tab updated', tab);
+//						console.log('tab updated', tab);
 
 						chrome.tabs.sendRequest(tab.id, {action: 'initTab'}, function(tab){
 							console.log('tab updated', tab);
@@ -397,7 +406,7 @@ function doShutUp(id) {
 chrome.tabs.onUpdated.addListener(function(tabId, change, tab) {
 	if (change.status == "complete") {
 
-		console.log('backgrounds.tabs.onUpdated');
+//		console.log('backgrounds.tabs.onUpdated');
 
 		beforeUpdateTab(tabId);
 
@@ -414,10 +423,10 @@ function beforeUpdateTab(tabId) {
 	/*
 	 * get tab info
 	 */
-	console.log('beforeUpdateTab:');
+//	console.log('beforeUpdateTab:');
 
 	chrome.tabs.get(tabId, function(tab) {
-		console.log('currentTab', tab);
+//		console.log('currentTab', tab);
 
 		if (tab == undefined) {
 			return;
@@ -454,7 +463,7 @@ function beforeUpdateTab(tabId) {
 }
 
 chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
-	console.log('chrome.tabs.onSelectionChanged');
+//	console.log('chrome.tabs.onSelectionChanged');
 
 	beforeUpdateTab(tabId);
 

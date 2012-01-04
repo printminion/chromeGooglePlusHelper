@@ -220,21 +220,24 @@ function GPlusHelper() {
 							 * send notification
 							 */
 
-							var activity = activityParser.parsePostDataElement(e.target);
-							console.log('parsePostDataElement', activity);
-
+							
 							if (response.settings.isApiEnabled) {
-								getPort().postMessage({
-									message : "onNewPostViaApi",
-									activity: activity,
-									force : true
+								var activityId = activityParser.parseActivityId(e.target);
+								console.log('activityId', activityId);
+
+								getPort().postMessage({message : "onNewPostViaApi"
+														, activity: {id: activityId}
+														, callback: undefined
+														, force: true
 								});
 							
 							} else {
+								var activity = activityParser.parsePostDataElement(e.target);
+								console.log('parsePostDataElement', activity);
 								
-								getPort().postMessage({
-									message : "onNewPost",
-									activity: activity
+								getPort().postMessage({message : "onNewPost"
+														, activity: activity
+														, callback: undefined
 								});
 							}
 
@@ -568,12 +571,12 @@ function extendPostArea(o, settings) {
 
 	extentPostWithAction(placeholderObj, 'N', function() {
 
-		var activity = getActivityData(this);
-		console.log('getActivityDataElement', activity);
+		var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
+		console.log('activityId', activityId);
 
 		getPort().postMessage({
 			message : "onNewPostViaApi",
-			activity : activity,
+			activity : {id : activityId},
 			force : true
 		});
 
@@ -707,13 +710,13 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	placeholderObj.appendChild(span);
 }
 
-function extentPostWithHTML(placeholderObj, data, settings, htmlClass,
+function extentPostWithHTML(placeholderObj, activity, settings, htmlClass,
 		callback, title) {
 	if (!placeholderObj) {
 		return;
 	}
 
-	if (data.visibility != 'public') {
+	if (activity.access.items[0].type != 'public') {
 		return;
 	}
 
@@ -724,18 +727,18 @@ function extentPostWithHTML(placeholderObj, data, settings, htmlClass,
 
 	var div = document.createElement("div");
 	var attrClass = document.createAttribute("id");
-	attrClass.nodeValue = 'plusone-' + data.id;
+	attrClass.nodeValue = 'plusone-' + activity.id;
 	div.setAttributeNode(attrClass);
 
 	var attrClass2 = document.createAttribute("class");
 	attrClass2.nodeValue = htmlClass;
 	div.setAttributeNode(attrClass2);
 
-	div.innerHTML = '<g:plusone href="' + data.url + '" size="small" ' + count
+	div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count
 			+ ' callback="_onPlusOne" ></g:plusone>';
 
 	var script = document.createElement("script");
-	script.innerText = 'gapi.plusone.go("' + 'plusone-' + data.id + '");';
+	script.innerText = 'gapi.plusone.go("' + 'plusone-' + activity.id + '");';
 
 	placeholderObj.appendChild(div);
 	placeholderObj.appendChild(script);
@@ -754,14 +757,8 @@ function addJavaScriptCode(code) {
 
 }
 
-/**
- * Traverse parent elements till post div will be found
- * 
- * @param o
- * @returns Activity
- */
-function getActivityData(o) {
-	// console.log('getActivityData', o);
+function getActivityHTMLNode(o) {
+	// console.log('getActivityHTMLNode', o);
 
 	// var updateDiv = undefined;
 	var currentElement = o;
@@ -772,13 +769,26 @@ function getActivityData(o) {
 		if (currentElement.getAttribute('id')) {
 			var idBegin = currentElement.getAttribute('id').substring(0, 7);
 			if (idBegin == 'update-') {
-				return activityParser.parsePostDataElement(currentElement);
+				return currentElement;
 			}
 			;
 
 		}
 		;
 	}
+	
+}
+/**
+ * Traverse parent elements till post div will be found
+ * 
+ * @param o
+ * @returns Activity
+ */
+function getActivityData(o) {
+	// console.log('getActivityData', o);
+
+	return activityParser.parsePostDataElement(getActivityHTMLNode(o));
+
 }
 
 function PageInfo() {
@@ -905,6 +915,13 @@ function Activity() {
 			"url" : undefined
 		} ]
 	};
+	
+	this.access = {
+		  "kind": "plus#acl",
+		  "items": [ {
+		    "type": "public"
+		   }]
+		 };
 
 	this.getObjectActivity = function() {
 
@@ -927,29 +944,32 @@ function Activity() {
 
 }
 
+/**
+ * @returns {Actions}
+ */
 function Actions() {
 
-	this.doPlusOne = function(data) {
-		console.log('doPlusOne', data);
+	this.doPlusOne = function(activity) {
+		console.log('doPlusOne', activity);
 		// {"href": "http://www.example.com/", "state": "on"}
 	};
 
-	this.doTweet = function(data) {
+	this.doTweet = function(activity) {
 		try {
 			getPort().postMessage({
 				message : "doTweet",
 				values : []
 			});
 			window.open('https://twitter.com/intent/tweet?text='
-					+ encodeURIComponent(data.text + ' #googleplus') + '&url='
-					+ encodeURIComponent(data.url));
+					+ encodeURIComponent(activity.annotation + ' #googleplus') + '&url='
+					+ encodeURIComponent(activity.url));
 		} catch (e) {
 			alert('failed open window');
 		}
 		;
 	};
 
-	this.doTranslate = function(data) {
+	this.doTranslate = function(activity) {
 		try {
 
 			chrome.extension.sendRequest({
@@ -966,7 +986,7 @@ function Actions() {
 
 				window.open('http://translate.google.com/#auto|'
 						+ settings.addTranslateTo + '|'
-						+ encodeURIComponent(data.text + ' #googleplus '));
+						+ encodeURIComponent(activity.annotation));
 
 			});
 
@@ -976,7 +996,7 @@ function Actions() {
 		;
 	};
 
-	this.doBookmark = function(data) {
+	this.doBookmark = function(activity) {
 		try {
 			getPort().postMessage({
 				message : "doBookmark",
@@ -986,9 +1006,9 @@ function Actions() {
 			window
 					.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup'
 							+ '&srcUrl='
-							+ encodeURIComponent(data.url)
+							+ encodeURIComponent(activity.url)
 							+ '&snippet='
-							+ encodeURIComponent(data.text)
+							+ encodeURIComponent(activity.annotation)
 							+ '&title='
 							+ encodeURIComponent('Google+ Bookmark'));
 
@@ -998,7 +1018,7 @@ function Actions() {
 		;
 	};
 
-	this.doDelicious = function(data) {
+	this.doDelicious = function(activity) {
 		try {
 			getPort().postMessage({
 				message : "doDelicious",
@@ -1009,12 +1029,12 @@ function Actions() {
 					.open(
 							'http://www.delicious.com/save?'
 									+ '&url='
-									+ encodeURIComponent(data.url)
+									+ encodeURIComponent(activity.url)
 									+ '&notes='
-									+ encodeURIComponent(data.author + ': '
-											+ data.text)
+									+ encodeURIComponent(activity.actor.displayName + ': '
+											+ activity.annotation)
 									+ '&title='
-									+ encodeURIComponent(data.author
+									+ encodeURIComponent(activity.actor.displayName
 											+ ' on Google+')
 									+ '&v=6&noui=1&jump=doclose',
 							"doDelicious",
@@ -1025,7 +1045,10 @@ function Actions() {
 		}
 	};
 
-	this.doFacebook = function(data) {
+	/**
+	 * @param Activity activity 
+	 */
+	this.doFacebook = function(activity) {
 		try {
 			getPort().postMessage({
 				message : "doFacebook",
@@ -1034,8 +1057,8 @@ function Actions() {
 
 			window.open(
 					'http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596'
-							+ '&u=' + encodeURIComponent(data.url) + '&t='
-							+ encodeURIComponent(data.author + ' on Google+'),
+							+ '&u=' + encodeURIComponent(activity.url) + '&t='
+							+ encodeURIComponent(activity.actor.displayName + ' on Google+'),
 					'sharer',
 					'toolbar=0,status=0,resizable=1,width=626,height=436');
 
@@ -1044,21 +1067,21 @@ function Actions() {
 		}
 	};
 
-	this.doChromeBookmark = function(element, data) {
+	this.doChromeBookmark = function(element, activity) {
 		if (element.getAttribute('class') == 'mk-bookmark') {
-			this.addChromeBookmark(element, data);
+			this.addChromeBookmark(element, activity);
 		} else {
-			this.removeChromeBookmark(element, data);
+			this.removeChromeBookmark(element, activity);
 		}
 	};
 
-	this.addChromeBookmark = function(element, data) {
-		console.log('doChromeBookmark', element, data);
+	this.addChromeBookmark = function(element, activity) {
+		console.log('doChromeBookmark', element, activity);
 		chrome.extension.sendRequest({
 			action : "doChromeBookmark",
 			values : {
-				url : data.url,
-				text : data.author + ': ' + data.text
+				url : activity.url,
+				text : activity.actor.displayName + ': ' + activity.annotation
 			}
 		}, function(bookmarked) {
 			element.setAttribute('title',
@@ -1068,12 +1091,12 @@ function Actions() {
 
 	};
 
-	this.removeChromeBookmark = function(element, data) {
-		console.log('removeChromeBookmark', element, data);
+	this.removeChromeBookmark = function(element, activity) {
+		console.log('removeChromeBookmark', element, activity);
 		chrome.extension.sendRequest({
 			action : "removeChromeBookmark",
 			values : {
-				url : data.url
+				url : activity.url
 			}
 		}, function(bookmarked) {
 			element.setAttribute('title', 'Click to bookmark this post');

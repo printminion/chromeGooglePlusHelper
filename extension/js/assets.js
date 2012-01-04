@@ -1,7 +1,7 @@
 function Assets() {
 	this._setAccount = 'UA-3508250-20';
 	
-	this.googlePlusAPIKey = 'AIzaSyDQFlyxMQP6nVYRhDkE7X6guDs6AVZA4xw';
+	this.googlePlusAPIKey = '';//AIzaSyDQFlyxMQP6nVYRhDkE7X6guDs6AVZA4xw';
 	
 	this.oauth2_client_id = '1026646529651-91gfbnhithvjat5r77b5d2qnu3hrcmer.apps.googleusercontent.com';
 	this.oauth2_client_secret = 'v_ZTcekaW9qO3npisNM4rxQP';
@@ -31,9 +31,9 @@ function Assets() {
 	this.gpActivityShare = "div.Jm";
 	
 	
-	this.gpActivityText = "div.Ph.Sx";// div.Uj";
+	this.gpActivityText = "div.Ph.Sx div";// annotation
 	
-	this.gpActivityAttachementAuthor = "Ux";
+	this.gpActivityAttachementAuthor = "div.Ux";
 	this.gpActivityAttachementAuthorImage = "img";
 	this.gpActivityAttachementAuthorName = "a";
 	

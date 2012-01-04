@@ -6,13 +6,27 @@
 <link rel="shortcut icon" HREF="img/icon16.png">
 <link rel="stylesheet" type="text/css" href="css/options.css">
 
+<script src="js/assets.js"></script>
+
+<script type="text/javascript">
+	var assets = new Assets();
+</script>
+
 <script type="text/javascript" src="lib/i18n.js"></script>
 <script type="text/javascript" src="js/options.js"></script>
 <script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
 
+<!-- <script src="oauth2/oauth2.js"></script> -->
 
 <script type="text/javascript">
-	//Restores select box state to saved value from localStorage.
+
+/* var googleAuth = new OAuth2('google', {
+	  client_id: assets.oauth2_client_id,
+	  client_secret: assets.oauth2_client_secret,
+	  api_scope: assets.oauth2_api_scope
+}); */
+	
+//Restores select box state to saved value from localStorage.
 /* var tabs = { tabs: {
 					  {name: 'options'}
 					, {name: 'tts'}
@@ -64,7 +78,7 @@
 		
 	}
 	
-	
+	var lastApiKey = undefined;
 	$(document).ready(function() {
 		
 	   var currentTab = location.hash.replace('#', '');
@@ -74,6 +88,51 @@
 	   $('.d-Aa').click(function() {
 			selectTab($(this).attr('href'));
 		});
+	   
+	   $('#option_apiKey').focus(function() {
+		   lastApiKey = $('#option_apiKey').val();
+	   }).blur(function() {
+			 if (lastApiKey != $('#option_apiKey').val()) {
+				 $('#btnTestApi').addClass('d-ze-qc');
+			 }
+	   });
+	   
+	   $('#btnTestApi').click(function() {
+
+		   if ( $('#option_apiKey').val() == undefined ||  $('#option_apiKey').val() == '') {
+				console.log('settings.apiKey', bkg.settings.apiKey);	
+				return;
+			}
+		   
+		     var request = 'https://www.googleapis.com/plus/v1/people/104512463398531242371?fields=displayName%2Cid%2Cimage%2Cname&pp=1&key=' + $('#option_apiKey').val();
+
+				bkg.doApiCall(request, function(result){
+					if (result.error) {
+						alert('wrong api key');
+						bkg.settings.apiKey = '';
+						bkg.settings.isApiEnabled = true;
+						assets.googlePlusAPIKey = '';
+						
+						$('#option_apiKey').val('');
+						
+					} else {
+						bkg.settings.apiKey = $('#option_apiKey').val();
+						bkg.settings.isApiEnabled = true;
+						assets.googlePlusAPIKey = bkg.settings.apiKey;
+						alert('ok');
+					}
+					
+					$('#btnTestApi').removeClass('d-ze-qc');
+					
+				});
+			
+	/* 	   googleAuth.authorize(function() {
+				console.log('OAuth:', googleAuth.getAccessToken());
+			});
+	 */	   
+	   });
+	   
+	   
 	   //d-Aa-qa-cq
 /* 		$('.d-Aa').hover(
 		  function () {
@@ -674,9 +733,7 @@
 		<div class="option_picker">
 			<input id="option_apiKey" onchange="markDirty();" placeholder="api-key">
 			<span class="va-Q-bb">
-				<button style="float: none;">
-					Test
-				</button>
+				<button id="btnTestApi" style="float: none;">Get Access</button>
 			</span>
 		
 		</div>
