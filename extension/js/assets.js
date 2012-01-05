@@ -37,6 +37,8 @@ function Assets() {
 	this.gpActivityAttachementAuthorImage = "img";
 	this.gpActivityAttachementAuthorName = "a";
 	
+	this.gpActivityAttachementSpark = "article";
+	
 	
 	this.gpActivityAttachement = "Tx";
 	

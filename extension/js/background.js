@@ -508,6 +508,10 @@ function getCachedNotificationbyId(id) {
 	}
 }
 
+function doEnableApi(value, callback){
+	callback(!value);
+};
+
 function onNewPostViaApi(activity) {
 	doNotify(activity, true);
 }

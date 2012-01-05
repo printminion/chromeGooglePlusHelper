@@ -2,6 +2,8 @@ var t = 0;
 
 var bMouseOver = false;
 var bMouseOverTimerOff = true;
+var bkg = chrome.extension.getBackgroundPage();
+
 
 /**
  * @returns {Notify}
@@ -160,28 +162,58 @@ function Notify() {
 		}
 		
 		var ttsObj = document.querySelector("button#-mk-tts");
-
+		if (bkg.settings.ttsOn) {
+			ttsObj.setAttribute('class', 'on');
+		}
 		if (ttsObj.addEventListener) {
 
 			(function(component) {
 				ttsObj.addEventListener('click', function(e) {
 					e.stopPropagation();
 
-					if (e.target.getAttribute('class') == '-mk-tts') {
-						component.addChromeBookmark(e.target,
-								component.activity);
-					} else {
-						component.removeChromeBookmark(e.target,
-								component.activity);
-					}
+					bkg.settings.ttsOn = e.target.getAttribute('class') == 'on' ? false : true;
 
+					var cssClass = bkg.settings.ttsOn ? 'on' : 'off';
+					e.target.setAttribute('class', cssClass);
+					
 					return false;
 
 				}, true);
 			})(this);
 
 		}
+
+		var apiObj = document.querySelector("button#-mk-api");
+
+		if (bkg.settings.isApiEnabled) {
+			apiObj.setAttribute('class', 'on');
+		}
 		
+		if (apiObj.addEventListener) {
+
+			(function(component) {
+				apiObj.addEventListener('click', function(e) {
+					e.stopPropagation();
+
+					
+					
+					bkg.doEnableApi(e.target.getAttribute('class') == 'on', function(changed){
+						if (!changed) {
+							return;
+						}
+						
+						bkg.settings.isApiEnabled = e.target.getAttribute('class') == 'on' ? true : false;
+						var cssClass = bkg.settings.isApiEnabled ? 'on' : 'off';
+						e.target.setAttribute('class', cssClass);
+							
+					});
+					
+					return false;
+
+				}, true);
+			})(this);
+
+		}
 		
 		
 
@@ -279,7 +311,6 @@ function Notify() {
 			query[part[0]] = decodeURIComponent(part[1]);
 		}
 
-		var bkg = chrome.extension.getBackgroundPage();
 
 		this.activity = bkg.getCachedNotificationbyId(query.id);
 
@@ -294,7 +325,7 @@ function Notify() {
 		
 		var html = this.activity.title;
 
-		html = html.replace('"//', '"https://');
+		html = html != undefined ? html.replace('"//', '"https://') : undefined;
 
 		var containers = document.querySelectorAll("a");
 
@@ -322,7 +353,8 @@ function Notify() {
 			return;
 		}
 
-		activity.updatedTime = this._getTime(activity.updated);
+		
+		activity.updatedTime = activity.updatedHTMLTime ? activity.updatedHTMLTime : this._getTime(activity.updated);
 
 		try {
 			if (!activity.object.actor) {

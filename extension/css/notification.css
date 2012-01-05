@@ -167,7 +167,7 @@ a {
 	vertical-align: bottom;
 	position: absolute;
 	left: 53px;
-	top : 1px;
+	top: 1px;
 	z-index: 20;
 }
 
@@ -199,8 +199,6 @@ a {
 	background-position: 0 -336px;
 }
 
-
-
 #-mk-tts {
 	background: no-repeat
 		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
@@ -212,10 +210,9 @@ a {
 	margin-right: 3px;
 	vertical-align: bottom;
 	position: absolute;
-	left: 3px;
-	bottom : 3px;
+	left: 18px;
+	bottom: 3px;
 	z-index: 20;
-	display: none;
 }
 
 #-mk-tts.on {
@@ -223,5 +220,29 @@ a {
 }
 
 #-mk-tts.off {
+	background-position: 0 -130px;
+}
+
+#-mk-api {
+	background: no-repeat
+		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
+		-235px;
+	width: 13px !important;
+	height: 13px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	position: absolute;
+	left: 3px;
+	bottom: 3px;
+	z-index: 20;
+}
+
+#-mk-api.on {
+	background-position: 0 -235px;
+}
+
+#-mk-api.off {
 	background-position: 0 -130px;
 }

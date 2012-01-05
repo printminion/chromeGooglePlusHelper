@@ -221,7 +221,7 @@ function GPlusHelper() {
 							 */
 
 							
-							if (response.settings.isApiEnabled) {
+							if (response.settings.isApiEnabled == true || response.settings.isApiEnabled == 'true') {
 								var activityId = activityParser.parseActivityId(e.target);
 								console.log('activityId', activityId);
 
@@ -615,11 +615,13 @@ function extendPostArea(o, settings) {
 
 	if (settings.addChromeBookmarks == 'true') {
 
-		var postData = getActivityData(placeholderObj);
+		//var postData = getActivityData(placeholderObj);
+		var url = getActivityUrl(placeholderObj);
+		
 		chrome.extension.sendRequest({
 			action : "checkChromeBookmarked",
 			values : {
-				url : postData.url
+				url : url
 			}
 		}, function(bookmarked) {
 
@@ -791,6 +793,13 @@ function getActivityData(o) {
 
 }
 
+function getActivityUrl(o) {
+	// console.log('getActivityData', o);
+
+	return activityParser.parseActivityUrl(getActivityHTMLNode(o));
+
+}
+
 function PageInfo() {
 	this.url = undefined;
 	this.type = undefined;
@@ -811,20 +820,38 @@ function PageInfo() {
 
 	this.getPageType = function(url) {
 
+		/*
+		 * trim query
+		 */
+		url = this.getPathFromUrl(url);
+		
 		var qRe = new RegExp("^https://plus.google.com/$");
-		var test = qRe.exec(url);
+		var urlTest = qRe.exec(url);
 
-		console.log('getPageType', "^https://plus.google.com/$", test);
+		console.log('getPageType', "^https://plus.google.com/$", urlTest);
 
-		if (test) {
+		if (urlTest) {
 			return this.PageTypeEnum.HOME;
-		} else {
-			return this.PageTypeEnum.UNKNOWN;
 		}
-
+		
+		
+		/*
+		 * check home
+		 */
+		qRe = new RegExp("^https://plus.google.com/stream$");
+		urlTest = qRe.exec(url);
+		//this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;	
+		
+		if (urlTest) {
+			return this.PageTypeEnum.HOME;
+		}		
+		
+		
+		return this.PageTypeEnum.UNKNOWN;
+		
 		qRe = new RegExp(
 				"^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
-		var urlTest = qRe.exec(url);
+		urlTest = qRe.exec(url);
 		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
 				: false;
 
@@ -840,8 +867,7 @@ function PageInfo() {
 		 */
 		qRe = new RegExp("^https://plus.google.com/u/0/$");
 		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-				: false;
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
 
 		// https://plus.google.com/u/0/104512463398531242371/posts
 
@@ -850,9 +876,18 @@ function PageInfo() {
 		 */
 		qRe = new RegExp("^https://plus.google.com/$");
 		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-				: false;
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
+		
+
+		
+		
+		
 	};
+	
+	this.getPathFromUrl = function(url) {
+		  return url.split("?")[0];
+	};
+	
 };
 
 function UIExtender() {
