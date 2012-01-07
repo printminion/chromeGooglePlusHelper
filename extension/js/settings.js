@@ -131,26 +131,26 @@ var settings = {
     
 	get ttsPitch() {
         if (localStorage['ttsPitch'] == 'NaN' || localStorage['ttsPitch'] == undefined) return 1;
-		return localStorage['ttsPitch'];
+		return parseFloat(localStorage['ttsPitch']);
 	},
 	set ttsPitch(val) {
-		localStorage['ttsPitch'] = val;
+		localStorage['ttsPitch'] = parseFloat(val);
 	},
 	
 	get ttsRate() {
         if (localStorage['ttsRate'] == 'NaN' || localStorage['ttsRate'] == undefined) return 0.5;
-		return localStorage['ttsRate'];
+		return parseFloat(localStorage['ttsRate']);
 	},
 	set ttsRate(val) {
-		localStorage['ttsRate'] = val;
+		localStorage['ttsRate'] = parseFloat(val);
 	},
     
 	get ttsVolume() {
         if (localStorage['ttsVolume'] == 'NaN' || localStorage['ttsVolume'] == undefined) return 1;
-		return localStorage['ttsVolume'];
+		return parseFloat(localStorage['ttsVolume']);
 	},
 	set ttsVolume(val) {
-		localStorage['ttsVolume'] = val;
+		localStorage['ttsVolume'] = parseFloat(val);
 	},
 
 	

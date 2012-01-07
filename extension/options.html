@@ -34,6 +34,7 @@
 					, {name: 'about'}
 			}}; */
 
+			
 	var optionsValues = {
 			 options: {
 			  option_add_twitter: { type: "attr", default: true, value: true, attr: "checked" }
@@ -51,6 +52,7 @@
 			, option_notification_time: {type: "val", default: 5000, value: 5000}
 			, option_ttsOn: { type: "attr", default: true, value: true, attr: "checked" }
 			, option_tts_language: { type: "val", default: "native", value: "native"}
+			, option_tts_gender: { type: "val", default: "female", value: "female"}
 			, option_tts_lang: { type: "val", default: "en-US", value: "en-US"}
 			, option_tts_rate: { type: "val", default: "1.0", value: "1.0"}
 			, option_tts_pitch: { type: "val", default: "1.0", value: "1.0"}
@@ -85,6 +87,25 @@
 		
 	   selectTab(currentTab);
 		
+	   
+		chrome.tts.getVoices(
+			    function(voices) {
+			      for (var i = 0; i < voices.length; i++) {
+
+			    	  $('#option_tts_language')
+			          .append($("<option></option>")
+			          .attr("value", voices[i].voiceName)
+			          .text(voices[i].voiceName))
+			          
+			        console.log('Voice ' + i + ':');
+			        console.log('  name: ' + voices[i].voiceName);
+			        console.log('  lang: ' + voices[i].lang);
+			        console.log('  gender: ' + voices[i].gender);
+			        console.log('  extension id: ' + voices[i].extensionId);
+			        console.log('  event types: ' + voices[i].eventTypes);
+			      }
+		});
+		
 	   $('.d-Aa').click(function() {
 			selectTab($(this).attr('href'));
 		});
@@ -100,14 +121,18 @@
 	   $('#btnTestApi').click(function() {
 
 		   if ( $('#option_apiKey').val() == undefined ||  $('#option_apiKey').val() == '') {
-				console.log('settings.apiKey', bkg.settings.apiKey);	
+				console.log('settings.apiKey', bkg.settings.apiKey);
+				alert('Please put your simple api key in to textbox\nand hit the validate button');
 				return;
 			}
 		   
 		     var request = 'https://www.googleapis.com/plus/v1/people/104512463398531242371?fields=displayName%2Cid%2Cimage%2Cname&pp=1&key=' + $('#option_apiKey').val();
 
+		     $('#btnTestApi').text('Validating...');
 				bkg.doApiCall(request, function(result){
 					if (result.error) {
+						$('#btnTestApi').text('Validate');
+						
 						alert('wrong api key');
 						bkg.settings.apiKey = '';
 						bkg.settings.isApiEnabled = false;
@@ -116,11 +141,12 @@
 						$('#option_apiKey').val('');
 						$('#option_apiKey').focus();
 					} else {
+						$('#btnTestApi').text('Validate');
 						bkg.settings.apiKey = $('#option_apiKey').val();
 						bkg.settings.isApiEnabled = true;
 						assets.googlePlusAPIKey = bkg.settings.apiKey;
-						alert('ok');
-						markDirty(); 
+						alert('Your Simply access Google+ API has been saved');
+						//markDirty(); 
 					}
 					
 					$('#btnTestApi').removeClass('d-ze-qc');
@@ -197,23 +223,26 @@
 
 		$("#option_notification_sound").val(bkg.settings.notificationSound);
 		$('#option_notification_time').val(bkg.settings.notificationTime);
-		
+		$('#option_notification_time_value').text(bkg.settings.notificationTime/1000)
 		/*
 		 * TTS
 		 */
-		if (bkg.settings.ttsOn == "true") {
+		if (bkg.settings.ttsOn || bkg.settings.ttsOn == "true") {
 			$("#option_ttsOn").attr("checked", "true");
 		}
+	
+		$('#option_tts_lang').val(bkg.settings.ttsLang);
+		$('#option_tts_gender').val(bkg.settings.ttsGender);
+		$('#option_tts_pitch').val(bkg.settings.ttsPitch);
+		$('#option_tts_rate').val(bkg.settings.ttsRate);
+		$('#option_tts_volume').val(bkg.settings.ttsVolume);
 		
+		
+			
 		/*
 		 * KEY
 		 */
-		 
 		$('#option_apiKey').val(bkg.settings.apiKey);
-		 
-		
-		
-		
 	});
 	
 </script>
@@ -242,7 +271,7 @@
 			</a>
 			
 			<a href="#api" id="-x-api" class="d-Aa d-s-r a-Aa-Zl">
-				<div class="d-Aa-qa">API</div>
+				<div class="d-Aa-qa">Google+ API</div>
 			</a>
 			
 			<a href="#about" id="-x-about" class="d-Aa d-s-r a-Aa-Zl">
@@ -430,7 +459,7 @@
 									</option>
 
 								</select> <span class="va-Q-bb">
-									<button onclick="playSound();" style="float: none;">
+									<button onclick="options.playSound();" style="float: none;">
 										<script type="text/javascript">
 											_writeMessage('button_play');
 										</script>
@@ -440,13 +469,17 @@
 						</tr>
 						<tr>
 							<td class="option">Display</td>
-							<td><select id="option_notification_time"
+							<td>
+							<!-- <select id="option_notification_time"
 							onchange="markDirty();">
 								<option value="3000">3</option>
 								<option value="5000">5</option>
 								<option value="10000">10</option>
 								<option value="15000">15</option>
-						</select> seconds
+						</select>  -->
+							  <input id="option_notification_time" type="range" min="3000" max="15000" value="5000" step="1000" style="cursor: pointer;" onchange="markDirty();$('#option_notification_time_value').text(this.value/1000)">
+								<span id="option_notification_time_value"></span> seconds
+						
 							</td>
 						</tr>
 
@@ -531,10 +564,18 @@
 						</tr>
 
 						<tr>
+							<td class="option">Gender</td>
+							<td><select id="option_tts_gender" onchange="markDirty();">
+									<option value="female">Female</option>
+									<option value="male">Male</option>
+								</select>
+							</td>
+						</tr>
+						
+						<tr>
 							<td class="option">Voice</td>
 							<td><select id="option_tts_language" onchange="markDirty();">
 									<option value="">Unspecified</option>
-									<option value="native">native</option>
 								</select>
 							</td>
 						</tr>
@@ -572,7 +613,7 @@
   <option value="en-NZ">English (New Zealand)</option>
   <option value="en-ZA">English (South Africa)</option>
   <option value="en-GB">English (United Kingdom)</option>
-  <option value="en-US" selected="">English (United States)</option>
+  <option value="en-US" selected="selected">English (United States)</option>
   <option value="eo">esperanto</option>
   <option value="et">eesti</option>
   <option value="fo">føroyskt</option>
@@ -683,15 +724,13 @@
 			<tr>
 						<td class="option"></td>
 						<td>
-			    			<div id="ttsTextTest" contenteditable="true" style="padding: 4px; margin-top:10px; margin-right:20px; overflow:hidden">Enter text to read</div>
- 						 	<span style="color: #999;">Enter text here and test</span>
+						   <span style="color: #999;">Enter text here and test</span>
+ 						 	<div id="ttsTextTest" contenteditable="true" style="padding: 4px; margin-top:10px; margin-right:20px; overflow:hidden">Enter text to read</div>
  						 		<span class="va-Q-bb">
-									<button onclick="doSpeakOption();" style="float: none;">
+									<button onclick="options.doSpeakOption();" style="float: none;">
 										<script type="text/javascript">_writeMessage('button_tts_speak');</script>
 									</button>
-								</span>
-								<span class="va-Q-bb">
-									<button onclick="doStopSpeakOption();" style="float: none;">
+									<button onclick="options.doStopSpeakOption();" style="float: none;">
 										<script type="text/javascript">_writeMessage('button_tts_stop');</script>
 									</button>
 								</span>
@@ -704,7 +743,7 @@
 	<div class="option_row">
 		<div class="option_name">Voice</div>
 		<div class="option_picker">
-			<table border="0">
+			<table style="border:0px;">
 					<tr>
 						<td class="option">Rate</td>
 						<td>
@@ -729,9 +768,16 @@
 </div>
 
 <div id="api_tab">
+
+	<div class="option_row">
+		<div class="option_name"></div>
+		<div class="option_picker"  style="color: #999; width: 400px;">
+		You need to create your own API key due limited usage quota per API key (1000 requests per day).
+		</div>
+	</div>
 	
 	<div class="option_row">
-		<div class="option_name">Api-Key</div>
+		<div class="option_name">Google+ API-Key</div>
 		<div class="option_picker">
 			<input id="option_apiKey" placeholder="api-key">
 			<span class="va-Q-bb">
@@ -744,8 +790,9 @@
 	<div class="option_row">
 		<div class="option_name"></div>
 		<div class="option_picker"  style="color: #999; width: 400px;">
-		The Google+ API currently provides read-only access to public data.<br><br>
-		You need to create the API key due limited usage quota per API key (1000 requests per day).
+		
+		The Google+ API currently provides read-only access to public data.<br>
+		
 		<br><br>
 		Login to Google APIs Console with your Google account to <a href="https://code.google.com/apis/console" target="_blank">obtain your Google+ API key</a>.
 		
@@ -760,7 +807,7 @@
 <div id="about_tab">
 
 <div class="option_row" style="color: #999;">
-	Created by <a href="https://plus.google.com/104512463398531242371">m.kupriyanov</a>.
+	Created by <a href="https://plus.google.com/104512463398531242371">m.kupriyanov</a>
 </div>
 					
 	<div class="option_row">
@@ -896,9 +943,12 @@
 			 * tts
 			 */
 			bkg.settings.ttsOn = $("#option_ttsOn").attr("checked");
-			
-			
-			
+			bkg.settings.ttsLang = $('#option_tts_lang').val();
+			bkg.settings.ttsGender = $('#option_tts_gender').val();
+			bkg.settings.ttsPitch = $('#option_tts_pitch').val();
+			bkg.settings.ttsRate = $('#option_tts_rate').val();
+			bkg.settings.ttsVolume = $('#option_tts_volume').val();
+		
 			bkg.settings.apiKey = $("#option_apiKey").val();
 			
 			

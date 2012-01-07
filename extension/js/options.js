@@ -28,7 +28,7 @@ function Options() {
 	};
 
 	this.playSound = function() {
-		var urlSound = $('#options_notification_sound').val();
+		var urlSound = $('#option_notification_sound').val();
 
 		/*
 		 * BUG: http://code.google.com/p/chromium/issues/detail?id=25972
@@ -45,7 +45,15 @@ function Options() {
 
 	this.doSpeakOption = function() {
 		var bkg = chrome.extension.getBackgroundPage();
-		bkg.doSpeak($("#ttsTextTest").text());
+		
+		var options = {
+				  lang: $("#option_tts_lang").val()
+				, gender: $("#option_tts_gender").val()
+				, pitch: parseFloat($("#option_tts_pitch").val())
+				, rate: parseFloat($("#option_tts_rate").val())
+				, volume: parseFloat($("#option_tts_volume").val())
+			};
+		bkg.doSpeakWithOptions($("#ttsTextTest").text(), options);
 	};
 
 	this.doStopSpeakOption = function() {

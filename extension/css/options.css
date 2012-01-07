@@ -168,7 +168,7 @@ body {
 	color: #666;
 	float: right;
 	font-weight: bold;
-	margin: 0 0 0 16px;
+	margin: 0 16px 0 0 ;
 	padding: 6px 12px;
 	transition: all .218s ease;
 	-o-transition: all .218s ease;

@@ -56,10 +56,14 @@ function Notify() {
 		}
 		;
 
-		if (!bkg.settings.ttsOn) {
-			return;
+		if (bkg.settings.ttsOn) {
+			this.doSpeak();
 		}
 		
+
+	};
+	
+	this.doSpeak = function(){
 		if (this.activity.annotation) {
 			bkg.doSpeak(this.activity.actor.displayName + ' '
 					+ this.activity.verb + ' ' + this.activity.annotation);
@@ -67,8 +71,9 @@ function Notify() {
 			bkg.doSpeak(this.activity.actor.displayName + ' '
 					+ this.activity.verb + ' ' + this.activity.title);
 		}
-
+		
 	};
+	
 	
 	this.startTimer = function() {
 		t = setTimeout("notify.beforeClose()", this.CONF_TIMEOUT);
@@ -175,7 +180,13 @@ function Notify() {
 
 					var cssClass = bkg.settings.ttsOn ? 'on' : 'off';
 					e.target.setAttribute('class', cssClass);
-					
+
+					if (bkg.settings.ttsOn) {
+						component.doSpeak();
+					} else {
+						bkg.doShutUp(component.activity.id);
+					}
+
 					return false;
 
 				}, true);

@@ -200,27 +200,26 @@ a {
 }
 
 #-mk-tts {
-	background: no-repeat
-		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
-		-235px;
-	width: 13px !important;
-	height: 13px !important;
+	background: no-repeat url(../images/icon-tts.png) 0 -16px;
+	width: 16px !important;
+	height: 16px !important;
 	background-color: transparent;
 	border: 0;
 	margin-right: 3px;
 	vertical-align: bottom;
 	position: absolute;
-	left: 18px;
+	left: 3px;
 	bottom: 3px;
 	z-index: 20;
+	cursor: pointer;
 }
 
 #-mk-tts.on {
-	background-position: 0 -235px;
+	background-position: 0 -16px;
 }
 
 #-mk-tts.off {
-	background-position: 0 -130px;
+	background-position: 0 0px;
 }
 
 #-mk-api {
@@ -234,13 +233,15 @@ a {
 	margin-right: 3px;
 	vertical-align: bottom;
 	position: absolute;
-	left: 3px;
+	left: 18px;
 	bottom: 3px;
 	z-index: 20;
+	cursor: pointer;
 }
 
 #-mk-api.on {
 	background-position: 0 -235px;
+	display: none;
 }
 
 #-mk-api.off {

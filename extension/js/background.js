@@ -259,6 +259,10 @@ function init() {
 		bkg.settings.notificationSound = 'sound/01.mp3';
 		bkg.settings.notificationTime = 5000;
 
+		bkg.settings.ttsOn = true;
+		bkg.settings.isApiEnabled = true;
+		
+		
 		window.open('options' + POSTFIX + '.html', 'options');
 	}, function() {
 		/*
@@ -356,6 +360,7 @@ function doSpeak(text) {
 //		volume : 1
 //	};
 	
+	
 	var options = {
 			  lang: settings.ttsLang
 			, gender: settings.ttsGender
@@ -365,8 +370,12 @@ function doSpeak(text) {
 		};
 	
 	
-	
+	doSpeakWithOptions(text, options);
 
+}
+
+function doSpeakWithOptions(text, options) {
+	
 	var utteranceIndex = 1;
 
 	console.log(utteranceIndex + ': ' + JSON.stringify(options));
@@ -392,7 +401,7 @@ function doSpeak(text) {
 			console.log('TTS Error: ' + chrome.extension.lastError.message);
 		}
 	});
-
+	
 }
 
 function doShutUp(id) {
