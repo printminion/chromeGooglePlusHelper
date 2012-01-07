@@ -196,8 +196,10 @@ function Notify() {
 
 		var apiObj = document.querySelector("button#-mk-api");
 
-		if (bkg.settings.isApiEnabled) {
+		if (bkg.settings.isApiEnabled && bkg.settings.isApiEnabled == "true") {
 			apiObj.setAttribute('class', 'on');
+		} else {
+			apiObj.setAttribute('class', 'off');
 		}
 		
 		if (apiObj.addEventListener) {
@@ -206,18 +208,18 @@ function Notify() {
 				apiObj.addEventListener('click', function(e) {
 					e.stopPropagation();
 
+					window.open('options' + POSTFIX + '.html#api', 'options');
 					
-					
-					bkg.doEnableApi(e.target.getAttribute('class') == 'on', function(changed){
-						if (!changed) {
-							return;
-						}
-						
-						bkg.settings.isApiEnabled = e.target.getAttribute('class') == 'on' ? true : false;
-						var cssClass = bkg.settings.isApiEnabled ? 'on' : 'off';
-						e.target.setAttribute('class', cssClass);
-							
-					});
+//					bkg.doEnableApi(e.target.getAttribute('class') == 'on', function(changed){
+//						if (!changed) {
+//							return;
+//						}
+//						
+//						bkg.settings.isApiEnabled = e.target.getAttribute('class') == 'on' ? true : false;
+//						var cssClass = bkg.settings.isApiEnabled ? 'on' : 'off';
+//						e.target.setAttribute('class', cssClass);
+//							
+//					});
 					
 					return false;
 

@@ -224,10 +224,10 @@ a {
 
 #-mk-api {
 	background: no-repeat
-		url(../images/common-full-409360b9a97ad562fbe42ae2a97a5eaf.png) 0
-		-235px;
-	width: 13px !important;
-	height: 13px !important;
+		url(../images/icon-api.png) 0
+		-16px;
+	width: 16px !important;
+	height: 16px !important;
 	background-color: transparent;
 	border: 0;
 	margin-right: 3px;
@@ -240,10 +240,10 @@ a {
 }
 
 #-mk-api.on {
-	background-position: 0 -235px;
+	background-position: 0 -16px;
 	display: none;
 }
 
 #-mk-api.off {
-	background-position: 0 -130px;
+	background-position: 0 0px;
 }

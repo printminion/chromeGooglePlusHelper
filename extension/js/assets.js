@@ -8,11 +8,11 @@ function Assets() {
 	this.oauth2_api_scope = 'https://www.googleapis.com/auth/plus.me';
 	
 	
-	
 	this.gpContentPane = "#contentPane";
 	this.gpContainer = "div.or";// a-b-f-i-oa";
 
-	this.gpContainerStream = "div.Sq";
+	this.gpContainerStreamClass = "Sq";
+	this.gpContainerStream = "div." + this.gpContainerStreamClass;
 	this.gpContainerStreamProfile = "div.c-ng-L1-P"; //post
 
 	this.gpPostUpperControls = "div.jr";// div.Xy";
@@ -53,6 +53,7 @@ function Assets() {
 
 	this.gpToolbarButton = 'a-j c-i-j-ua Kb a-l-k';
 	this.gpToolbarButtonInner = 'Gja mQ ';
-
-
+	
+	this.gpToolbarSearchFliedClass = 'gbq2';
+	
 }

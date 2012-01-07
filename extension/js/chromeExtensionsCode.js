@@ -60,7 +60,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
  */
 function GPlusHelper() {
 
-	var pageInfo = new PageInfo();
+	this.pageInfo = new PageInfo();
 
 	this.init = function() {
 
@@ -78,9 +78,7 @@ function GPlusHelper() {
 			var ga = document.createElement('script');
 			ga.type = 'text/javascript';
 			ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl'
-					: 'http://www')
-					+ '.google-analytics.com/ga.js';
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 			var s = document.getElementsByTagName('script')[0];
 			s.parentNode.insertBefore(ga, s);
 		})();
@@ -89,19 +87,14 @@ function GPlusHelper() {
 			var ga = document.createElement('script');
 			ga.type = 'text/javascript';
 			ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://'
-					: 'http://')
-					+ 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
+			ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
 			var s = document.getElementsByTagName('script')[0];
 			s.parentNode.insertBefore(ga, s);
 		})();
 
 		var po = document.createElement('script');
 		po.type = 'text/javascript';
-		po.innerText = "function _onPlusOne(data){"
-				+ "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);"
-				+ "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);"
-				+ "\n};";
+		po.innerText = "function _onPlusOne(data){" + "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);" + "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);" + "\n};";
 
 		var s = document.getElementsByTagName('script')[0];
 		s.parentNode.insertBefore(po, s);
@@ -163,15 +156,14 @@ function GPlusHelper() {
 		(function(component) {
 			container.addEventListener('DOMNodeInserted', function(e) {
 
-				var idPrefix = e.target.id ? e.target.id.substring(0, 7)
-						: undefined;
+				var idPrefix = e.target.id ? e.target.id.substring(0, 7) : undefined;
 
 				if (idPrefix != 'update-') {
 					return;
 				}
 
 				lastPostId = e.target.id;
-				console.log('onBeforePostAdded', lastPostId);
+				console.log('[i]onBeforePostAdded', lastPostId);
 
 				/*
 				 * get post url
@@ -181,9 +173,23 @@ function GPlusHelper() {
 					console.log('[i]set assets.gpPostUrl = "md gi xi;"');
 					return;
 				}
-
-				console.log('onPostAdded', lastPostId, e.target
-						.getAttribute('href'));
+				
+				/*
+				 * take only Actions from the top
+				 */
+				var currentActionHTMLObj = e.target;
+				
+				if(currentActionHTMLObj.parentNode.getAttribute('class') == assets.gpContainerStreamClass) {
+				
+					if (currentActionHTMLObj.parentNode.firstChild.getAttribute('id') != lastPostId){
+						console.log('[w]skip Action - got it not from the top', lastPostId);
+						return;
+					}
+				}
+					
+				
+				
+				console.log('onActivityAdded', lastPostId, e.target.getAttribute('href'));
 
 				/*
 				 * TODO add notification - NOT
@@ -198,50 +204,51 @@ function GPlusHelper() {
 				 */
 				chrome.extension.sendRequest({
 					action : "getSettings"
-				},
-						function(response) {
-							console.log('response.getSettings',
-									response.settings);
+				}, function(response) {
+					console.log('response.getSettings', response.settings);
 
-							if (!response.settings.notificationOn) {
-								console.log('...no notification');
-								return;
-							}
+					if (!response.settings.notificationOn) {
+						console.log('...no notification');
+						return;
+					}
 
-//							var postObj = document.querySelector('#' + lastPostId);
-//
-//							if (!postObj) {
-//								console.log('failed to get html by ' + '#'
-//										+ lastPostId);
-//								return;
-//							}
+					// var postObj = document.querySelector('#' + lastPostId);
+					//
+					// if (!postObj) {
+					// console.log('failed to get html by ' + '#'
+					// + lastPostId);
+					// return;
+					// }
 
-							/*
-							 * send notification
-							 */
+					/*
+					 * send notification
+					 */
 
-							
-							if (response.settings.isApiEnabled == true || response.settings.isApiEnabled == 'true') {
-								var activityId = activityParser.parseActivityId(e.target);
-								console.log('activityId', activityId);
+					if (response.settings.isApiEnabled == true || response.settings.isApiEnabled == 'true') {
+						var activityId = activityParser.parseActivityId(e.target);
+						console.log('activityId', activityId);
 
-								getPort().postMessage({message : "onNewPostViaApi"
-														, activity: {id: activityId}
-														, callback: undefined
-														, force: true
-								});
-							
-							} else {
-								var activity = activityParser.parsePostDataElement(e.target);
-								console.log('parsePostDataElement', activity);
-								
-								getPort().postMessage({message : "onNewPost"
-														, activity: activity
-														, callback: undefined
-								});
-							}
-
+						getPort().postMessage({
+							message : "onNewPostViaApi",
+							activity : {
+								id : activityId
+							},
+							callback : undefined,
+							force : true
 						});
+
+					} else {
+						var activity = activityParser.parsePostDataElement(e.target);
+						console.log('parsePostDataElement', activity);
+
+						getPort().postMessage({
+							message : "onNewPost",
+							activity : activity,
+							callback : undefined
+						});
+					}
+
+				});
 
 				lastPostId = undefined;
 				fetchTabInfo("fetchOnUpdate");
@@ -260,89 +267,88 @@ function GPlusHelper() {
 			return;
 		}
 
-		chrome.extension
-				.sendRequest(
-						{
-							action : "getSettings"
-						},
-						function(response) {
-							// console.log('response.getSettings', response);
+		chrome.extension.sendRequest({
+			action : "getSettings"
+		}, function(response) {
+			// console.log('response.getSettings', response);
 
-							var settings = response.settings;
+			var settings = response.settings;
 
-							if (settings.addChromeBookmarks == 'true'
-									&& settings.addChromeBookmarksToolbar == 'true') {
+			if (settings.addChromeBookmarks == 'true' && settings.addChromeBookmarksToolbar == 'true') {
 
-								var buttonObj = document.createElement("a");
-								buttonObj.href = '#';
+				var buttonObj = document.createElement("a");
+				buttonObj.href = '#';
 
-								var attrClass = document
-										.createAttribute("class");
+				var attrClass = document.createAttribute("class");
 
-								attrClass.nodeValue = assets.gpToolbarButton;
+				attrClass.nodeValue = assets.gpToolbarButton;
 
-								var attrClass2 = document
-										.createAttribute("aria-label");
-								attrClass2.nodeValue = 'Bookmarks';
-								buttonObj.setAttributeNode(attrClass2);
+				var attrClass2 = document.createAttribute("aria-label");
+				attrClass2.nodeValue = 'Bookmarks';
+				buttonObj.setAttributeNode(attrClass2);
 
-								(function(chromeBookmarsFolderId) {
-									buttonObj.onclick = function(e) {
-										e.stopPropagation();
-										chrome.extension
-												.sendRequest(
-														{
-															action : "doOpenLink",
-															values : {
-																url : 'chrome://bookmarks/?#'
-																		+ chromeBookmarsFolderId,
-																target : 'bookmarks'
-															}
-														}, function() {
-														});
-
-										/*
-										 * 
-										 * console.log('show bookmarks'); //var
-										 * streamObj =
-										 * document.querySelector("div.a-b-f-i-oa");
-										 * //var streamObj =
-										 * document.querySelector("#contentPane");
-										 * var streamObj =
-										 * document.querySelector(".a-p-M");
-										 * 
-										 * 
-										 * if (streamObj) {
-										 * streamObj.style.display = 'none'; }
-										 * 
-										 */
-										return false;
-									};
-								})(response.chromeBookmarsFolderId);
-
-								buttonObj.setAttributeNode(attrClass);
-								buttonObj.innerHTML = '<span class="'
-										+ assets.gpToolbarButtonInner
-										+ ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
-																									// VAbDid
-								miniToolbarObj.appendChild(buttonObj);
-
+				
+				
+				
+				(function(chromeBookmarsFolderId) {
+					buttonObj.onclick = function(e) {
+						e.stopPropagation();
+						chrome.extension.sendRequest({
+							action : "doOpenLink",
+							values : {
+								url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId,
+								target : 'bookmarks'
 							}
-
+						}, function() {
 						});
+
+						/*
+						 * 
+						 * console.log('show bookmarks'); //var streamObj =
+						 * document.querySelector("div.a-b-f-i-oa"); //var
+						 * streamObj = document.querySelector("#contentPane");
+						 * var streamObj = document.querySelector(".a-p-M");
+						 * 
+						 * 
+						 * if (streamObj) { streamObj.style.display = 'none'; }
+						 * 
+						 */
+						return false;
+					};
+				})(response.chromeBookmarsFolderId);
+
+				buttonObj.setAttributeNode(attrClass);
+				buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
+				// VAbDid
+				miniToolbarObj.appendChild(buttonObj);
+				
+				
+				/*
+				 * move search field to the right
+				 */
+				
+				var o = document.getElementById(assets.gpToolbarSearchFliedClass);
+				if (o) {
+					var attrStyle = document.createAttribute("style");
+					attrStyle.nodeValue = 'margin-left: 457px!important;';
+					o.setAttributeNode(attrStyle);
+				}
+
+
+			}
+
+		});
 
 	};
 
 	this.addHashTagsUrls = function(element, callback) {
 
 		var replaceWith = '$1<a href="https://plus.google.com/s/%23$2" target="_blank">#$2</a>';
-		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g,
-				replaceWith);
+		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
 
 		if (element.innerHTML != hashtagged) {
 
-			var hashtagged = element.innerHTML.replace(
-					/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
+			var hashtagged = element.innerHTML.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
 
 			callback(hashtagged);
 
@@ -374,8 +380,7 @@ function GPlusHelper() {
  */
 
 getPort().onMessage.addListener(function(msg) {
-	console.log("The extension said: " + msg.message + " with values: "
-			+ msg.values, msg);
+	console.log("The extension said: " + msg.message + " with values: " + msg.values, msg);
 
 	console.log('onMessage', msg);
 
@@ -532,26 +537,26 @@ function extendPostArea(o, settings) {
 
 	}
 
-//	if (settings.addTranslate == 'true') {
-//		extentPostWithAction(placeholderObj, 'Translate', function() {
-//			actions.doTranslate(getActivityData(this));
-//		}, 'Click to translate this post');
-//
-//		console.log('o', o);
-//
-//		extentPostWithAction(placeholderObj, 'T2', function() {
-//			// div. > div.vg
-//			// div. > div.vg-translate
-//
-//			// new google.translate.SectionalElement({
-//			// sectionalNodeClassName: 'goog-trans-section',
-//			// controlNodeClassName: 'goog-trans-control',
-//			// background: '#f4fa58'
-//			// }, 'google_sectional_element');
-//
-//		}, 'Click to translate this post');
-//
-//	}
+	// if (settings.addTranslate == 'true') {
+	// extentPostWithAction(placeholderObj, 'Translate', function() {
+	// actions.doTranslate(getActivityData(this));
+	// }, 'Click to translate this post');
+	//
+	// console.log('o', o);
+	//
+	// extentPostWithAction(placeholderObj, 'T2', function() {
+	// // div. > div.vg
+	// // div. > div.vg-translate
+	//
+	// // new google.translate.SectionalElement({
+	// // sectionalNodeClassName: 'goog-trans-section',
+	// // controlNodeClassName: 'goog-trans-control',
+	// // background: '#f4fa58'
+	// // }, 'google_sectional_element');
+	//
+	// }, 'Click to translate this post');
+	//
+	// }
 
 	if (settings.addBookmarks == 'true') {
 
@@ -576,7 +581,9 @@ function extendPostArea(o, settings) {
 
 		getPort().postMessage({
 			message : "onNewPostViaApi",
-			activity : {id : activityId},
+			activity : {
+				id : activityId
+			},
 			force : true
 		});
 
@@ -584,21 +591,19 @@ function extendPostArea(o, settings) {
 
 	extentPostWithAction(placeholderObj, 'pN', function() {
 
-				var activity = getActivityData(this);
-				console.log('getActivityDataElement',
-								'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id='
-										+ activity.id);
-				getPort().postMessage({
-					message : "onNewPost",
-					activity : activity,
-					force : true
-				});
-				
+		var activity = getActivityData(this);
+		console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
+		getPort().postMessage({
+			message : "onNewPost",
+			activity : activity,
+			force : true
+		});
+
 	}, 'parse and notify');
 
 	// .a-b-f-i-p span.a-f-i-yj
 	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
-																			// span.a-f-i-yj");
+	// span.a-f-i-yj");
 
 	if (!placeholderIconsObj) {
 		console.log('error: failed to get the placeholder for icons');
@@ -607,17 +612,16 @@ function extendPostArea(o, settings) {
 
 	if (settings.addPlusOne == 'true') {
 
-		extentPostWithHTML(placeholderIconsObj, getActivityData(placeholderObj),
-				settings, '...', function() {
-				}, '...');
+		extentPostWithHTML(placeholderIconsObj, getActivityData(placeholderObj), settings, '...', function() {
+		}, '...');
 
 	}
 
 	if (settings.addChromeBookmarks == 'true') {
 
-		//var postData = getActivityData(placeholderObj);
+		// var postData = getActivityData(placeholderObj);
 		var url = getActivityUrl(placeholderObj);
-		
+
 		chrome.extension.sendRequest({
 			action : "checkChromeBookmarked",
 			values : {
@@ -627,19 +631,15 @@ function extendPostArea(o, settings) {
 
 			if (bookmarked) {
 
-				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmarked',
-						function(element) {
-							actions.doChromeBookmark(element.target,
-									getActivityData(this));
-						}, 'Click to remove bookmark this post');
+				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmarked', function(element) {
+					actions.doChromeBookmark(element.target, getActivityData(this));
+				}, 'Click to remove bookmark this post');
 
 			} else {
 
-				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmark',
-						function(element) {
-							actions.doChromeBookmark(element.target,
-									getActivityData(this));
-						}, 'Click to bookmark this post');
+				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmark', function(element) {
+					actions.doChromeBookmark(element.target, getActivityData(this));
+				}, 'Click to bookmark this post');
 
 			}
 			;
@@ -712,8 +712,7 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 	placeholderObj.appendChild(span);
 }
 
-function extentPostWithHTML(placeholderObj, activity, settings, htmlClass,
-		callback, title) {
+function extentPostWithHTML(placeholderObj, activity, settings, htmlClass, callback, title) {
 	if (!placeholderObj) {
 		return;
 	}
@@ -722,10 +721,8 @@ function extentPostWithHTML(placeholderObj, activity, settings, htmlClass,
 		return;
 	}
 
-	var count = settings.addPlusOneCounter == 'true' ? 'count="true"'
-			: 'count="false"';
-	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count'
-			: 'mk-plusone';
+	var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
+	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
 
 	var div = document.createElement("div");
 	var attrClass = document.createAttribute("id");
@@ -736,8 +733,7 @@ function extentPostWithHTML(placeholderObj, activity, settings, htmlClass,
 	attrClass2.nodeValue = htmlClass;
 	div.setAttributeNode(attrClass2);
 
-	div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count
-			+ ' callback="_onPlusOne" ></g:plusone>';
+	div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
 
 	var script = document.createElement("script");
 	script.innerText = 'gapi.plusone.go("' + 'plusone-' + activity.id + '");';
@@ -778,7 +774,7 @@ function getActivityHTMLNode(o) {
 		}
 		;
 	}
-	
+
 }
 /**
  * Traverse parent elements till post div will be found
@@ -824,7 +820,7 @@ function PageInfo() {
 		 * trim query
 		 */
 		url = this.getPathFromUrl(url);
-		
+
 		var qRe = new RegExp("^https://plus.google.com/$");
 		var urlTest = qRe.exec(url);
 
@@ -833,35 +829,31 @@ function PageInfo() {
 		if (urlTest) {
 			return this.PageTypeEnum.HOME;
 		}
-		
-		
+
 		/*
 		 * check home
 		 */
 		qRe = new RegExp("^https://plus.google.com/stream$");
 		urlTest = qRe.exec(url);
-		//this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;	
-		
+		// this.pageInfo.notificationOn = (urlTest &&
+		// this.pageInfo.notificationOn) ? true : false;
+
 		if (urlTest) {
 			return this.PageTypeEnum.HOME;
-		}		
-		
-		
+		}
+
 		return this.PageTypeEnum.UNKNOWN;
-		
-		qRe = new RegExp(
-				"^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
+
+		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
 		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-				: false;
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
 
 		/*
 		 * check if user page
 		 */
 		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
 		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true
-				: false;
+		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
 		/*
 		 * check home
 		 */
@@ -877,17 +869,13 @@ function PageInfo() {
 		qRe = new RegExp("^https://plus.google.com/$");
 		urlTest = qRe.exec(url);
 		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
-		
 
-		
-		
-		
 	};
-	
+
 	this.getPathFromUrl = function(url) {
-		  return url.split("?")[0];
+		return url.split("?")[0];
 	};
-	
+
 };
 
 function UIExtender() {
@@ -950,13 +938,13 @@ function Activity() {
 			"url" : undefined
 		} ]
 	};
-	
+
 	this.access = {
-		  "kind": "plus#acl",
-		  "items": [ {
-		    "type": "public"
-		   }]
-		 };
+		"kind" : "plus#acl",
+		"items" : [ {
+			"type" : "public"
+		} ]
+	};
 
 	this.getObjectActivity = function() {
 
@@ -995,9 +983,7 @@ function Actions() {
 				message : "doTweet",
 				values : []
 			});
-			window.open('https://twitter.com/intent/tweet?text='
-					+ encodeURIComponent(activity.annotation + ' #googleplus') + '&url='
-					+ encodeURIComponent(activity.url));
+			window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(activity.annotation + ' #googleplus') + '&url=' + encodeURIComponent(activity.url));
 		} catch (e) {
 			alert('failed open window');
 		}
@@ -1019,9 +1005,7 @@ function Actions() {
 					language : settings.addTranslateTo
 				});
 
-				window.open('http://translate.google.com/#auto|'
-						+ settings.addTranslateTo + '|'
-						+ encodeURIComponent(activity.annotation));
+				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|' + encodeURIComponent(activity.annotation));
 
 			});
 
@@ -1038,14 +1022,8 @@ function Actions() {
 				values : []
 			});
 
-			window
-					.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup'
-							+ '&srcUrl='
-							+ encodeURIComponent(activity.url)
-							+ '&snippet='
-							+ encodeURIComponent(activity.annotation)
-							+ '&title='
-							+ encodeURIComponent('Google+ Bookmark'));
+			window.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup' + '&srcUrl=' + encodeURIComponent(activity.url) + '&snippet=' + encodeURIComponent(activity.annotation)
+					+ '&title=' + encodeURIComponent('Google+ Bookmark'));
 
 		} catch (e) {
 			alert('failed open window');
@@ -1060,20 +1038,9 @@ function Actions() {
 				values : []
 			});
 
-			window
-					.open(
-							'http://www.delicious.com/save?'
-									+ '&url='
-									+ encodeURIComponent(activity.url)
-									+ '&notes='
-									+ encodeURIComponent(activity.actor.displayName + ': '
-											+ activity.annotation)
-									+ '&title='
-									+ encodeURIComponent(activity.actor.displayName
-											+ ' on Google+')
-									+ '&v=6&noui=1&jump=doclose',
-							"doDelicious",
-							'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
+			window.open('http://www.delicious.com/save?' + '&url=' + encodeURIComponent(activity.url) + '&notes=' + encodeURIComponent(activity.actor.displayName + ': ' + activity.annotation)
+					+ '&title=' + encodeURIComponent(activity.actor.displayName + ' on Google+') + '&v=6&noui=1&jump=doclose', "doDelicious",
+					'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
 
 		} catch (e) {
 			alert('failed open window');
@@ -1081,7 +1048,8 @@ function Actions() {
 	};
 
 	/**
-	 * @param Activity activity 
+	 * @param Activity
+	 *            activity
 	 */
 	this.doFacebook = function(activity) {
 		try {
@@ -1090,12 +1058,8 @@ function Actions() {
 				values : []
 			});
 
-			window.open(
-					'http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596'
-							+ '&u=' + encodeURIComponent(activity.url) + '&t='
-							+ encodeURIComponent(activity.actor.displayName + ' on Google+'),
-					'sharer',
-					'toolbar=0,status=0,resizable=1,width=626,height=436');
+			window.open('http://www.facebook.com/sharer.php?src=bm&v=4&i=1311715596' + '&u=' + encodeURIComponent(activity.url) + '&t='
+					+ encodeURIComponent(activity.actor.displayName + ' on Google+'), 'sharer', 'toolbar=0,status=0,resizable=1,width=626,height=436');
 
 		} catch (e) {
 			alert('failed open window');
@@ -1119,8 +1083,7 @@ function Actions() {
 				text : activity.actor.displayName + ': ' + activity.annotation
 			}
 		}, function(bookmarked) {
-			element.setAttribute('title',
-					'Click to remove bookmark for this post');
+			element.setAttribute('title', 'Click to remove bookmark for this post');
 			element.setAttribute('class', 'mk-bookmarked');
 		});
 

@@ -161,6 +161,8 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log('settings', bkg.settings);
 		sendResponse({
 			settings : bkg.settings
+			, chromeBookmarsFolderId: bkg.bookmarks.parentId
+			
 		});
 
 		break;
@@ -263,7 +265,7 @@ function init() {
 		bkg.settings.isApiEnabled = true;
 		
 		
-		window.open('options' + POSTFIX + '.html', 'options');
+		window.open('options' + POSTFIX + '.html#api', 'options');
 	}, function() {
 		/*
 		 * set default values
