@@ -579,6 +579,8 @@ function extendPostArea(o, settings) {
 		var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
 		console.log('activityId', activityId);
 
+		//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
+
 		getPort().postMessage({
 			message : "onNewPostViaApi",
 			activity : {
@@ -587,7 +589,7 @@ function extendPostArea(o, settings) {
 			force : true
 		});
 
-	}, 'parse and notify');
+	}, 'notify by api');
 
 	extentPostWithAction(placeholderObj, 'pN', function() {
 
@@ -960,7 +962,7 @@ function Activity() {
 				}
 			},
 			"content" : undefined,
-			"url" : undefined,
+			"url" : undefined
 		};
 
 	};

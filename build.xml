@@ -4,31 +4,32 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="0.0.36" />
+	<property name="VERSION" value="0.1.37" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
 			<zipfileset dir="." includes="extension/**" excludes="
-				extension/background.html,
-				extension/manifest.tpl.json,
-				extension/notification_helper.html,
-				extension/options.html,
-				extension/update.html,
-							
-				extension/js/analytics.js,
-				extension/js/app.js,
-				extension/js/assets.js,
-				extension/js/background.js,
-				extension/js/chromeBookmarks.js,
-				extension/js/chromeExtensionsCode.js,
-				extension/js/contextMenu.js,
-				extension/js/notification.js,
-				extension/js/omnibox.js,
-				extension/js/options.js,
-				extension/\.settings/*,
-				extension/\.settings,
-				extension/bookmarks.html,
-				extension/.project,
+				extension/background.html
+				, extension/manifest.tpl.json
+				, extension/notification_helper.html
+				, extension/options.html
+				, extension/update.html
+				
+				, extension/js/activityParser.js
+				, extension/js/analytics.js
+				, extension/js/app.js
+				, extension/js/assets.js
+				, extension/js/background.js
+				, extension/js/chromeBookmarks.js
+				, extension/js/chromeExtensionsCode.js
+				, extension/js/contextMenu.js
+				, extension/js/notification.js
+				, extension/js/omnibox.js
+				, extension/js/options.js
+				, extension/\.settings/*
+				, extension/\.settings,
+				, extension/bookmarks.html
+				, extension/.project
 				extension/**/*.bak" />
 		</zip>
 	</target>
@@ -46,6 +47,12 @@
 
 	<target name="closure" depends="templates" description="Minify javascripts with closure">
 
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/activityParser.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="activityParser.js" />
+			</sources>
+		</jscomp>
+			
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/app.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="app.js" />

@@ -208,7 +208,9 @@ function Notify() {
 				apiObj.addEventListener('click', function(e) {
 					e.stopPropagation();
 
-					window.open('options' + POSTFIX + '.html#api', 'options');
+					bkg.doOpenLink({url: 'options' + POSTFIX + '.html#api'});
+					
+					//window.open('options' + POSTFIX + '.html#api', 'options');
 					
 //					bkg.doEnableApi(e.target.getAttribute('class') == 'on', function(changed){
 //						if (!changed) {

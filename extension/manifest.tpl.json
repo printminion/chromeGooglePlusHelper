@@ -13,14 +13,28 @@
 	"content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
-      "js": ["js/assets.min.js", "js/chromeExtensionsCode.min.js"],
+      "js": ["js/activityParser.min.js", "js/assets.min.js", "js/chromeExtensionsCode.min.js"],
       "css": ["css/inject.css"]
+},
+    {
+	    "matches": ["http://www.google.com/robots.txt*"],
+	    "js": ["oauth2/oauth2_inject.js"],
+	    "css": ["css/empty.css"],
+	    "run_at": "document_start"
     }
   ],
 	"background_page": "background.min.html",
 	"options_page": "options.min.html",
 	"permissions": [
-		"tabs", "notifications", "bookmarks", "tts" 
+		"tabs", 
+		"notifications", 
+		"bookmarks", 
+		"tts", 
+		"contextMenus", 
+		"https://accounts.google.com/o/oauth2/token", 
+		"management",
+		"https://*/*",
+		"http://*/*"	
 	],
 	"page_action": {
 		"default_name": "__MSG_ext_page_action_badge__",
