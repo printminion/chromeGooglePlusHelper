@@ -13,12 +13,12 @@ GPlusActivityParser.prototype.parseProfileId = function(url) {
  * @param activityHTMLObj
  * @returns {activity}
  */
-GPlusActivityParser.prototype.parsePostDataElement = function(activityHTMLObj) {
+GPlusActivityParser.prototype.parseActivityHTML = function(activityHTMLObj) {
 	if (!activityHTMLObj) {
 		return;
 	}
 
-	console.log('parsePostDataElement', activityHTMLObj);
+	console.log('parseActivityHTML', activityHTMLObj);
 
 	var activity = new Activity();
 
@@ -44,59 +44,42 @@ GPlusActivityParser.prototype.parsePostDataElement = function(activityHTMLObj) {
 	/*
 	 * get parse author
 	 */
-	var autorObj = activityHTMLObj.querySelector(this.assets.gpPostAuthor);
-	if (!autorObj) {
-		console.log('err:failed to parse autorObj');
-	} else {
-		activity.actor.displayName = autorObj != undefined ? autorObj.innerHTML : '';
+	activity = this.parseActivityActor(activityHTMLObj, activity);
+	
 
-		var obj = activityHTMLObj.querySelector('.Nm');
-
-		activity.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
-		activity.actor.url = "https://plus.google.com/" + activity.actor.id;
-
-		obj = activityHTMLObj.querySelector('.Nm img');
-		activity.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
-
-		activity.actor.image.url = activity.actor.image.url != undefined ? activity.actor.image.url : '';
-
-		activity.actor.image.url = this._prepareUrl(activity.actor.image.url);
-
-	}
-
-	/*
-	 * try to get activity text
-	 */
-	var postTextObj = activityHTMLObj.querySelector(this.assets.gpActivity);
-
-	if (!postTextObj) {
-		console.log('err:failed to parse postTextObj');
-	} else {
-		var activityTextObj = postTextObj.querySelector(this.assets.gpActivityNote);
-
-		if (activityTextObj) {
-			activity.content = activityTextObj.innerHTML;
-		} else {
-			activity.verb = "share";
-			console.log('failed to get gpActivityNote:' + this.assets.gpActivityNote);
-		}
-
-		activityTextObj = postTextObj.querySelector(this.assets.gpActivityText);
-
-		if (!activityTextObj) {
-			console.log('failed to get gpActivityText:' + this.assets.gpActivityText);
-		} else {
-//			activity.annotation = activityTextObj.innerHTML;
-		}
-
-		if (activity.content) {
-			activity.title = "Reshared post from " + activity.actor.displayName + this._prepareTitle(activity.content);
-		}
-
-		activity.object.url = activity.url;
-//		activity.object.annotation = activity.title;
-
-	}
+//	/*
+//	 * try to get activity text
+//	 */
+//	var postTextObj = activityHTMLObj.querySelector(this.assets.gpActivity);
+//
+//	if (!postTextObj) {
+//		console.log('err:failed to parse postTextObj');
+//	} else {
+//		var activityTextObj = postTextObj.querySelector(this.assets.gpActivityNote);
+//
+//		if (activityTextObj) {
+//			activity.content = activityTextObj.innerHTML;
+//		} else {
+//			activity.verb = "share";
+//			console.log('failed to get gpActivityNote:' + this.assets.gpActivityNote);
+//		}
+//
+//		activityTextObj = postTextObj.querySelector(this.assets.gpActivityText);
+//
+//		if (!activityTextObj) {
+//			console.log('failed to get gpActivityText:' + this.assets.gpActivityText);
+//		} else {
+////			activity.annotation = activityTextObj.innerHTML;
+//		}
+//
+//		if (activity.content) {
+//			activity.title = "Reshared post from " + activity.actor.displayName + this._prepareTitle(activity.content);
+//		}
+//
+//		activity.object.url = activity.url;
+////		activity.object.annotation = activity.title;
+//
+//	}
 
 	/*
 	 * try to get activity attachment
@@ -106,13 +89,13 @@ GPlusActivityParser.prototype.parsePostDataElement = function(activityHTMLObj) {
 	 * check if hangout
 	 */
 	
-	activityAttachementObj = activityHTMLObj.querySelector('article');
+	activityAttachementObj = activityHTMLObj.querySelector('div.Bx div.vg');
 
 	if (activityAttachementObj) {
 		console.log('[i]parse parseArticle');
 		
 
-		activity = this.parseArticle(activityAttachementObj, activity);
+		activity = this.parseArticle(activityHTMLObj, activity);
 		
 		console.log('activity', activity);
 
@@ -145,7 +128,7 @@ GPlusActivityParser.prototype.parsePostDataElement = function(activityHTMLObj) {
 
 	activityAttachementObj = activityHTMLObj.querySelector(this.assets.gpActivityAttachementSpark);
 	if (activityAttachementObj) {
-		console.log('[i]parseAttachementPost');
+		console.log('[i]parseAttachementSpark');
 		activity =  this.parseAttachementSpark(activityAttachementObj, activity);
 		console.log('activity', activity);
 
@@ -193,6 +176,42 @@ GPlusActivityParser.prototype.parseActivityId = function(activityHTMLObj) {
 	return activityId;
 };
 
+
+
+GPlusActivityParser.prototype.parseActivityActor = function(activityHTMLObj, activity) {
+	if (!activityHTMLObj) {
+		throw new Exception('no HTML activity node is given');
+	}
+
+	var autorObj = activityHTMLObj.querySelector(this.assets.gpPostAuthor);
+	if (!autorObj) {
+		console.log('err:failed to parse autorObj');
+		return activity;
+	} else {
+
+		
+		activity.actor.displayName = autorObj != undefined ? autorObj.innerHTML : '';
+
+		var obj = activityHTMLObj.querySelector('.Nm');
+
+		activity.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
+		activity.actor.url = "https://plus.google.com/" + activity.actor.id;
+
+		obj = activityHTMLObj.querySelector('.Nm img');
+		activity.actor.image.url = obj != undefined ? obj.getAttribute('src') : undefined;
+
+		activity.actor.image.url = activity.actor.image.url != undefined ? activity.actor.image.url : '';
+
+		activity.actor.image.url = this._prepareUrl(activity.actor.image.url);
+
+	}
+
+	
+	
+	return activity;
+};
+
+
 GPlusActivityParser.prototype.parseActivityUpdated = function(activityHTMLObj, activity) {
 	if (!activityHTMLObj) {
 		throw new Exception('no HTML activity node is given');
@@ -201,7 +220,7 @@ GPlusActivityParser.prototype.parseActivityUpdated = function(activityHTMLObj, a
 	var postUrlObj = activityHTMLObj.querySelector(this.assets.gpPostUrlSelector);
 	if (!postUrlObj) {
 		console.log('err:failed to parse post url');
-		return;
+		return activity;
 	}
 
 	activity.updated = this._parseTime(postUrlObj.getAttribute('title'));// "2011-10-26T22:54:43.058Z"
@@ -252,10 +271,12 @@ GPlusActivityParser.prototype.parseAttachementHangout = function(activityAttache
 	return activity;
 };
 
-GPlusActivityParser.prototype.parseArticle = function(activityAttachementObj, activity) {
+GPlusActivityParser.prototype.parseArticle = function(activityHTMLObj, activity) {
 	console.log('parseArticle');
 
-	var obj = activityAttachementObj;
+	activityAttachementObj = activityHTMLObj.querySelector('div.Bx div.vg');
+
+	//var obj = activityAttachementObj;
 
 	activity.verb = "share";
 	activity.object.objectType = "activity";
@@ -264,27 +285,38 @@ GPlusActivityParser.prototype.parseArticle = function(activityAttachementObj, ac
 	 * article title
 	 */
 
-	//activity.object.content = obj != undefined ? obj.innerText : undefined;
-	activity.title = "Reshared post from\n" + this._prepareTitle(activity.object.content);
-
-	activity.object.attachments[0] = {
-		objectType : "article",
-		displayName : obj != undefined ? obj.innerText : undefined,
-		content : undefined,
-		url : obj != undefined ? obj.getAttribute('src') : undefined
-	};
+	activity.object.content = activityAttachementObj != undefined ? activityAttachementObj.innerHTML : undefined;
+	activity.title = activity.object.content;
+	
+//	activity.object.attachments[0] = {
+//		objectType : "article",
+//		displayName : obj != undefined ? obj.innerText : undefined,
+//		content : undefined,
+//		url : obj != undefined ? obj.getAttribute('src') : undefined
+//	};
 
 	/*
 	 * get content
 	 */
-	var obj = activityAttachementObj.querySelector('div.B-u-nd-nb');
-	activity.object.attachments[0].content = undefined ? obj.innerHTML : undefined;
+	var obj = activityHTMLObj.querySelector('div.B-u-Y a');
+	activity.object.attachments[0].objectType = "article";
+	activity.object.attachments[0].displayName = obj != undefined ? obj.innerHTML : undefined;
+	activity.object.attachments[0].url = obj != undefined ? obj.getAttribute('href') : undefined;
+
+	var obj = activityHTMLObj.querySelector('div.B-u-nd-nb');
+
+	activity.object.attachments[0].content = obj != undefined ? obj.innerHTML : undefined;
+
+	
+	
+//	activity.object.attachments[0].content ='';
+	
 
 	/*
 	 * get image
 	 */
 
-	var obj = activityAttachementObj.querySelector('div.B-u-ac.B-u-nd-ja.B-u');
+	var obj = activityHTMLObj.querySelector('div.B-u-nd-ja');
 
 	if (obj) {
 
@@ -310,6 +342,8 @@ GPlusActivityParser.prototype.parseArticle = function(activityAttachementObj, ac
 
 		activity.object.attachments[1].fullImage.url = activity.object.attachments[1].image.url;
 
+		//activity.title = "Reshared post from\n" + this._prepareTitle(activity.object.content);
+
 	}
 
 	return activity;
@@ -328,7 +362,7 @@ GPlusActivityParser.prototype.parseAttachementSpark = function(activityAttacheme
 	 */
 
 	activity.object.content = obj != undefined ? obj.innerText : undefined;
-	activity.title = "Reshared post from\n" + this._prepareTitle(activity.object.content);
+	activity.title = "post \n" + this._prepareTitle(activity.title);
 
 	activity.object.attachments[0] = {
 		objectType : "article",

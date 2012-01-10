@@ -13,7 +13,7 @@
 </script>
 
 <script type="text/javascript" src="lib/i18n.js"></script>
-<script type="text/javascript" src="js/options.js"></script>
+<script type="text/javascript" src="js/options.min.js"></script>
 <script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
 
 <!-- <script src="oauth2/oauth2.js"></script> -->
@@ -57,6 +57,7 @@
 			, option_tts_rate: { type: "val", default: "1.0", value: "1.0"}
 			, option_tts_pitch: { type: "val", default: "1.0", value: "1.0"}
 			, option_tts_volume: { type: "val", default: "1.0", value: "1.0"}
+			, option_debug: { type: "attr", default: true, value: true, attr: "checked" }
 			}
 			};
 
@@ -74,6 +75,7 @@
 		$('#tts_tab').hide();
 		$('#api_tab').hide();
 		$('#about_tab').hide();
+		$('#about_debug').hide();
 		
 
 		$('#' + tab + '_tab').show();
@@ -237,7 +239,9 @@
 		$('#option_tts_rate').val(bkg.settings.ttsRate);
 		$('#option_tts_volume').val(bkg.settings.ttsVolume);
 		
-		
+		if (bkg.settings.isDebug == "true") {
+			$("#option_debug").attr("checked", "true");
+		}
 			
 		/*
 		 * KEY
@@ -278,6 +282,9 @@
 				<div class="d-Aa-qa">About</div>
 			</a>
 			
+			<a href="#debug" id="-x-debug" class="d-Aa d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">Debug</div>
+			</a>			
 			<div class="clear">
 				<!---->
 			</div>
@@ -419,7 +426,6 @@
 							name="option_notificationOn" onchange="markDirty();" value="1" />
 							</td>
 						</tr>
-
 
 						<tr>
 							<td class="option">Sound</td>
@@ -817,6 +823,18 @@
 
 </div>
 		
+<div id="debug_tab">
+
+	<div class="option_row">
+				<div class="option_name">Debug</div>
+				<div class="option_picker">
+				<input type="checkbox" id="option_debug"
+							name="option_debug" onchange="markDirty();" value="1" />
+				</div>
+	</div>
+
+</div>
+		
 		<div class="clear">
 			<!---->
 		</div>
@@ -951,6 +969,7 @@
 		
 			bkg.settings.apiKey = $("#option_apiKey").val();
 			
+			bkg.settings.isDebug = $("#option_debug").attr("checked");
 			
 			//Refresh the extension by reseting timer.
 			bkg.refreshConfiguration();

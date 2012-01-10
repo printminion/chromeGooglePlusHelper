@@ -238,8 +238,8 @@ function GPlusHelper() {
 						});
 
 					} else {
-						var activity = activityParser.parsePostDataElement(e.target);
-						console.log('parsePostDataElement', activity);
+						var activity = activityParser.parseActivityHTML(e.target);
+						console.log('parseActivityHTML', activity);
 
 						getPort().postMessage({
 							message : "onNewPost",
@@ -574,35 +574,40 @@ function extendPostArea(o, settings) {
 
 	}
 
-	extentPostWithAction(placeholderObj, 'N', function() {
-
-		var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
-		console.log('activityId', activityId);
-
-		//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
-
-		getPort().postMessage({
-			message : "onNewPostViaApi",
-			activity : {
-				id : activityId
-			},
-			force : true
-		});
-
-	}, 'notify by api');
-
-	extentPostWithAction(placeholderObj, 'pN', function() {
-
-		var activity = getActivityData(this);
-		console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
-		getPort().postMessage({
-			message : "onNewPost",
-			activity : activity,
-			force : true
-		});
-
-	}, 'parse and notify');
-
+	if (settings.isDebug == 'true') {
+		extentPostWithAction(placeholderObj, 'N', function() {
+	
+			var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
+			console.log('activityId', activityId);
+	
+			//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
+	
+			getPort().postMessage({
+				message : "onNewPostViaApi",
+				activity : {
+					id : activityId
+				},
+				force : true
+			});
+	
+		}, 'notify by api');
+	}
+	
+	if (settings.isDebug == 'true') {
+		
+		extentPostWithAction(placeholderObj, 'pN', function() {
+	
+			var activity = getActivityData(this);
+			console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
+			getPort().postMessage({
+				message : "onNewPost",
+				activity : activity,
+				force : true
+			});
+	
+		}, 'parse and notify');
+	}
+	
 	// .a-b-f-i-p span.a-f-i-yj
 	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
 	// span.a-f-i-yj");
@@ -787,7 +792,7 @@ function getActivityHTMLNode(o) {
 function getActivityData(o) {
 	// console.log('getActivityData', o);
 
-	return activityParser.parsePostDataElement(getActivityHTMLNode(o));
+	return activityParser.parseActivityHTML(getActivityHTMLNode(o));
 
 }
 
@@ -985,7 +990,7 @@ function Actions() {
 				message : "doTweet",
 				values : []
 			});
-			window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(activity.annotation + ' #googleplus') + '&url=' + encodeURIComponent(activity.url));
+			window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(activity.object.content + ' #googleplus') + '&url=' + encodeURIComponent(activity.url));
 		} catch (e) {
 			alert('failed open window');
 		}
@@ -1007,7 +1012,7 @@ function Actions() {
 					language : settings.addTranslateTo
 				});
 
-				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|' + encodeURIComponent(activity.annotation));
+				window.open('http://translate.google.com/#auto|' + settings.addTranslateTo + '|' + encodeURIComponent(activity.object.content));
 
 			});
 
@@ -1024,7 +1029,7 @@ function Actions() {
 				values : []
 			});
 
-			window.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup' + '&srcUrl=' + encodeURIComponent(activity.url) + '&snippet=' + encodeURIComponent(activity.annotation)
+			window.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup' + '&srcUrl=' + encodeURIComponent(activity.url) + '&snippet=' + encodeURIComponent(activity.object.content)
 					+ '&title=' + encodeURIComponent('Google+ Bookmark'));
 
 		} catch (e) {
@@ -1040,7 +1045,7 @@ function Actions() {
 				values : []
 			});
 
-			window.open('http://www.delicious.com/save?' + '&url=' + encodeURIComponent(activity.url) + '&notes=' + encodeURIComponent(activity.actor.displayName + ': ' + activity.annotation)
+			window.open('http://www.delicious.com/save?' + '&url=' + encodeURIComponent(activity.url) + '&notes=' + encodeURIComponent(activity.actor.displayName + ': ' + activity.object.content)
 					+ '&title=' + encodeURIComponent(activity.actor.displayName + ' on Google+') + '&v=6&noui=1&jump=doclose', "doDelicious",
 					'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
 
@@ -1082,7 +1087,7 @@ function Actions() {
 			action : "doChromeBookmark",
 			values : {
 				url : activity.url,
-				text : activity.actor.displayName + ': ' + activity.annotation
+				text : activity.actor.displayName + ': ' + activity.object.content
 			}
 		}, function(bookmarked) {
 			element.setAttribute('title', 'Click to remove bookmark for this post');

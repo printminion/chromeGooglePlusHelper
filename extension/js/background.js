@@ -262,7 +262,7 @@ function init() {
 		bkg.settings.notificationTime = 5000;
 
 		bkg.settings.ttsOn = true;
-		bkg.settings.isApiEnabled = true;
+		bkg.settings.isApiEnabled = false;
 		
 		
 		window.open('options' + POSTFIX + '.html#api', 'options');

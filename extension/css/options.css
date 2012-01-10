@@ -324,7 +324,7 @@ a {
 	border: 1px solid #A7C7F7;
 }
 
-#options_tab, #tts_tab, #api_tab, #about_tab {
+#options_tab, #tts_tab, #api_tab, #about_tab, #debug_tab {
 	margin-top: 5px;
 	min-height: 470px;
 }

@@ -401,7 +401,7 @@ function Notify() {
 			
 		try {
 			activity.object.attachments[0].urlClean = activity.object.attachments[0].url.match(/:\/\/(.[^/]+)/)[1];
-		} catch (e) {};
+		} catch (e) {}
 
 		activity.cssBodyHeight = 150;
 

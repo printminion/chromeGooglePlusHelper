@@ -5,32 +5,190 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Notification</title>
 
-<link rel="stylesheet" href="css/plus.css" type="text/css" />
 <link rel="stylesheet" href="css/notification.css" type="text/css" />
-<link rel="stylesheet" href="css/inject.css" type="text/css" />
-<script src="js/notification.min.js"></script>
-<script src="js/notification.js"></script>
+<link rel="stylesheet" href="css/bookmark.css" type="text/css" />
+<link rel="stylesheet" href="css/scrollbar.css" type="text/css" />
+
+<script type="text/javascript">
+	var POSTFIX = '.min';
+</script>
+
 
 <style type="text/css">
 
-.mk-bookmarked {
-	top: 0px;
-	right: -3px;
+/* Styles specific to this particular page */
+.scroll-pane
+{
+	width: 100%;
+	height: 80px;
+	overflow: auto;
+	margin-left: 4px;
+}
+.horizontal-only
+{
+	height: auto;
+	max-height: 200px;
 }
 
-.mk-bookmark {
-	top: 0px;
-	right: -3px;
+.template {
+	display: none
 }
 
 </style>
+
+<script src="js/mustache.js"></script>
+<script src="js/notification.min.js"></script>
+
 </head>
 
-<base href="https://plus.google.com/" />
-<body id="body" onload="notify.init();" class="cl">
+<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
 
-<button id="-mk-bookmark" class="mk-bookmarked"></button>
-	<div class="a-b-f-i-oa"></div>
+<textarea class="template">
+	<button id="-mk-bookmark" class="mk-bookmarked"></button>
+	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
+	
+	<button id="-mk-tts" class="off"></button>
+	<button id="-mk-api" class="off"></button>
+	
+	
+	
+	
+	<style>
+	body {
+		height: {{cssBodyHeight}}}px;
+	}
+	
+	.scroll-pane {
+		height: {{cssScrollPaneHeight}}}px!important;
+	}
+	
+	
+		
+	{{#hideActor}}
+	.actor2 {
+		display: none;
+	}
+	
+	#object {
+		border-left: 0px solid #4D90F0;
+		padding-left: 0px;
+	}
+	
+	{{/hideActor}}
+	
+	{{#hidePhotoInfo}}
+		.B-u-mj {
+		}
+		
+		.B-u-nd-nb {
+			display: none;
+		}
+		
+		
+	{{/hidePhotoInfo}}
+	
+	</style>
+	
+
+	<div id="update-{{id}}" class="md gi xi">
+		<div class="Ve jn">
+			<div class="jr">
+			{{#actor}}
+				<a href="{{url}}" class="Nm" target="_blank">
+				{{#image}}<img src="{{url}}"{{/image}} title="{{displayName}}" class="Fn Yi">
+				</a>
+			{{/actor}}
+			
+			{{#object}}
+				{{#actor}}
+					<a href="{{url}}" class="sharedNm actor2" target="_blank">
+					{{#image}}<img src="{{url}}"{{/image}} title="{{displayName}}" class="Fn Yi">
+					</a>
+				{{/actor}}
+			{{/object}}
+
+				<div class="Ex">
+					<span class="eE">
+						{{#actor}}
+						<a href="{{url}}" class="yn Hf cg" oid="{{id}}">{{displayName}}</a>
+						{{/actor}}	
+					</span>
+					<span class="mo fj"> &nbsp;-&nbsp; <span class="Qh kn">
+					<a href="{{url}}" target="_blank" class="c-G-j c-i-j-ua hl" title="{{updated}}">{{updatedTime}}</a>
+					</span>
+					<!-- 
+					&nbsp;-&nbsp;
+					<span class="a-j Rh Fo il" title="Sharing details">Public</span></span>
+					 -->
+				</div>
+			</div>
+			<div class="Bx">
+				<div class="Us Gk">
+					<div class="go RD">
+						<div class="vg scroll-pane">
+						
+						{{#annotation}}
+						{{{annotation}}}<br>
+						{{/annotation}}
+						
+						{{#object}}
+						<div id="object">
+							{{#actor}}
+								<span class="eE actor2"><a href="{{url}}" class="yn Hf" oid="{{id}}">{{displayName}}</a>:</span>
+							{{/actor}}
+						
+							{{{content}}}
+
+							{{#attachments}}
+							
+							<!-- {{objectType}} -->
+
+							<div class="B-u-C dE">
+							<div class="clear"><!--  --></div>
+							<img class="B-u-mj" src="https://s2.googleusercontent.com/s2/favicons?domain={{urlClean}}">
+							<div class="B-u-Y">
+								<a href="{{url}}" class="ot-anchor B-u-Y-j">{{{displayName}}}</a>
+							</div>
+
+							{{#showVideoInfo}}
+							{{#image}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/image}}
+							{{/showVideoInfo}}
+							
+							<div class="B-u-nd-nb">{{{content}}}</div>
+
+							<!-- {{#fullImage}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/fullImage}}-->
+							
+							{{#image}}
+							<div class="B-u-ac B-u-Nd-ja a-l-k B-u" style="width:50px;"><img src="{{url}}" style="display:block; width:200px;"></div>
+							{{/image}}
+						
+							<div class="B-u-Va"></div>
+							</div>
+							
+							{{/attachments}}
+						</div>
+
+						{{/object}}
+						
+						
+						
+						
+						</div>
+					</div>
+					<div class="Jm"></div>
+				</div>
+				<div class="ri"></div>
+			</div>
+		</div>
+	</div>
+</textarea>
+
+
 
 </body>
+
 </html>

@@ -162,6 +162,15 @@ var settings = {
 		localStorage['apiKey'] = val;
 	},
 	
+	
+	get isDebug() {
+        if (localStorage['isDebug'] == 'NaN' || localStorage['isDebug'] == undefined) return undefined;
+		return localStorage['isDebug'];
+	},
+	set isDebug(val) {
+		localStorage['isDebug'] = val;
+	},
+	
 	get notificationSound() {
         if(localStorage['notificationSound'] == 'NaN') return 'sound/01.mp3';
 		return localStorage['notificationSound'];
