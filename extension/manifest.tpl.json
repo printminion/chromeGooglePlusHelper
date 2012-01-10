@@ -31,8 +31,7 @@
 		"bookmarks", 
 		"tts", 
 		"contextMenus", 
-		"https://accounts.google.com/o/oauth2/token", 
-		"management",
+		"https://accounts.google.com/o/oauth2/token",
 		"https://*/*",
 		"http://*/*"	
 	],
