@@ -1,73 +1,60 @@
-
-https://code.google.com/apis/console/?pli=1#project:1026646529651:stats:plus
-
-https://www.googleapis.com/plus/v1/people/108189587050871927619/activities/public?alt=json&pp=1&key=AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo
-
-https://www.googleapis.com/plus/v1/people/118292708268361843293/activities/public?alt=json&pp=1&key=AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo
-
-z120yldi5na3ijcdn230izzh4py5j102k
-
-https://www.googleapis.com/plus/v1/activities/z13vc3sjqralzf25c04cdpygtu3jtfmyvig?alt=json&pp=1&key=AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo
-
-
-https://www.googleapis.com/plus/v1/activities/z120yldi5na3ijcdn230izzh4py5j102k?alt=json&pp=1&key=AIzaSyD7GjtT0cHwO49XSoj4YwrR9EAaxKwGgAo
-
-#1 https://plus.google.com/107606703558161507946/posts/G2N2MbPV4ei
-#2 https://plus.google.com/118397406534237711570/posts/SpihaGbhqNX
-
-http://office2010.microsoft.com/en-us/onenote-help/using-the-speak-feature-with-multilingual-tts-HA101825279.aspx#_Toc252354031
-http://www.nextup.com/TextAloud/SpeechEngine/voices.html#naturalvoices
-
-
-bMiPA
-FwgF6
-
-v 0.0.25
- * Added +1 button to the post - now you can +1 posts to your profile
- * Compatibility fix for G+me
-
-v 0.0.21
- * added facebook share
- * fixed bookmarking via desktop notifier
-
-v 0.0.20
- * fixed broken posts because of hashtag linking
-
-v 0.0.19
- * fixed options saving. notifications without sound are possible now
-
-v 0.0.18
- * Bookmark Google+ posts for reading them later. Faster and easier! 
+Features:
+ * Desktop notifications on new posts, also with sound. (mouse over notification to freeze it)
+ * TTS on notifications
+ * Chrome Bookmark Google+ posts for reading them later. 
+ * Share Google+ Posts with people on twitter.
+ * Translate posts with Google Translate to language specified by you
+ * +1 public Google+ posts to aggregate them to the +1's tab of your Google+ profile
  * Bookmark posts on Delicious
+ * Share posts on facebook
+ * -Linked hashtags in posts for better search- - removed due native 
+ * Search in Google+ posts and profiles directly from your omnibox (address box), just type there"plus" (see screenshot) and type your search query. 
+ * Search in Google+ with selected text via context menu
 
+Changelog:
+v 0.1.39
+ * Text to Speech, data retrieval via Google+ API, better design
+
+v 0.0.34
+ * added new google+ search to hashtags and omnibox search
+v 0.0.33 - 0.0.31 - 0.0.30 - v 0.0.29 - v 0.0.28
+  * updated extension after google+ site CSS/HTML redesign
+v 0.0.25
+   * Added +1 button to the post - now you can +1 posts to your profile
+   * Compatibility fix for G+me
+v 0.0.21
+   * added facebook share
+   * fixed bookmarking via desktop notifier
+v 0.0.20
+   * fixed broken posts because of hashtag linking
+v 0.0.19
+   * fixed options saving. notifications without sound are possible now
+v 0.0.18
+   * Bookmark Google+ posts for reading them later. Faster and easier! 
+   * Bookmark posts on Delicious
 v 0.0.15
- * fixed options saving. notifications without sound are possible now
-
+   * fixed options saving. notifications without sound are possible now
 v 0.0.12
- * added omnibox search hack
-
+   * added omnibox search hack
 v 0.0.9
- * added Linked hashtags for better search
-
+   * added Linked hashtags for better search
 v 0.0.8
- * added notification feature
- * added sounds for notification
- * added options page
- * now you can choose witch actions you want to embed (twitter/translate)
- * you can specify your target language for the translation 
- * bug fixes
-
+   * added notification feature
+   * added sounds for notification
+   * added options page
+   * now you can choose witch actions you want to embed (twitter/translate)
+   * you can specify your target language for the translation 
+   * bug fixes
 v 0.0.4
- * add *tweet*, *translate* via click on page action icon in omni box
- * tweet limited posts
- * *tweet*, *translate* action will be also added now on tab switching
- * performance optimisation
-
+   * add *tweet*, *translate* via click on page action icon in omni box
+   * tweet limited posts
+   * *tweet*, *translate* action will be also added now on tab switching
+   * performance optimisation
 v 0.0.3
- * added translation functionality
+   * added translation functionality
  
 v 0.0.2
  * description fix
 
 v 0.0.1
- * initial version
+   * initial version

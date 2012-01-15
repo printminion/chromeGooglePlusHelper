@@ -155,7 +155,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		
 		break;
 	case 'getSettings':
-		_gaq.push([ '_trackPageview', '/settings' ]);
+		//_gaq.push([ '_trackPageview', '/settings' ]);
 		var bkg = chrome.extension.getBackgroundPage();
 
 		console.log('settings', bkg.settings);

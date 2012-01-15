@@ -31,7 +31,7 @@
 					  {name: 'options'}
 					, {name: 'tts'}
 					, {name: 'api'}
-					, {name: 'about'}
+					, {name: 'privacy-policy'}
 			}}; */
 
 			
@@ -74,8 +74,8 @@
 		$('#options_tab').hide();
 		$('#tts_tab').hide();
 		$('#api_tab').hide();
+		$('#privacy-policy_tab').hide();
 		$('#about_tab').hide();
-		$('#debug_tab').hide();
 		
 
 		$('#' + tab + '_tab').show();
@@ -278,13 +278,13 @@
 				<div class="d-Aa-qa">Google+ API</div>
 			</a>
 			
+			<a href="#privacy-policy" id="-x-privacy-policy" class="d-Aa d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">Privacy Policy</div>
+			</a>
+			
 			<a href="#about" id="-x-about" class="d-Aa d-s-r a-Aa-Zl">
 				<div class="d-Aa-qa">About</div>
 			</a>
-			
-			<a href="#debug" id="-x-debug" class="d-Aa d-s-r a-Aa-Zl">
-				<div class="d-Aa-qa">Debug</div>
-			</a>			
 			<div class="clear">
 				<!---->
 			</div>
@@ -810,20 +810,31 @@
 
 </div>
 
+<div id="privacy-policy_tab">
+
+<div class="option_row" style="color: #333;">
+<strong>Helper for Google+</strong> Chrome extension uses the Google+ API to retrieve public posts (including full name and profile pictures of their authors) from your stream. Absolutely no data is being sent to or processed by third party servers.
+<br><br>
+
+<strong>Helper for Google+</strong> partially stores your bookmarked posts on your local machine as Chrome Bookmarks. Other your Google+ information and activity as well as aggregated statistics neither stored nor shared with publishers, app developers, or connected sites.
+<br><br>
+
+</div>
+					
+	<div class="option_row">
+				<div class="option_name"></div>
+				<div class="option_picker">
+				</div>
+	</div>
+
+</div>
+
 <div id="about_tab">
 
 <div class="option_row" style="color: #999;">
 	Created by <a href="https://plus.google.com/104512463398531242371">m.kupriyanov</a>
 </div>
 					
-	<div class="option_row">
-				<div class="option_name"></div>
-				<div class="option_picker"></div>
-	</div>
-
-</div>
-		
-<div id="debug_tab">
 
 	<div class="option_row">
 				<div class="option_name">Debug</div>
