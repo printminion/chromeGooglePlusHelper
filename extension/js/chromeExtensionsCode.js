@@ -706,8 +706,11 @@ function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
 
 	var attrClass = document.createAttribute("class");
 	attrClass.nodeValue = htmlClass;
-	;
 	span.setAttributeNode(attrClass);
+
+	var attrStyle = document.createAttribute("style");
+	attrStyle.nodeValue = 'display:none';
+	span.setAttributeNode(attrStyle);
 
 	var attrAlt = document.createAttribute("title");
 	attrAlt.nodeValue = title;
@@ -740,6 +743,10 @@ function extentPostWithHTML(placeholderObj, activity, settings, htmlClass, callb
 	attrClass2.nodeValue = htmlClass;
 	div.setAttributeNode(attrClass2);
 
+	var attrStyle = document.createAttribute("style");
+	attrStyle.nodeValue = 'display:none';
+	div.setAttributeNode(attrStyle);
+	
 	div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
 
 	var script = document.createElement("script");

@@ -246,7 +246,10 @@
 		/*
 		 * KEY
 		 */
-		$('#option_apiKey').val(bkg.settings.apiKey);
+		 if (bkg.assets.googlePlusAPIKey != bkg.settings.apiKey) {
+				$('#option_apiKey').val(bkg.settings.apiKey);
+		 }
+		
 	});
 	
 </script>
@@ -284,7 +287,7 @@
 			
 			<a href="#about" id="-x-about" class="d-Aa d-s-r a-Aa-Zl">
 				<div class="d-Aa-qa">About</div>
-			</a>			
+			</a>
 			<div class="clear">
 				<!---->
 			</div>

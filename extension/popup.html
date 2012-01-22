@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Popup</title>
+
+<link rel="stylesheet" href="css/popup.css" type="text/css" />
+
+<script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
+
+<script type="text/javascript">
+	var POSTFIX = '';
+
+	var bkg = chrome.extension.getBackgroundPage();
+
+	$(document).ready(function() {
+
+		if (bkg.settings.ttsOn) {
+			$('#oTTS').html('On');
+			$('#-mk-tts').attr('class', 'on');
+		} else {
+			$('#oTTS').html('Off');
+			$('#-mk-tts').attr('class', 'off');
+		}
+
+		if (bkg.settings.notificationOn) {
+			$('#oNotification').html('On');
+			$('#-mk-notifications').attr('class', 'on');
+		} else {
+			$('#oNotification').html('Off');
+			$('#-mk-notifications').attr('class', 'off');
+		}
+
+		if (bkg.settings.isApiEnabled) {
+			$('#oAPI').html('enabled');
+			$('#-mk-api').attr('class', 'on');
+		} else {
+			$('#oAPI').html('disabled');
+			$('#-mk-api').attr('class', 'off');
+		}
+		
+		$('#oNotification').click(function() {
+			if ($(this).html() == 'On') {
+				$(this).html('Off');
+				bkg.settings.notificationOn = false;
+				$('#-mk-notifications').attr('class', 'off');
+			} else {
+				$(this).html('On');
+				bkg.settings.notificationOn = true;
+				$('#-mk-notifications').attr('class', 'on');
+			}
+		});
+
+		$('#oTTS').click(function() {
+			if ($(this).html() == 'On') {
+				$(this).html('Off');
+				bkg.settings.ttsOn = false;
+				$('#-mk-tts').attr('class', 'off');
+			} else {
+				$(this).html('On');
+				bkg.settings.ttsOn = true;
+				$('#-mk-tts').attr('class', 'on');
+			}
+		});
+
+		$('#options').click(function() {
+			window.open('options' + POSTFIX + '.html', 'options');
+			window.close();
+		});
+	});
+</script>
+
+
+</head>
+
+<body id="body" class="cl">
+
+	<div>
+		<button id="-mk-notifications" class="off"></button>
+		<label for="oNotification">Notifications</label> <span
+			id="oNotification">On</span>
+	</div>
+
+	<div>
+		<button id="-mk-tts" class="off"></button>
+		<label for="oTTS">TTS</label> <span id="oTTS">On</span>
+	</div>
+
+	<div>
+		<button id="-mk-api" class="off"></button>
+		<label for="oAPI">Google+ API</label> <span id="oAPI">disabled</span>
+	</div>
+
+
+	<div id="options">Options...</div>
+</body>
+</html>

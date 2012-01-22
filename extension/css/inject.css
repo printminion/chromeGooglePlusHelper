@@ -7,7 +7,7 @@
 		url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAMAAABA3o1rAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAMAUExURQAAABlLlydVlydWlCdWlyRTmCRTmidWmyhWkyhWlyhWmyhWnC9bmS9cmzVhlz1no0RriERsnFN0gVN2n3CJcW+OsFyH2n6ZwIydZZqoX/HmOf/wM//xPeLbQPHnQ//yaYyegIyfl4ykvoio/6i72LfG1vHpl//0l//1r8XS5c3f/9Td5dvj7/Dw/PH0+PX5//j5/Pv8/fr8/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMC4R3YAAAEAdFJOU////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////wBT9wclAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQBQYWludC5ORVQgdjMuNS44NzuAXQAAAQBJREFUKFOFkdlywjAMRXEoGMq+icUNBQzBCEwC/v9vcyXHgXT60Pui8fhY90pu+H/UiPdFr1fUUYB4qoDjbHasAag1lscKGBkzqgHaOf0LuAljxO1FWHAObNVhKaVst4xptaX8XHoNLAJYmi3EPsuyM4nKXnhA9xICA9eP3XfUrnv19k0g2XDIx2C8/SJtx4MH+wJFZGketZyiv1akdT+m1MEFwxwBKMSGgY2Iu6KIrLCrABzmSq1WSs0PoQWSBVKTsKsADFM1nUymKh0GAHKypyB5leHSTDsL7xedtHmhews50FukQrviDvckOfHLU5LcqTyhXKIFeL7/Iub/W34Ae/UkTjNw1aYAAAAASUVORK5CYII=');
 	border: 0;
 	cursor: pointer;
-	display: none;
+	display: block!important;
 	margin-right: 3px;
 	height: 0px;
 	vertical-align: bottom;
@@ -20,7 +20,7 @@
 .mk-bookmarked {
 	background-position: -2px -1px;
 	cursor: default;
-	display: inline;
+	display: inline!important;
 	height: 14px;
 	margin-left: 5px;
 	vertical-align: 0;
@@ -30,7 +30,7 @@
 .mk-bookmark {
 	background-position: 15px -1px;
 	cursor: default;
-	display: inline;
+	display: inline!important;
 	height: 14px;
 	margin-left: 5px;
 	vertical-align: 0;
@@ -52,7 +52,7 @@
 	position: absolute;
 	right: 40px;
 	top: 16px;
-	display: inline;
+	display: inline!important;
 	margin-left: 5px;
 	vertical-align: 0;
 }
@@ -61,7 +61,7 @@
 	position: absolute;
 	right: 30px;
 	top: 16px;
-	display: inline;
+	display: inline!important;
 	margin-left: 5px;
 	vertical-align: 0;
 }

@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_ext_name__",
-	"version": "0.1.44",
+	"version": "1.46",
 	"description": "__MSG_ext_description__",
 	"default_locale": "en",
 	"omnibox": { "keyword" : "plus" },
@@ -36,7 +36,8 @@
 		"http://*/*"	
 	],
 	"page_action": {
-		"default_name": "__MSG_ext_page_action_badge__",
-		"default_icon": "images/icon19.png"
+		"default_name": "__MSG_ext_page_action_badge__"
+		, "default_icon": "images/icon19.png"
+		, "default_popup": "popup.min.html"
 	}
 }

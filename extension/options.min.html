@@ -246,7 +246,9 @@
 		/*
 		 * KEY
 		 */
-		$('#option_apiKey').val(bkg.settings.apiKey);
+		 if (bkg.assets.googlePlusAPIKey != bkg.settings.apiKey) {
+				$('#option_apiKey').val(bkg.settings.apiKey);
+		 }
 	});
 	
 </script>

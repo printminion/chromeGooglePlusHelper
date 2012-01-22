@@ -2,7 +2,7 @@ function Assets() {
 	this._setAccount = 'UA-3508250-20';
 	
 	this._debug = false;
-	this.googlePlusAPIKey = '';//AIzaSyDQFlyxMQP6nVYRhDkE7X6guDs6AVZA4xw';
+	this.googlePlusAPIKey = 'AIzaSyDQFlyxMQP6nVYRhDkE7X6guDs6AVZA4xw';
 	
 	this.oauth2_client_id = '1026646529651-91gfbnhithvjat5r77b5d2qnu3hrcmer.apps.googleusercontent.com';
 	this.oauth2_client_secret = 'v_ZTcekaW9qO3npisNM4rxQP';

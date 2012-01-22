@@ -1,0 +1,103 @@
+@CHARSET "ISO-8859-1";
+
+body {
+	font: normal 13px arial, sans-serif;
+	width: 200px;
+	height: 100px;
+}
+
+.scroll-pane {
+	width: 100%;
+	height: 80px;
+	overflow: auto;
+	margin-left: 4px;
+}
+
+.horizontal-only {
+	height: auto;
+	max-height: 200px;
+}
+
+.template {
+	display: none
+}
+
+label {
+	text-align: left;
+	color: #333;
+}
+
+#body div span,#options {
+	cursor: pointer;
+	color: #36C;
+}
+
+#body div span:hover,#options:hover {
+	text-decoration: underline;
+}
+
+#options {
+	position: absolute;
+	bottom: 5px;
+}
+
+#-mk-tts {
+	background: no-repeat url(../images/icon-tts.png) 0 -16px;
+	width: 16px !important;
+	height: 16px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	z-index: 20;
+	cursor: pointer;
+}
+
+#-mk-tts.on {
+	background-position: 0 -16px;
+}
+
+#-mk-tts.off {
+	background-position: 0 0px;
+}
+
+#-mk-api {
+	background: no-repeat url(../images/icon-api.png) 0 -16px;
+	width: 16px !important;
+	height: 16px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	z-index: 20;
+	cursor: pointer;
+}
+
+#-mk-api.on {
+	background-position: 0 -16px;
+}
+
+#-mk-api.off {
+	background-position: 0 0px;
+}
+
+
+#-mk-notifications {
+	background: no-repeat url(../images/icon-notifications.png) 0 -16px;
+	width: 16px !important;
+	height: 16px !important;
+	background-color: transparent;
+	border: 0;
+	margin-right: 3px;
+	vertical-align: bottom;
+	z-index: 20;
+	cursor: pointer;
+}
+
+#-mk-notifications.on {
+	background-position: 0 -16px;
+}
+
+#-mk-notifications.off {
+	background-position: 0 0px;
+}

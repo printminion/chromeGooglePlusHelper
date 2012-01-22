@@ -264,6 +264,10 @@ function init() {
 		bkg.settings.ttsOn = true;
 		bkg.settings.isApiEnabled = false;
 		
+		bkg.settings.apiKey = bkg.assets.googlePlusAPIKey;
+		bkg.settings.isApiEnabled = true;
+		
+		
 		
 		window.open('options' + POSTFIX + '.html#api', 'options');
 	}, function() {
@@ -275,6 +279,13 @@ function init() {
 		bkg.settings.addDelicious = true;
 		bkg.settings.addChromeBookmarksToolbar = true;
 
+		if (bkg.settings.apiKey == undefined || bkg.settings.apiKey == '' || bkg.settings.apiKey == null) {
+			bkg.settings.apiKey = bkg.assets.googlePlusAPIKey;
+			bkg.settings.isApiEnabled = true;
+		}
+		
+		
+		
 		console.log("Extension Updated", bkg.settings);
 		window.open('options' + POSTFIX + '.html', 'options');
 
