@@ -12,20 +12,31 @@ function Assets() {
 	this.gpContentPane = "#contentPane";
 	this.gpContainer = "div.or";// a-b-f-i-oa";
 
-	this.gpContainerStreamClass = "Sq";
+	this.gpContainerStreamClass = "lzqA1d";
 	this.gpContainerStream = "div." + this.gpContainerStreamClass;
-	this.gpContainerStreamProfile = "div.c-ng-L1-P"; //post
-
-	this.gpPostUpperControls = "div.jr";// div.Xy";
-
-	this.gpPostAuthor = "A.yn.Hf.cg";// "a.Gq.jj.Vj";
+	this.gpContainerStreamProfile = "div.lzqA1d"; //post
+	this.gpContainerStreamPost = "div.k-uH-MHYjYb-yd"; //post
 	
-	this.gpPostUrl = "md gi xi";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
-	this.gpPostUrlSelector = "A.c-G-j.c-i-j-ua.hl";// 'a-Ja-h a-b-h-Jb
+	
+
+	this.gpPostUpperControls = "div.Ns";// div.Xy";
+
+	this.gpPostAuthor = "A.cs2K7c.qk.is";// "a.Gq.jj.Vj";
+	this.gpPostAuthorOID = "A.cs2K7c.qk.is";// "a.Gq.jj.Vj";
+	
+	
+	this.gpPostUrl = "A.UzyZPb";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
+	this.gpPostUrlSelector = "A.k-U-C.k-Qf-C-RySO6d.UzyZPb.oj";// 'a-Ja-h a-b-h-Jb
 													// a-f-i-Ad'";
 
 	
-	this.gpActivityAccessType = "span.a-j.Rh.Fo.il";// div.Uj";
+	this.gpArticle ='div.rXnUBd';
+	this.gpAttachementHangout = 'div.Us c-ng Gk';
+	
+	
+	//k-U-C k-Qf-C-RySO6d UzyZPb oj
+	
+	this.gpActivityAccessType = "span.c-C.Lixzlc.YQHDOd.Nn";// div.Uj";
 	
 	this.gpActivity = "div.Us.Gk";
 	this.gpActivityNote = "div.vg";
@@ -47,14 +58,17 @@ function Assets() {
 	this.gpPostBody = "div.go.RD";// div.Uj";
 	this.gpPostBody2 = "div.vg";// post
 
-	this.gpPostBottomControls = "div.dl";// div.Xn";
-	this.gpPostBottomControlsStyle = 'a-j';// div.Xn";
+	this.gpPostBottomControls = "div.vo";// div.Xn";
+	this.gpPostBottomControlsStyle = 'c-C mk-show';// div.Xn";
 	
-	this.gpToolbar = "div.YY.kQ.a-l-k";// div.ZW.zG.d-r-q";
+	/*
+	 * Toolbar
+	 */
+	this.gpToolbar = "div.oLO5kc.nH.c-wa-Da.pH";// div.ZW.zG.d-r-q";
 
-	this.gpToolbarButton = 'a-j c-i-j-ua Kb a-l-k';
-	this.gpToolbarButtonInner = 'Gja mQ ';
+	this.gpToolbarButton = 'c-C k-Qf-C-RySO6d Pb c-wa-Da xgINEf sH';
+	this.gpToolbarButtonInner = 'mZxz3d rH';
 	
-	this.gpToolbarSearchFliedClass = 'gbq2';
+	this.gpToolbarSearchFieldId = 'gbqfqw';
 	
 }

@@ -123,6 +123,33 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	console.log('extension.onRequest', request);
 
 	switch (request.action) {
+		case 'doActionViaApi':
+		
+		if (settings.apiKey == undefined || settings.apiKey == '') {
+			_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
+			//doOpenLink('options' + POSTFIX + '.html#api');
+			window.open('options' + POSTFIX + '.html#api', 'options');
+			return;
+		}
+		
+		assets.googlePlusAPIKey = settings.apiKey;
+		
+		var request = 'https://www.googleapis.com/plus/v1/activities/'
+						+ request.activityId
+						+ '?alt=json&pp=1&key=' + assets.googlePlusAPIKey;
+
+		
+		doApiCall(request, function(activity){
+			
+			sendResponse({
+				activity: activity
+			});
+			
+		});
+			
+		break;
+
+		break;
 	case 'doOpenLink':
 		_gaq.push([ '_trackPageview', '/openLink' ]);
 		doOpenLink(request.values);

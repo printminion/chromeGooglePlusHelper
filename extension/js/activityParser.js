@@ -89,7 +89,7 @@ GPlusActivityParser.prototype.parseActivityHTML = function(activityHTMLObj) {
 	 * check if hangout
 	 */
 	
-	activityAttachementObj = activityHTMLObj.querySelector('div.Bx div.vg');
+	activityAttachementObj = activityHTMLObj.querySelector(this.assets.gpArticle);
 
 	if (activityAttachementObj) {
 		console.log('[i]parse parseArticle');
@@ -103,7 +103,7 @@ GPlusActivityParser.prototype.parseActivityHTML = function(activityHTMLObj) {
 		
 	}
 	
-	activityAttachementObj = activityHTMLObj.querySelector('div.Us c-ng Gk');
+	activityAttachementObj = activityHTMLObj.querySelector(this.assets.gpAttachementHangout);
 
 	if (activityAttachementObj) {
 		console.log('[i]parseAttachementHangout');
@@ -192,7 +192,7 @@ GPlusActivityParser.prototype.parseActivityActor = function(activityHTMLObj, act
 		
 		activity.actor.displayName = autorObj != undefined ? autorObj.innerHTML : '';
 
-		var obj = activityHTMLObj.querySelector('.Nm');
+		var obj = activityHTMLObj.querySelector(this.assets.gpPostAuthorOID);
 
 		activity.actor.id = obj != undefined ? obj.getAttribute('oid') : undefined;
 		activity.actor.url = "https://plus.google.com/" + activity.actor.id;
@@ -219,7 +219,7 @@ GPlusActivityParser.prototype.parseActivityUpdated = function(activityHTMLObj, a
 
 	var postUrlObj = activityHTMLObj.querySelector(this.assets.gpPostUrlSelector);
 	if (!postUrlObj) {
-		console.log('err:failed to parse post url');
+		console.log('err:failed to parse post url. set proper assets.gpPostUrlSelector');
 		return activity;
 	}
 

@@ -24,7 +24,18 @@ var actions = new Actions();
 var uiExtender = new UIExtender();
 
 var gplushelper = new GPlusHelper();
-gplushelper.init();
+
+chrome.extension.sendRequest({
+	action : "getSettings"
+}, function(response) {
+	// console.log('response.getSettings', response);
+	gplushelper.settings = response.settings;
+	gplushelper.chromeBookmarsFolderId = response.chromeBookmarsFolderId;
+	
+	gplushelper.init();
+
+});
+
 
 var lastPostId = undefined;
 
@@ -32,7 +43,7 @@ function getPort() {
 
 	if (!port) {
 
-		console.log('create port');
+		console.log('no port:create port');
 
 		port = chrome.extension.connect({
 			name : 'chrome-google-plus-helper'
@@ -46,7 +57,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 	switch (request.action) {
 	case 'initTab':
-		// _gaq.push([ '_trackPageview', '/openLink' ]);
 		getPort();
 		break;
 	default:
@@ -60,45 +70,20 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
  */
 function GPlusHelper() {
 
+	this.settings = undefined;
 	this.pageInfo = new PageInfo();
-
+	this.chromeBookmarsFolderId = 2;
+	
 	this.init = function() {
 
-		/*
-		 * this.addNotifier();
-		 * 
-		 * this.extendUI();
-		 */
 
 		/*
 		 * add script
 		 */
-
-		(function() {
-			var ga = document.createElement('script');
-			ga.type = 'text/javascript';
-			ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			var s = document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(ga, s);
-		})();
-
-		(function() {
-			var ga = document.createElement('script');
-			ga.type = 'text/javascript';
-			ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
-			var s = document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(ga, s);
-		})();
-
-		var po = document.createElement('script');
-		po.type = 'text/javascript';
-		po.innerText = "function _onPlusOne(data){" + "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);" + "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);" + "\n};";
-
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(po, s);
-
+		if (this.settings.addPlusOne == 'true') {
+			uiExtender.preExtendPostWithPlusOne();
+		}
+		
 		var url = this.getFullUrlByLocation(window.location);
 
 		var result = url.search(/plus.google.com/);
@@ -109,7 +94,7 @@ function GPlusHelper() {
 		/*
 		 * check if user post
 		 */
-		data = this.analyzePage(url);
+		this.analyzePage(url);
 
 		getPort().postMessage({
 			message : "onActivatePageAction"
@@ -146,6 +131,7 @@ function GPlusHelper() {
 
 		var container = document.querySelector(assets.gpContentPane);
 		if (container == undefined) {
+			console.log('[e]Failed to get the contain pane', assets.gpContentPane);
 			return;
 		}
 
@@ -170,7 +156,7 @@ function GPlusHelper() {
 				 */
 
 				if (e.target.getAttribute('class') != assets.gpPostUrl) {
-					console.log('[i]set assets.gpPostUrl = "md gi xi;"');
+					console.log('[w]failed to get assets.gpPostUrl');
 					return;
 				}
 				
@@ -259,85 +245,68 @@ function GPlusHelper() {
 
 	};
 
-	this.initHomePageToolbar = function(settings) {
+	this.initHomePageToolbar = function() {
 		console.log('initHomePageToolbar...');
+		if (this.settings.addChromeBookmarks != 'true' && this.settings.addChromeBookmarksToolbar != 'true') {
+			return;
+		}
 		var miniToolbarObj = document.querySelector(assets.gpToolbar);// div.oLO5kc");
 
 		if (!miniToolbarObj) {
+			console.log('[w]Failed to get assets.gpToolbar');
 			return;
 		}
 
-		chrome.extension.sendRequest({
-			action : "getSettings"
-		}, function(response) {
-			// console.log('response.getSettings', response);
+		var buttonObj = document.createElement("a");
+		buttonObj.href = '#';
 
-			var settings = response.settings;
+		var attrClass = document.createAttribute("class");
 
-			if (settings.addChromeBookmarks == 'true' && settings.addChromeBookmarksToolbar == 'true') {
+		attrClass.nodeValue = assets.gpToolbarButton;
 
-				var buttonObj = document.createElement("a");
-				buttonObj.href = '#';
+		var attrClass2 = document.createAttribute("aria-label");
+		attrClass2.nodeValue = 'Bookmarks';
+		buttonObj.setAttributeNode(attrClass2);
 
-				var attrClass = document.createAttribute("class");
+		/*
+		 * action on bookmark klick
+		 */
+		(function(chromeBookmarsFolderId) {
+			buttonObj.onclick = function(e) {
+				e.stopPropagation();
+				chrome.extension.sendRequest({
+					action : "doOpenLink",
+					values : {
+						url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId,
+						target : 'bookmarks'
+					}
+				}, function() {
+				});
 
-				attrClass.nodeValue = assets.gpToolbarButton;
+				return false;
+			};
+		})(this.chromeBookmarsFolderId);
 
-				var attrClass2 = document.createAttribute("aria-label");
-				attrClass2.nodeValue = 'Bookmarks';
-				buttonObj.setAttributeNode(attrClass2);
+		buttonObj.setAttributeNode(attrClass);
+		buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
 
-				
-				
-				
-				(function(chromeBookmarsFolderId) {
-					buttonObj.onclick = function(e) {
-						e.stopPropagation();
-						chrome.extension.sendRequest({
-							action : "doOpenLink",
-							values : {
-								url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId,
-								target : 'bookmarks'
-							}
-						}, function() {
-						});
-
-						/*
-						 * 
-						 * console.log('show bookmarks'); //var streamObj =
-						 * document.querySelector("div.a-b-f-i-oa"); //var
-						 * streamObj = document.querySelector("#contentPane");
-						 * var streamObj = document.querySelector(".a-p-M");
-						 * 
-						 * 
-						 * if (streamObj) { streamObj.style.display = 'none'; }
-						 * 
-						 */
-						return false;
-					};
-				})(response.chromeBookmarsFolderId);
-
-				buttonObj.setAttributeNode(attrClass);
-				buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
-				// VAbDid
-				miniToolbarObj.appendChild(buttonObj);
-				
-				
-				/*
-				 * move search field to the right
-				 */
-				
-				var o = document.getElementById(assets.gpToolbarSearchFliedClass);
-				if (o) {
-					var attrStyle = document.createAttribute("style");
-					attrStyle.nodeValue = 'margin-left: 457px!important;';
-					o.setAttributeNode(attrStyle);
-				}
+		miniToolbarObj.appendChild(buttonObj);
 
 
-			}
+		/*
+		 * move search field to the right
+		 */
 
-		});
+		var o = document.getElementById(assets.gpToolbarSearchFieldId);
+		if (o) {
+			var attrStyle = document.createAttribute("style");
+			attrStyle.nodeValue = 'margin-left: 45px!important;';
+			o.setAttributeNode(attrStyle);
+		}
+
+
+
+
 
 	};
 
@@ -382,9 +351,14 @@ function GPlusHelper() {
 getPort().onMessage.addListener(function(msg) {
 	console.log("The extension said: " + msg.message + " with values: " + msg.values, msg);
 
-	console.log('onMessage', msg);
+	console.log('onMessage', msg.message, msg);
 
 	switch (msg.message) {
+	case 'doAction':
+		
+		msg.callback(msg.action);
+		
+	break;
 	case 'update':
 		fetchTabInfo('update');
 		break;
@@ -446,8 +420,6 @@ getPort().onMessage.addListener(function(msg) {
 
 function fetchTabInfo(selectedPacketName) {
 	console.log('content_scripts.fetchTabInfo:' + selectedPacketName);
-	var attrClass = undefined;
-	var postObj = undefined;
 
 	/*
 	 * get home stream
@@ -461,18 +433,28 @@ function fetchTabInfo(selectedPacketName) {
 		streamObj = document.querySelector(assets.gpContainerStreamProfile);// div.a-Wf-i-M");
 	}
 
+	/*
+	 * get post
+	 */
+	if (!streamObj) {
+		streamObj = document.querySelector(assets.gpContainerStreamPost);// div.a-Wf-i-M");
+	}
+	
 	if (!streamObj) {
 		console.log('failed to get stream for extension');
 		return;
 	}
 
-	chrome.extension.sendRequest({
-		action : "getSettings"
-	}, function(response) {
-		console.log('response.getSettings', response);
+//	chrome.extension.sendRequest({
+//		action : "getSettings"
+//	}, function(response) {
+//		console.log('response.getSettings', response);
+//
+//		var settings = response.settings;
 
-		var settings = response.settings;
-
+	var attrClass = undefined;
+	var postObj = undefined;
+	
 		for ( var i = 0; i < streamObj.childElementCount; i++) {
 			// console.log('found post element...');
 
@@ -484,7 +466,7 @@ function fetchTabInfo(selectedPacketName) {
 					attrClass = document.createAttribute('mk-extended');
 					attrClass.nodeValue = 'true';
 					postObj.setAttributeNode(attrClass);
-					extendPostArea(postObj, settings);
+					uiExtender.extendPostArea(postObj,  gplushelper.settings);
 				}
 				;
 			}
@@ -492,270 +474,365 @@ function fetchTabInfo(selectedPacketName) {
 		}
 		;
 
-	});
+//	});
 
 };
 
-function extendPostArea(o, settings) {
-	// console.log('extendPostArea...');
-
-	if (settings.addHashtags == 'true') {
-		uiExtender.addHashtags(o);
-	}
-	;
-
-	// if (settings.addHashtagsComments == 'true') {
-	// var commentsObj = o.querySelectorAll("span.a-f-i-W-p");
-	//
-	// }
-
-	var placeholderObj = o.querySelector(assets.gpPostBottomControls);// div.a-f-i-bg
-
-	if (!placeholderObj) {
-		console.log('error: failed to get the placeholder for actions');
-		return;
-	}
-
-	if (settings.addTwitter == 'true') {
-		extentPostWithAction(placeholderObj, 'Tweet', function() {
-			actions.doTweet(getActivityData(this));
-		}, 'Click to tweet this post');
-	}
-
-	if (settings.addFacebook == 'true') {
-
-		extentPostWithAction(placeholderObj, 'Facebook', function() {
-			actions.doFacebook(getActivityData(this));
-		}, 'Click to post on Facebook');
-
-	}
-
-	if (settings.addTranslate == 'true') {
-		extentPostWithAction(placeholderObj, 'Translate', function() {
-			actions.doTranslate(getActivityData(this));
-		}, 'Click to translate this post');
-
-	}
-
-	// if (settings.addTranslate == 'true') {
-	// extentPostWithAction(placeholderObj, 'Translate', function() {
-	// actions.doTranslate(getActivityData(this));
-	// }, 'Click to translate this post');
-	//
-	// console.log('o', o);
-	//
-	// extentPostWithAction(placeholderObj, 'T2', function() {
-	// // div. > div.vg
-	// // div. > div.vg-translate
-	//
-	// // new google.translate.SectionalElement({
-	// // sectionalNodeClassName: 'goog-trans-section',
-	// // controlNodeClassName: 'goog-trans-control',
-	// // background: '#f4fa58'
-	// // }, 'google_sectional_element');
-	//
-	// }, 'Click to translate this post');
-	//
-	// }
-
-	if (settings.addBookmarks == 'true') {
-
-		extentPostWithAction(placeholderObj, 'Bookmark', function() {
-			actions.doBookmark(getActivityData(this));
-		}, 'Click to bookmark this post');
-
-	}
-
-	if (settings.addDelicious == 'true') {
-
-		extentPostWithAction(placeholderObj, 'Delicious', function() {
-			actions.doDelicious(getActivityData(this));
-		}, 'Click to bookmark this post on Delicious');
-
-	}
-
-	if (settings.isDebug == 'true') {
-		extentPostWithAction(placeholderObj, 'N', function() {
+function UIExtender() {
 	
-			var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
-			console.log('activityId', activityId);
-	
-			//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
-	
-			getPort().postMessage({
-				message : "onNewPostViaApi",
-				activity : {
-					id : activityId
-				},
-				force : true
-			});
-	
-		}, 'notify by api');
-	}
-	
-	if (settings.isDebug == 'true') {
+	this.extendPostArea = function(o, settings) {
+		// console.log('extendPostArea...');
+
+//		if (settings.addHashtags == 'true') {
+//			this.addHashtags(o);
+//		}
+//		;
+
+		// if (settings.addHashtagsComments == 'true') {
+		// var commentsObj = o.querySelectorAll("span.a-f-i-W-p");
+		//
+		// }
+
+		var placeholderObj = o.querySelector(assets.gpPostBottomControls);// div.a-f-i-bg
+
+		if (!placeholderObj) {
+			console.log('error: failed to get the placeholder for actions. set assets.gpPostBottomControls');
+			return;
+		}
+
+		if (settings.addTwitter == 'true') {
+			this.extendPostWithAction(placeholderObj, 'Tweet', function() {
+				//actions.doTweet(getActivityData(this));
+				
+				getActivityDataWithCallback(this, function(activity) {
+					actions.doTweet(activity);
+				});
+				
+			}, 'Click to tweet this post');
+		}
+
+		if (settings.addFacebook == 'true') {
+
+			this.extendPostWithAction(placeholderObj, 'Facebook', function() {
+				getActivityDataWithCallback(this, function(activity) {
+					actions.doFacebook(activity);
+				});
+				
+			}, 'Click to post on Facebook');
+
+		}
+
+		if (settings.addTranslate == 'true') {
+			this.extendPostWithAction(placeholderObj, 'Translate', function() {
+				getActivityDataWithCallback(this, function(activity) {
+					actions.doTranslate(activity);
+				});
+
+			}, 'Click to translate this post');
+
+		}
+
+		// if (settings.addTranslate == 'true') {
+		// this.extendPostWithAction(placeholderObj, 'Translate', function() {
+		// actions.doTranslate(getActivityData(this));
+		// }, 'Click to translate this post');
+		//
+		// console.log('o', o);
+		//
+		// this.extendPostWithAction(placeholderObj, 'T2', function() {
+		// // div. > div.vg
+		// // div. > div.vg-translate
+		//
+		// // new google.translate.SectionalElement({
+		// // sectionalNodeClassName: 'goog-trans-section',
+		// // controlNodeClassName: 'goog-trans-control',
+		// // background: '#f4fa58'
+		// // }, 'google_sectional_element');
+		//
+		// }, 'Click to translate this post');
+		//
+		// }
+
+		if (settings.addBookmarks == 'true') {
+
+			this.extendPostWithAction(placeholderObj, 'Bookmark', function() {
+				getActivityDataWithCallback(this, function(activity) {
+					actions.doBookmark(activity);
+				});
+				
+			}, 'Click to bookmark this post');
+
+		}
+
+		if (settings.addDelicious == 'true') {
+
+			this.extendPostWithAction(placeholderObj, 'Delicious', function() {
+				getActivityDataWithCallback(this, function(activity) {
+					actions.doDelicious(activity);
+				});
+				
+			}, 'Click to bookmark this post on Delicious');
+
+		}
+
+		if (settings.isDebug == 'true') {
+			this.extendPostWithAction(placeholderObj, 'N', function() {
 		
-		extentPostWithAction(placeholderObj, 'pN', function() {
-	
-			var activity = getActivityData(this);
-			console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
-			getPort().postMessage({
-				message : "onNewPost",
-				activity : activity,
-				force : true
+				var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
+				console.log('activityId', activityId);
+		
+				//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
+		
+				getPort().postMessage({
+					message : "onNewPostViaApi",
+					activity : {
+						id : activityId
+					},
+					force : true
+				});
+		
+			}, 'notify by api');
+		}
+		
+		if (settings.isDebug == 'true') {
+			
+			this.extendPostWithAction(placeholderObj, 'pN', function() {
+		
+				var activity = getActivityData(this);
+				
+				console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
+				getPort().postMessage({
+					message : "onNewPost",
+					activity : activity,
+					force : true
+				});
+		
+			}, 'parse and notify');
+		}
+		
+		// .a-b-f-i-p span.a-f-i-yj
+		var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
+		// span.a-f-i-yj");
+
+		if (!placeholderIconsObj) {
+			console.log('error: failed to get the placeholder for icons');
+			return;
+		}
+
+		if (settings.addPlusOne == 'true') {
+
+			this.extendPostWithPlusOne(placeholderIconsObj, getActivityData(placeholderObj), settings, '...', function() {
+			}, '...');
+
+		}
+
+		if (settings.addChromeBookmarks == 'true') {
+
+			// var postData = getActivityData(placeholderObj);
+			var url = getActivityUrl(placeholderObj);
+
+			
+			
+			
+			chrome.extension.sendRequest({
+				action : "checkChromeBookmarked",
+				values : {
+					url : url
+				}
+			}, function(bookmarked) {
+
+				if (bookmarked) {
+
+					
+					uiExtender.extendPostWithIconAction(placeholderIconsObj, 'mk-bookmarked', function(element) {
+						actions.doChromeBookmark(element.target, getActivityData(this));
+					}, 'Click to remove bookmark this post');
+
+				} else {
+
+					uiExtender.extendPostWithIconAction(placeholderIconsObj, 'mk-bookmark', function(element) {
+						actions.doChromeBookmark(element.target, getActivityData(this));
+					}, 'Click to bookmark this post');
+
+				}
+				;
+
 			});
+
+		}
+		;
+
+		// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
+
+	};
 	
-		}, 'parse and notify');
-	}
 	
-	// .a-b-f-i-p span.a-f-i-yj
-	var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
-	// span.a-f-i-yj");
-
-	if (!placeholderIconsObj) {
-		console.log('error: failed to get the placeholder for icons');
-		return;
-	}
-
-	if (settings.addPlusOne == 'true') {
-
-		extentPostWithHTML(placeholderIconsObj, getActivityData(placeholderObj), settings, '...', function() {
-		}, '...');
-
-	}
-
-	if (settings.addChromeBookmarks == 'true') {
-
-		// var postData = getActivityData(placeholderObj);
-		var url = getActivityUrl(placeholderObj);
-
-		chrome.extension.sendRequest({
-			action : "checkChromeBookmarked",
-			values : {
-				url : url
-			}
-		}, function(bookmarked) {
-
-			if (bookmarked) {
-
-				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmarked', function(element) {
-					actions.doChromeBookmark(element.target, getActivityData(this));
-				}, 'Click to remove bookmark this post');
-
-			} else {
-
-				extentPostWithIconAction(placeholderIconsObj, 'mk-bookmark', function(element) {
-					actions.doChromeBookmark(element.target, getActivityData(this));
-				}, 'Click to bookmark this post');
-
-			}
-			;
-
-		});
-
-	}
-	;
-
-	// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
-
-}
-
-/**
- * create element
- * 
- * @param placeholderObj
- */
-function extentPostWithAction(placeholderObj, caption, callback, title) {
-	if (!placeholderObj) {
-		return;
-	}
-	var txt = document.createElement("txt");
-	txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
-
-	// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
-	var span = document.createElement("span");
-	span.innerText = caption;
-
-	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = assets.gpPostBottomControlsStyle;// d-h';
-	span.setAttributeNode(attrClass);
-
-	var attrAlt = document.createAttribute("title");
-	attrAlt.nodeValue = title;
-	span.setAttributeNode(attrAlt);
-
-	span.onclick = callback;
-
-	placeholderObj.appendChild(txt);
-	placeholderObj.appendChild(span);
-}
-
-function extentPostWithIconAction(placeholderObj, htmlClass, callback, title) {
-	if (!placeholderObj) {
-		return;
-	}
-	// d-h a-f-i-Ia-D-h a-b-f-i-Ia-D-h
-	// a-f-i-yj
-	// var txt = document.createElement("txt");
-	// txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
-
-	// <button id="star" class="wpb" style="margin-left: 0"></button>
-
-	var span = document.createElement("button");
-	// span.innerText = caption;
-
-	var attrClass = document.createAttribute("class");
-	attrClass.nodeValue = htmlClass;
-	span.setAttributeNode(attrClass);
-
-	var attrStyle = document.createAttribute("style");
-	attrStyle.nodeValue = 'display:none';
-	span.setAttributeNode(attrStyle);
-
-	var attrAlt = document.createAttribute("title");
-	attrAlt.nodeValue = title;
-	span.setAttributeNode(attrAlt);
-
-	span.onclick = callback;
-
-	// placeholderObj.appendChild(txt);
-	placeholderObj.appendChild(span);
-}
-
-function extentPostWithHTML(placeholderObj, activity, settings, htmlClass, callback, title) {
-	if (!placeholderObj) {
-		return;
-	}
-
-	if (activity.access.items[0].type != 'public') {
-		return;
-	}
-
-	var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
-	var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
-
-	var div = document.createElement("div");
-	var attrClass = document.createAttribute("id");
-	attrClass.nodeValue = 'plusone-' + activity.id;
-	div.setAttributeNode(attrClass);
-
-	var attrClass2 = document.createAttribute("class");
-	attrClass2.nodeValue = htmlClass;
-	div.setAttributeNode(attrClass2);
-
-	var attrStyle = document.createAttribute("style");
-	attrStyle.nodeValue = 'display:none';
-	div.setAttributeNode(attrStyle);
 	
-	div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
 
-	var script = document.createElement("script");
-	script.innerText = 'gapi.plusone.go("' + 'plusone-' + activity.id + '");';
 
-	placeholderObj.appendChild(div);
-	placeholderObj.appendChild(script);
+	/**
+	 * create element
+	 * 
+	 * @param placeholderObj
+	 */
+	this.extendPostWithAction = function(placeholderObj, caption, callback, title) {
+		if (!placeholderObj) {
+			return;
+		}
+		var txt = document.createElement("span");
+		txt.innerText = "  -  ";
+		var attrClass = document.createAttribute("class");
+		attrClass.nodeValue = 'mk-show';
+		txt.setAttributeNode(attrClass);
+		var attrStyle = document.createAttribute("style");
+		attrStyle.nodeValue = 'display:none';
+		txt.setAttributeNode(attrStyle);
 
+		
+		
+		
+		// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
+		var span = document.createElement("span");
+		span.innerText = caption;
+
+		var attrClass = document.createAttribute("class");
+		attrClass.nodeValue = assets.gpPostBottomControlsStyle;
+		span.setAttributeNode(attrClass);
+		
+		var attrStyle = document.createAttribute("style");
+		attrStyle.nodeValue = 'display:none';
+		span.setAttributeNode(attrStyle);
+
+			
+		var attrAlt = document.createAttribute("title");
+		attrAlt.nodeValue = title;
+		span.setAttributeNode(attrAlt);
+
+		span.onclick = callback;
+
+		placeholderObj.appendChild(txt);
+		placeholderObj.appendChild(span);
+	};
+	
+	this.extendPostWithIconAction = function(placeholderObj, htmlClass, callback, title) {
+		if (!placeholderObj) {
+			return;
+		}
+		// d-h a-f-i-Ia-D-h a-b-f-i-Ia-D-h
+		// a-f-i-yj
+		// var txt = document.createElement("txt");
+		// txt.innerHTML = "&nbsp;&nbsp;-&nbsp;&nbsp;";
+
+		// <button id="star" class="wpb" style="margin-left: 0"></button>
+
+		var span = document.createElement("button");
+		// span.innerText = caption;
+
+		var attrClass = document.createAttribute("class");
+		attrClass.nodeValue = htmlClass;
+		span.setAttributeNode(attrClass);
+
+		var attrStyle = document.createAttribute("style");
+		attrStyle.nodeValue = 'display:none';
+		span.setAttributeNode(attrStyle);
+
+		var attrAlt = document.createAttribute("title");
+		attrAlt.nodeValue = title;
+		span.setAttributeNode(attrAlt);
+
+		span.onclick = callback;
+
+		// placeholderObj.appendChild(txt);
+		placeholderObj.appendChild(span);
+	};
+	
+	this.preExtendPostWithPlusOne = function(){
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'translate.google.com/translate_a/element.js?cb=googleSectionalElementInit&ug=section&hl=en';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+
+		var po = document.createElement('script');
+		po.type = 'text/javascript';
+		po.innerText = "function _onPlusOne(data){" + "\n_gaq.push(['_setAccount', '" + assets._setAccount + "']);" + "\n_gaq.push(['_trackPageview', '/plusone/' + data.state]);" + "\n};";
+
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(po, s);
+	};
+	
+	this.extendPostWithPlusOne = function(placeholderObj, activity, settings, htmlClass, callback, title) {
+		if (!placeholderObj) {
+			return;
+		}
+
+		if (activity.access.items[0].type != 'public') {
+			return;
+		}
+
+		var count = settings.addPlusOneCounter == 'true' ? 'count="true"' : 'count="false"';
+		var htmlClass = settings.addPlusOneCounter == 'true' ? 'mk-plusone-count' : 'mk-plusone';
+
+		var div = document.createElement("div");
+		var attrClass = document.createAttribute("id");
+		attrClass.nodeValue = 'plusone-' + activity.id;
+		div.setAttributeNode(attrClass);
+
+		var attrClass2 = document.createAttribute("class");
+		attrClass2.nodeValue = htmlClass;
+		div.setAttributeNode(attrClass2);
+
+		var attrStyle = document.createAttribute("style");
+		attrStyle.nodeValue = 'display:none';
+		div.setAttributeNode(attrStyle);
+		
+		div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
+
+		var script = document.createElement("script");
+		script.innerText = 'gapi.plusone.go("' + 'plusone-' + activity.id + '");';
+
+		placeholderObj.appendChild(div);
+		placeholderObj.appendChild(script);
+
+	};
+
+	
+
+
+	this.addHashtags = function(postObj) {
+		var postBodyObj = postObj.querySelector(assets.gpPostBody);
+
+		if (!postBodyObj) {
+			postBodyObj = postObj.querySelector("div.a-b-f-i-p-R");
+		}
+
+		if (postBodyObj) {
+
+			gplushelper.addHashTagsUrls(postBodyObj, function(html) {
+
+				if (html) {
+					postBodyObj.innerHTML = html;
+				}
+
+			});
+
+		}
+
+	};
 }
+
 
 function addJavaScriptCode(code) {
 	if (!code) {
@@ -790,6 +867,28 @@ function getActivityHTMLNode(o) {
 	}
 
 }
+
+function getActivityDataWithCallback(o, callback) {
+	
+	
+	if (gplushelper.settings.isApiEnabled == true || gplushelper.settings.isApiEnabled == 'true') {
+		var activityId = activityParser.parseActivityId(getActivityHTMLNode(o));
+		
+		chrome.extension.sendRequest({
+			action : "doActionViaApi",
+			activityId : activityId
+		}, function(response) {
+			callback(response.activity);
+		});
+		
+		
+	} else {
+		callback(activityParser.parseActivityHTML(getActivityHTMLNode(o)));
+	}
+
+}
+
+
 /**
  * Traverse parent elements till post div will be found
  * 
@@ -798,7 +897,7 @@ function getActivityHTMLNode(o) {
  */
 function getActivityData(o) {
 	// console.log('getActivityData', o);
-
+	
 	return activityParser.parseActivityHTML(getActivityHTMLNode(o));
 
 }
@@ -891,34 +990,6 @@ function PageInfo() {
 	};
 
 };
-
-function UIExtender() {
-
-	this.selBody = 12;
-	this.selAuthor = 12;
-
-	this.addHashtags = function(postObj) {
-		var postBodyObj = postObj.querySelector(assets.gpPostBody);
-
-		if (!postBodyObj) {
-			postBodyObj = postObj.querySelector("div.a-b-f-i-p-R");
-		}
-
-		if (postBodyObj) {
-
-			gplushelper.addHashTagsUrls(postBodyObj, function(html) {
-
-				if (html) {
-					postBodyObj.innerHTML = html;
-				}
-
-			});
-
-		}
-
-	};
-
-}
 
 function Activity() {
 

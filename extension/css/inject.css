@@ -65,3 +65,11 @@
 	margin-left: 5px;
 	vertical-align: 0;
 }
+
+.mk-show {
+	display:inline!important;
+}
+
+.mk-showb {
+	display:block!important;
+}
