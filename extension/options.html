@@ -139,6 +139,7 @@
 						bkg.settings.apiKey = '';
 						bkg.settings.isApiEnabled = false;
 						assets.googlePlusAPIKey = '';
+						bkg.onSettingsChanged();
 						
 						$('#option_apiKey').val('');
 						$('#option_apiKey').focus();
@@ -147,6 +148,7 @@
 						bkg.settings.apiKey = $('#option_apiKey').val();
 						bkg.settings.isApiEnabled = true;
 						assets.googlePlusAPIKey = bkg.settings.apiKey;
+						bkg.onSettingsChanged();
 						alert('Your Simply access Google+ API has been saved');
 						//markDirty(); 
 					}
@@ -986,7 +988,7 @@
 			bkg.settings.isDebug = $("#option_debug").attr("checked");
 			
 			//Refresh the extension by reseting timer.
-			bkg.refreshConfiguration();
+			bkg.onSettingsChanged();
 
 			$('#save_status').fadeIn('fast');
 			$('#save_status').fadeOut(3000);

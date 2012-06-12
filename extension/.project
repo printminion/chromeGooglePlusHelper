@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mkChromeGooglePlusHelper</name>
+	<name>chromeGooglePlusHelper</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -44,7 +44,7 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1311370947256</id>
+			<id>0</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
@@ -53,7 +53,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1311370947267</id>
+			<id>0</id>
 			<name></name>
 			<type>22</type>
 			<matcher>

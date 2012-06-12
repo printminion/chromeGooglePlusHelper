@@ -31,11 +31,10 @@ chrome.extension.sendRequest({
 	// console.log('response.getSettings', response);
 	gplushelper.settings = response.settings;
 	gplushelper.chromeBookmarsFolderId = response.chromeBookmarsFolderId;
-	
+
 	gplushelper.init();
 
 });
-
 
 var lastPostId = undefined;
 
@@ -65,276 +64,255 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-/**
- * @returns {GPlusHelper}
- */
 function GPlusHelper() {
 
 	this.settings = undefined;
 	this.pageInfo = new PageInfo();
 	this.chromeBookmarsFolderId = 2;
-	
-	this.init = function() {
+}
 
+GPlusHelper.prototype.init = function() {
 
-		/*
-		 * add script
-		 */
-		if (this.settings.addPlusOne == 'true') {
-			uiExtender.preExtendPostWithPlusOne();
-		}
-		
-		var url = this.getFullUrlByLocation(window.location);
+	/*
+	 * add script
+	 */
+	if (this.settings.addPlusOne == 'true') {
+		uiExtender.preExtendPostWithPlusOne();
+	}
 
-		var result = url.search(/plus.google.com/);
-		if (result == -1) {
-			return;
-		}
+	var url = this.getFullUrlByLocation(window.location);
 
-		/*
-		 * check if user post
-		 */
-		this.analyzePage(url);
+	var result = url.search(/plus.google.com/);
+	if (result == -1) {
+		return;
+	}
+
+	/*
+	 * check if user post
+	 */
+	this.analyzePage(url);
+
+	getPort().postMessage({
+		message : "onActivatePageAction"
+	});
+
+	this.initHomePageToolbar();
+	this.initHomePage();
+
+};
+
+GPlusHelper.prototype.analyzePage = function(url) {
+	console.log('analyzePage...');
+
+	// https://plus.google.com/
+	// https://plus.google.com/104512463398531242371/posts
+	// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
+
+	this.pageInfo = new PageInfo();
+
+	this.pageInfo.url = url;
+	this.pageInfo.type = this.pageInfo.getPageType(url);
+	this.pageInfo.notificationOn = this.pageInfo.ifNotificationPage(url);
+
+	console.log('analyzePage... ..done', this.pageInfo);
+
+	return this.pageInfo;
+
+};
+
+GPlusHelper.prototype.initHomePage = function() {
+	console.log('initHomePage...');
+
+	// bNotificationOn
+
+	var container = document.querySelector(assets.gpContentPane);
+	if (container == undefined) {
+		console.log('[e]Failed to get the contain pane', assets.gpContentPane);
+		return;
+	}
+
+	if (!container.addEventListener) {
+		return;
+	}
+
+	(function(component) {
+		container.addEventListener('DOMNodeInserted', function(e) {
+
+			var idPrefix = e.target.id ? e.target.id.substring(0, 7) : undefined;
+
+			if (idPrefix != 'update-') {
+				return;
+			}
+
+			lastPostId = e.target.id;
+			console.log('[i]onBeforePostAdded', lastPostId);
+
+			/*
+			 * get post url
+			 */
+
+			if (e.target.getAttribute('class') != assets.gpPostClass) {
+				console.log('[w]failed to get assets.gpPostClass');
+				return;
+			}
+
+			/*
+			 * take only Actions from the top
+			 */
+			var currentActionHTMLObj = e.target;
+
+			if (currentActionHTMLObj.parentNode.getAttribute('class') == assets.gpContainerStreamClass) {
+
+				if (currentActionHTMLObj.parentNode.firstChild.getAttribute('id') != lastPostId) {
+					console.log('[w]skip Action - got it not from the top', lastPostId);
+					return;
+				}
+			}
+
+			var activityId = lastPostId.substring(7, lastPostId.length);
+			console.log('onActivityAdded', activityId, currentActionHTMLObj.getAttribute('href'));
+
+			component.onActivityAdded(activityId, currentActionHTMLObj);
+
+		}, false);
+
+	})(this);
+
+};
+
+GPlusHelper.prototype.onActivityAdded = function(activityId, activityHTML) {
+	/*
+	 * TODO add notification - NOT
+	 */
+
+	if (!this.pageInfo.notificationOn) {
+		console.log('...no notifications for this page');
+		return;
+	}
+	/*
+	 * check notifications settings
+	 */
+
+	if (!this.settings.notificationOn) {
+		console.log('...no notification');
+		return;
+	}
+
+	/*
+	 * send notification
+	 */
+
+	if (this.settings.isApiEnabled == 'true' || this.settings.isApiEnabled == 'true') {
+		console.log('activityId', activityId);
 
 		getPort().postMessage({
-			message : "onActivatePageAction"
+			message : "onNewPostViaApi",
+			activity : {
+				id : activityId
+			},
+			callback : undefined,
+			force : true
 		});
 
-		this.initHomePageToolbar();
-		this.initHomePage();
+	} else {
+		var activity = activityParser.parseActivityHTML(activityHTML);
+		console.log('parseActivityHTML', activity);
 
-	};
+		getPort().postMessage({
+			message : "onNewPost",
+			activity : activity,
+			callback : undefined
+		});
+	}
 
-	this.analyzePage = function(url) {
-		console.log('analyzePage...');
+	lastPostId = undefined;
+	fetchTabInfo("fetchOnUpdate");
+};
 
-		// https://plus.google.com/
-		// https://plus.google.com/104512463398531242371/posts
-		// https://plus.google.com/104512463398531242371/posts/jdw7brnkX9H
+GPlusHelper.prototype.initHomePageToolbar = function() {
+	console.log('initHomePageToolbar...');
+	if (this.settings.addChromeBookmarks != 'true' && this.settings.addChromeBookmarksToolbar != 'true') {
+		return;
+	}
+	var miniToolbarObj = document.querySelector(assets.gpToolbar);// div.oLO5kc");
 
-		this.pageInfo = new PageInfo();
+	if (!miniToolbarObj) {
+		console.log('[w]Failed to get assets.gpToolbar');
+		return;
+	}
 
-		this.pageInfo.url = url;
-		this.pageInfo.type = this.pageInfo.getPageType(url);
-		this.pageInfo.notificationOn = this.pageInfo.ifNotificationPage(url);
+	var buttonObj = document.createElement("a");
+	buttonObj.href = '#';
 
-		console.log('analyzePage... ..done', this.pageInfo);
+	var attrClass = document.createAttribute("class");
 
-		return this.pageInfo;
+	attrClass.nodeValue = assets.gpToolbarButton;
 
-	};
+	var attrClass2 = document.createAttribute("aria-label");
+	attrClass2.nodeValue = 'Bookmarks';
+	buttonObj.setAttributeNode(attrClass2);
 
-	this.initHomePage = function() {
-		console.log('initHomePage...');
-
-		// bNotificationOn
-
-		var container = document.querySelector(assets.gpContentPane);
-		if (container == undefined) {
-			console.log('[e]Failed to get the contain pane', assets.gpContentPane);
-			return;
-		}
-
-		if (!container.addEventListener) {
-			return;
-		}
-
-		(function(component) {
-			container.addEventListener('DOMNodeInserted', function(e) {
-
-				var idPrefix = e.target.id ? e.target.id.substring(0, 7) : undefined;
-
-				if (idPrefix != 'update-') {
-					return;
+	/*
+	 * action on bookmark klick
+	 */
+	(function(chromeBookmarsFolderId) {
+		buttonObj.onclick = function(e) {
+			e.stopPropagation();
+			chrome.extension.sendRequest({
+				action : "doOpenLink",
+				values : {
+					url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId,
+					target : 'bookmarks'
 				}
+			}, function() {
+			});
 
-				lastPostId = e.target.id;
-				console.log('[i]onBeforePostAdded', lastPostId);
+			return false;
+		};
+	})(this.chromeBookmarsFolderId);
 
-				/*
-				 * get post url
-				 */
+	buttonObj.setAttributeNode(attrClass);
+	buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
 
-				if (e.target.getAttribute('class') != assets.gpPostUrl) {
-					console.log('[w]failed to get assets.gpPostUrl');
-					return;
-				}
-				
-				/*
-				 * take only Actions from the top
-				 */
-				var currentActionHTMLObj = e.target;
-				
-				if(currentActionHTMLObj.parentNode.getAttribute('class') == assets.gpContainerStreamClass) {
-				
-					if (currentActionHTMLObj.parentNode.firstChild.getAttribute('id') != lastPostId){
-						console.log('[w]skip Action - got it not from the top', lastPostId);
-						return;
-					}
-				}
-					
-				
-				
-				console.log('onActivityAdded', lastPostId, e.target.getAttribute('href'));
+	miniToolbarObj.appendChild(buttonObj);
 
-				/*
-				 * TODO add notification - NOT
-				 */
+	/*
+	 * move search field to the right
+	 */
 
-				if (!component.pageInfo.notificationOn) {
-					console.log('...no notifications for this page');
-					return;
-				}
-				/*
-				 * check notifications settings
-				 */
-				chrome.extension.sendRequest({
-					action : "getSettings"
-				}, function(response) {
-					console.log('response.getSettings', response.settings);
+	var o = document.getElementById(assets.gpToolbarSearchFieldId);
+	if (o) {
+		var attrStyle = document.createAttribute("style");
+		attrStyle.nodeValue = 'margin-left: 45px!important;';
+		o.setAttributeNode(attrStyle);
+	}
 
-					if (!response.settings.notificationOn) {
-						console.log('...no notification');
-						return;
-					}
+};
 
-					// var postObj = document.querySelector('#' + lastPostId);
-					//
-					// if (!postObj) {
-					// console.log('failed to get html by ' + '#'
-					// + lastPostId);
-					// return;
-					// }
+GPlusHelper.prototype.addHashTagsUrls = function(element, callback) {
 
-					/*
-					 * send notification
-					 */
+	var replaceWith = '$1<a href="https://plus.google.com/s/%23$2" target="_blank">#$2</a>';
+	var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
 
-					if (response.settings.isApiEnabled == true || response.settings.isApiEnabled == 'true') {
-						var activityId = activityParser.parseActivityId(e.target);
-						console.log('activityId', activityId);
+	if (element.innerHTML != hashtagged) {
 
-						getPort().postMessage({
-							message : "onNewPostViaApi",
-							activity : {
-								id : activityId
-							},
-							callback : undefined,
-							force : true
-						});
+		var hashtagged = element.innerHTML.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
 
-					} else {
-						var activity = activityParser.parseActivityHTML(e.target);
-						console.log('parseActivityHTML', activity);
+		callback(hashtagged);
 
-						getPort().postMessage({
-							message : "onNewPost",
-							activity : activity,
-							callback : undefined
-						});
-					}
+	}
 
-				});
+	callback(undefined);
 
-				lastPostId = undefined;
-				fetchTabInfo("fetchOnUpdate");
+};
 
-			}, false);
+GPlusHelper.prototype.getFullUrlByLocation = function(location) {
 
-		})(this);
+	var url = location.href;
 
-	};
+	return url;
 
-	this.initHomePageToolbar = function() {
-		console.log('initHomePageToolbar...');
-		if (this.settings.addChromeBookmarks != 'true' && this.settings.addChromeBookmarksToolbar != 'true') {
-			return;
-		}
-		var miniToolbarObj = document.querySelector(assets.gpToolbar);// div.oLO5kc");
-
-		if (!miniToolbarObj) {
-			console.log('[w]Failed to get assets.gpToolbar');
-			return;
-		}
-
-		var buttonObj = document.createElement("a");
-		buttonObj.href = '#';
-
-		var attrClass = document.createAttribute("class");
-
-		attrClass.nodeValue = assets.gpToolbarButton;
-
-		var attrClass2 = document.createAttribute("aria-label");
-		attrClass2.nodeValue = 'Bookmarks';
-		buttonObj.setAttributeNode(attrClass2);
-
-		/*
-		 * action on bookmark klick
-		 */
-		(function(chromeBookmarsFolderId) {
-			buttonObj.onclick = function(e) {
-				e.stopPropagation();
-				chrome.extension.sendRequest({
-					action : "doOpenLink",
-					values : {
-						url : 'chrome://bookmarks/?#' + chromeBookmarsFolderId,
-						target : 'bookmarks'
-					}
-				}, function() {
-				});
-
-				return false;
-			};
-		})(this.chromeBookmarsFolderId);
-
-		buttonObj.setAttributeNode(attrClass);
-		buttonObj.innerHTML = '<span class="' + assets.gpToolbarButtonInner + ' mk-toolbar-bookmark" data-tooltip="Bookmarks"></span>';// mZxz3d
-
-		miniToolbarObj.appendChild(buttonObj);
-
-
-		/*
-		 * move search field to the right
-		 */
-
-		var o = document.getElementById(assets.gpToolbarSearchFieldId);
-		if (o) {
-			var attrStyle = document.createAttribute("style");
-			attrStyle.nodeValue = 'margin-left: 45px!important;';
-			o.setAttributeNode(attrStyle);
-		}
-
-
-
-
-
-	};
-
-	this.addHashTagsUrls = function(element, callback) {
-
-		var replaceWith = '$1<a href="https://plus.google.com/s/%23$2" target="_blank">#$2</a>';
-		var hashtagged = element.innerText.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
-
-		if (element.innerHTML != hashtagged) {
-
-			var hashtagged = element.innerHTML.replace(/(| |,)#([A-Za-z0-9_-]+)/g, replaceWith);
-
-			callback(hashtagged);
-
-		}
-
-		callback(undefined);
-
-	};
-
-	this.getFullUrlByLocation = function(location) {
-
-		var url = location.href;
-
-		return url;
-
-	};
-}
+};
 
 /*
  * container.addEventListener('DOMNodeInserted', function(e){
@@ -349,16 +327,15 @@ function GPlusHelper() {
  */
 
 getPort().onMessage.addListener(function(msg) {
-	console.log("The extension said: " + msg.message + " with values: " + msg.values, msg);
-
 	console.log('onMessage', msg.message, msg);
 
 	switch (msg.message) {
+	case 'onSettingsChanged':
+		gplushelper.settings = msg.settings;
+		break;
 	case 'doAction':
-		
 		msg.callback(msg.action);
-		
-	break;
+		break;
 	case 'update':
 		fetchTabInfo('update');
 		break;
@@ -439,54 +416,54 @@ function fetchTabInfo(selectedPacketName) {
 	if (!streamObj) {
 		streamObj = document.querySelector(assets.gpContainerStreamPost);// div.a-Wf-i-M");
 	}
-	
+
 	if (!streamObj) {
 		console.log('failed to get stream for extension');
 		return;
 	}
 
-//	chrome.extension.sendRequest({
-//		action : "getSettings"
-//	}, function(response) {
-//		console.log('response.getSettings', response);
-//
-//		var settings = response.settings;
+	// chrome.extension.sendRequest({
+	// action : "getSettings"
+	// }, function(response) {
+	// console.log('response.getSettings', response);
+	//
+	// var settings = response.settings;
 
 	var attrClass = undefined;
 	var postObj = undefined;
-	
-		for ( var i = 0; i < streamObj.childElementCount; i++) {
-			// console.log('found post element...');
 
-			postObj = streamObj.childNodes[i];
+	for ( var i = 0; i < streamObj.childElementCount; i++) {
+		// console.log('found post element...');
 
-			if (postObj) {
+		postObj = streamObj.childNodes[i];
 
-				if (!postObj.getAttributeNode('mk-extended')) {
-					attrClass = document.createAttribute('mk-extended');
-					attrClass.nodeValue = 'true';
-					postObj.setAttributeNode(attrClass);
-					uiExtender.extendPostArea(postObj,  gplushelper.settings);
-				}
-				;
+		if (postObj) {
+
+			if (!postObj.getAttributeNode('mk-extended')) {
+				attrClass = document.createAttribute('mk-extended');
+				attrClass.nodeValue = 'true';
+				postObj.setAttributeNode(attrClass);
+				uiExtender.extendPostArea(postObj, gplushelper.settings);
 			}
 			;
 		}
 		;
+	}
+	;
 
-//	});
+	// });
 
 };
 
 function UIExtender() {
-	
+
 	this.extendPostArea = function(o, settings) {
 		// console.log('extendPostArea...');
 
-//		if (settings.addHashtags == 'true') {
-//			this.addHashtags(o);
-//		}
-//		;
+		// if (settings.addHashtags == 'true') {
+		// this.addHashtags(o);
+		// }
+		// ;
 
 		// if (settings.addHashtagsComments == 'true') {
 		// var commentsObj = o.querySelectorAll("span.a-f-i-W-p");
@@ -502,12 +479,12 @@ function UIExtender() {
 
 		if (settings.addTwitter == 'true') {
 			this.extendPostWithAction(placeholderObj, 'Tweet', function() {
-				//actions.doTweet(getActivityData(this));
-				
+				// actions.doTweet(getActivityData(this));
+
 				getActivityDataWithCallback(this, function(activity) {
 					actions.doTweet(activity);
 				});
-				
+
 			}, 'Click to tweet this post');
 		}
 
@@ -517,7 +494,7 @@ function UIExtender() {
 				getActivityDataWithCallback(this, function(activity) {
 					actions.doFacebook(activity);
 				});
-				
+
 			}, 'Click to post on Facebook');
 
 		}
@@ -559,7 +536,7 @@ function UIExtender() {
 				getActivityDataWithCallback(this, function(activity) {
 					actions.doBookmark(activity);
 				});
-				
+
 			}, 'Click to bookmark this post');
 
 		}
@@ -570,19 +547,21 @@ function UIExtender() {
 				getActivityDataWithCallback(this, function(activity) {
 					actions.doDelicious(activity);
 				});
-				
+
 			}, 'Click to bookmark this post on Delicious');
 
 		}
 
 		if (settings.isDebug == 'true') {
 			this.extendPostWithAction(placeholderObj, 'N', function() {
-		
+
 				var activityId = activityParser.parseActivityId(getActivityHTMLNode(this));
 				console.log('activityId', activityId);
-		
-				//div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
-		
+
+				// div.innerHTML = '<g:plusone href="' + activity.url + '"
+				// size="small" ' + count + ' callback="_onPlusOne"
+				// ></g:plusone>';
+
 				getPort().postMessage({
 					message : "onNewPostViaApi",
 					activity : {
@@ -590,26 +569,26 @@ function UIExtender() {
 					},
 					force : true
 				});
-		
+
 			}, 'notify by api');
 		}
-		
+
 		if (settings.isDebug == 'true') {
-			
+
 			this.extendPostWithAction(placeholderObj, 'pN', function() {
-		
+
 				var activity = getActivityData(this);
-				
+
 				console.log('getActivityDataElement', 'chrome-extension://dpcjjcbfdjminkagpdbbmncdggifmbjh/notification_helper.html?id=' + activity.id);
 				getPort().postMessage({
 					message : "onNewPost",
 					activity : activity,
 					force : true
 				});
-		
+
 			}, 'parse and notify');
 		}
-		
+
 		// .a-b-f-i-p span.a-f-i-yj
 		var placeholderIconsObj = o.querySelector(assets.gpPostUpperControls);// .a-b-f-i-p
 		// span.a-f-i-yj");
@@ -631,9 +610,6 @@ function UIExtender() {
 			// var postData = getActivityData(placeholderObj);
 			var url = getActivityUrl(placeholderObj);
 
-			
-			
-			
 			chrome.extension.sendRequest({
 				action : "checkChromeBookmarked",
 				values : {
@@ -643,7 +619,6 @@ function UIExtender() {
 
 				if (bookmarked) {
 
-					
 					uiExtender.extendPostWithIconAction(placeholderIconsObj, 'mk-bookmarked', function(element) {
 						actions.doChromeBookmark(element.target, getActivityData(this));
 					}, 'Click to remove bookmark this post');
@@ -665,10 +640,6 @@ function UIExtender() {
 		// http://www.google.com/webhp?hl=en#sclient=psy&hl=en&site=webhp&source=hp&q=%22test%22+site:plus.google.com&pbx=1&oq=%22test%22+site:plus.google.com&aq=f&aqi=&aql=f&gs_sm=e&gs_upl=968l968l0l1l1l0l0l0l0l157l157l0.1l1&bav=on.2,or.r_gc.r_pw.&fp=ad93d5a0dc8b6623&biw=1280&bih=685
 
 	};
-	
-	
-	
-
 
 	/**
 	 * create element
@@ -688,9 +659,6 @@ function UIExtender() {
 		attrStyle.nodeValue = 'display:none';
 		txt.setAttributeNode(attrStyle);
 
-		
-		
-		
 		// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
 		var span = document.createElement("span");
 		span.innerText = caption;
@@ -698,12 +666,11 @@ function UIExtender() {
 		var attrClass = document.createAttribute("class");
 		attrClass.nodeValue = assets.gpPostBottomControlsStyle;
 		span.setAttributeNode(attrClass);
-		
+
 		var attrStyle = document.createAttribute("style");
 		attrStyle.nodeValue = 'display:none';
 		span.setAttributeNode(attrStyle);
 
-			
 		var attrAlt = document.createAttribute("title");
 		attrAlt.nodeValue = title;
 		span.setAttributeNode(attrAlt);
@@ -713,7 +680,7 @@ function UIExtender() {
 		placeholderObj.appendChild(txt);
 		placeholderObj.appendChild(span);
 	};
-	
+
 	this.extendPostWithIconAction = function(placeholderObj, htmlClass, callback, title) {
 		if (!placeholderObj) {
 			return;
@@ -745,8 +712,8 @@ function UIExtender() {
 		// placeholderObj.appendChild(txt);
 		placeholderObj.appendChild(span);
 	};
-	
-	this.preExtendPostWithPlusOne = function(){
+
+	this.preExtendPostWithPlusOne = function() {
 		(function() {
 			var ga = document.createElement('script');
 			ga.type = 'text/javascript';
@@ -772,7 +739,7 @@ function UIExtender() {
 		var s = document.getElementsByTagName('script')[0];
 		s.parentNode.insertBefore(po, s);
 	};
-	
+
 	this.extendPostWithPlusOne = function(placeholderObj, activity, settings, htmlClass, callback, title) {
 		if (!placeholderObj) {
 			return;
@@ -797,7 +764,7 @@ function UIExtender() {
 		var attrStyle = document.createAttribute("style");
 		attrStyle.nodeValue = 'display:none';
 		div.setAttributeNode(attrStyle);
-		
+
 		div.innerHTML = '<g:plusone href="' + activity.url + '" size="small" ' + count + ' callback="_onPlusOne" ></g:plusone>';
 
 		var script = document.createElement("script");
@@ -807,9 +774,6 @@ function UIExtender() {
 		placeholderObj.appendChild(script);
 
 	};
-
-	
-
 
 	this.addHashtags = function(postObj) {
 		var postBodyObj = postObj.querySelector(assets.gpPostBody);
@@ -832,7 +796,6 @@ function UIExtender() {
 
 	};
 }
-
 
 function addJavaScriptCode(code) {
 	if (!code) {
@@ -869,25 +832,22 @@ function getActivityHTMLNode(o) {
 }
 
 function getActivityDataWithCallback(o, callback) {
-	
-	
+
 	if (gplushelper.settings.isApiEnabled == true || gplushelper.settings.isApiEnabled == 'true') {
 		var activityId = activityParser.parseActivityId(getActivityHTMLNode(o));
-		
+
 		chrome.extension.sendRequest({
 			action : "doActionViaApi",
 			activityId : activityId
 		}, function(response) {
 			callback(response.activity);
 		});
-		
-		
+
 	} else {
 		callback(activityParser.parseActivityHTML(getActivityHTMLNode(o)));
 	}
 
 }
-
 
 /**
  * Traverse parent elements till post div will be found
@@ -897,7 +857,7 @@ function getActivityDataWithCallback(o, callback) {
  */
 function getActivityData(o) {
 	// console.log('getActivityData', o);
-	
+
 	return activityParser.parseActivityHTML(getActivityHTMLNode(o));
 
 }
@@ -1107,8 +1067,8 @@ function Actions() {
 				values : []
 			});
 
-			window.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup' + '&srcUrl=' + encodeURIComponent(activity.url) + '&snippet=' + encodeURIComponent(actions.stripHTML(activity.object.content))
-					+ '&title=' + encodeURIComponent('Google+ Bookmark'));
+			window.open('https://www.google.com/bookmarks/api/bookmarklet?output=popup' + '&srcUrl=' + encodeURIComponent(activity.url) + '&snippet='
+					+ encodeURIComponent(actions.stripHTML(activity.object.content)) + '&title=' + encodeURIComponent('Google+ Bookmark'));
 
 		} catch (e) {
 			alert('failed open window');
@@ -1123,9 +1083,9 @@ function Actions() {
 				values : []
 			});
 
-			window.open('http://www.delicious.com/save?' + '&url=' + encodeURIComponent(activity.url) + '&notes=' + encodeURIComponent(activity.actor.displayName + ': ' + actions.stripHTML(activity.object.content))
-					+ '&title=' + encodeURIComponent(activity.actor.displayName + ' on Google+') + '&v=6&noui=1&jump=doclose', "doDelicious",
-					'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
+			window.open('http://www.delicious.com/save?' + '&url=' + encodeURIComponent(activity.url) + '&notes='
+					+ encodeURIComponent(activity.actor.displayName + ': ' + actions.stripHTML(activity.object.content)) + '&title=' + encodeURIComponent(activity.actor.displayName + ' on Google+')
+					+ '&v=6&noui=1&jump=doclose', "doDelicious", 'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550');
 
 		} catch (e) {
 			alert('failed open window');
@@ -1187,10 +1147,10 @@ function Actions() {
 		});
 
 	};
-	
-	this.stripHTML = function(html){
-		   var tmp = document.createElement("DIV");
-		   tmp.innerHTML = html;
-		   return tmp.textContent||tmp.innerText;
+
+	this.stripHTML = function(html) {
+		var tmp = document.createElement("DIV");
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText;
 	};
 }

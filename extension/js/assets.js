@@ -25,6 +25,7 @@ function Assets() {
 	this.gpPostAuthorOID = "A.cs2K7c.qk.is";// "a.Gq.jj.Vj";
 	
 	
+	this.gpPostClass = "Wbhcze Te ch";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
 	this.gpPostUrl = "A.UzyZPb";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
 	this.gpPostUrlSelector = "A.k-U-C.k-Qf-C-RySO6d.UzyZPb.oj";// 'a-Ja-h a-b-h-Jb
 													// a-f-i-Ad'";

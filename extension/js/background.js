@@ -80,13 +80,13 @@ chrome.extension.onConnect.addListener(function(port) {
 							+ data.activity.id
 							+ '?alt=json&pp=1&key=' + assets.googlePlusAPIKey;
 
-			var callback = undefined;
+//			var callback = undefined;
 			
 			if (data.force) {
-				callback = 'onNewPostViaApi';
+//				callback = 'onNewPostViaApi';
 				doApiCall(request, onNewPostViaApi);
 			} else {
-				callback = 'doNotify';
+//				callback = 'doNotify';
 				doApiCall(request, doNotify);
 			}
 			
@@ -317,6 +317,19 @@ function init() {
 		window.open('options' + POSTFIX + '.html', 'options');
 
 	});
+
+}
+
+function onSettingsChanged(){
+
+	for ( var tabId in ports) {
+
+		ports[tabId].postMessage({
+			message : 'onSettingsChanged',
+			settings : settings
+		});	
+		
+	}
 
 }
 
@@ -645,10 +658,6 @@ function checkUpdate() {
 
 		break;
 	}
-}
-
-function refreshConfiguration() {
-	console.log('refreshConfiguration');
 }
 
 /*
