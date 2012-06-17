@@ -594,7 +594,7 @@ function UIExtender() {
 		// span.a-f-i-yj");
 
 		if (!placeholderIconsObj) {
-			console.log('error: failed to get the placeholder for icons');
+			console.log('error: failed to get the placeholder for icons - assets.gpPostUpperControls');
 			return;
 		}
 
@@ -650,35 +650,39 @@ function UIExtender() {
 		if (!placeholderObj) {
 			return;
 		}
-		var txt = document.createElement("span");
-		txt.innerText = "  -  ";
-		var attrClass = document.createAttribute("class");
-		attrClass.nodeValue = 'mk-show';
-		txt.setAttributeNode(attrClass);
-		var attrStyle = document.createAttribute("style");
-		attrStyle.nodeValue = 'display:none';
-		txt.setAttributeNode(attrStyle);
-
-		// <span role="button" class="d-h a-b-f-i-Zd-h">Twitt</span>
-		var span = document.createElement("span");
-		span.innerText = caption;
+		
+		
+		var divObj = document.createElement("div");
+		//divObj.innerText = caption;
 
 		var attrClass = document.createAttribute("class");
 		attrClass.nodeValue = assets.gpPostBottomControlsStyle;
-		span.setAttributeNode(attrClass);
+		divObj.setAttributeNode(attrClass);
 
 		var attrStyle = document.createAttribute("style");
 		attrStyle.nodeValue = 'display:none';
-		span.setAttributeNode(attrStyle);
+		divObj.setAttributeNode(attrStyle);
 
 		var attrAlt = document.createAttribute("title");
 		attrAlt.nodeValue = title;
-		span.setAttributeNode(attrAlt);
+		divObj.setAttributeNode(attrAlt);
+		
+		var spanObj = document.createElement("span");
+		var attrClass = document.createAttribute("class");
+		attrClass.nodeValue = 'iq mk-show mk-action mk-' + caption;
+		spanObj.setAttributeNode(attrClass);
+		
+		spanObj.onclick = callback;
+		
+		divObj.appendChild(spanObj);
 
-		span.onclick = callback;
-
-		placeholderObj.appendChild(txt);
-		placeholderObj.appendChild(span);
+		
+		//placeholderObj.appendChild(divObj);
+		placeholderObj.insertBefore(divObj, placeholderObj.lastChild);
+		
+		
+		
+		
 	};
 
 	this.extendPostWithIconAction = function(placeholderObj, htmlClass, callback, title) {
@@ -917,31 +921,31 @@ function PageInfo() {
 
 		return this.PageTypeEnum.UNKNOWN;
 
-		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
-		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
-
-		/*
-		 * check if user page
-		 */
-		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
-		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
-		/*
-		 * check home
-		 */
-		qRe = new RegExp("^https://plus.google.com/u/0/$");
-		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
-
-		// https://plus.google.com/u/0/104512463398531242371/posts
-
-		/*
-		 * check home
-		 */
-		qRe = new RegExp("^https://plus.google.com/$");
-		urlTest = qRe.exec(url);
-		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
+//		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/([a-zA-Z0-9]+)$");
+//		urlTest = qRe.exec(url);
+//		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
+//
+//		/*
+//		 * check if user page
+//		 */
+//		qRe = new RegExp("^https://plus.google.com/([0-9]+)/posts/$");
+//		urlTest = qRe.exec(url);
+//		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
+//		/*
+//		 * check home
+//		 */
+//		qRe = new RegExp("^https://plus.google.com/u/0/$");
+//		urlTest = qRe.exec(url);
+//		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
+//
+//		// https://plus.google.com/u/0/104512463398531242371/posts
+//
+//		/*
+//		 * check home
+//		 */
+//		qRe = new RegExp("^https://plus.google.com/$");
+//		urlTest = qRe.exec(url);
+//		this.pageInfo.notificationOn = (urlTest && this.pageInfo.notificationOn) ? true : false;
 
 	};
 

@@ -12,23 +12,20 @@ function Assets() {
 	this.gpContentPane = "#contentPane";
 	this.gpContainer = "div.or";// a-b-f-i-oa";
 
-	this.gpContainerStreamClass = "lzqA1d";
+	this.gpContainerStreamClass = "aw";
 	this.gpContainerStream = "div." + this.gpContainerStreamClass;
 	this.gpContainerStreamProfile = "div.lzqA1d"; //post
-	this.gpContainerStreamPost = "div.k-uH-MHYjYb-yd"; //post
-	
-	
+	this.gpContainerStreamPost = "div.l-Uw.zda"; //post
 
-	this.gpPostUpperControls = "div.Ns";// div.Xy";
-
-	this.gpPostAuthor = "A.cs2K7c.qk.is";// "a.Gq.jj.Vj";
-	this.gpPostAuthorOID = "A.cs2K7c.qk.is";// "a.Gq.jj.Vj";
+	this.gpPostUpperControls = "div.Gn";
+	
+	this.gpPostAuthor = "A.gi.ld.md";
+	this.gpPostAuthorOID = "A.gi.ld.md";
 	
 	
-	this.gpPostClass = "Wbhcze Te ch";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
+	this.gpPostClass = "Cg Gb Fl";
 	this.gpPostUrl = "A.UzyZPb";// 'a-Ja-h a-b-h-Jb a-f-i-Ad'";
-	this.gpPostUrlSelector = "A.k-U-C.k-Qf-C-RySO6d.UzyZPb.oj";// 'a-Ja-h a-b-h-Jb
-													// a-f-i-Ad'";
+	this.gpPostUrlSelector = "A.h-J-o.h-q-o-ca.Mq.Gg";
 
 	
 	this.gpArticle ='div.rXnUBd';
@@ -56,16 +53,16 @@ function Assets() {
 	this.gpActivityAttachement = "Tx";
 	
 	
-	this.gpPostBody = "div.go.RD";// div.Uj";
+	this.gpPostBody = "div.Gm.Cs";
 	this.gpPostBody2 = "div.vg";// post
 
-	this.gpPostBottomControls = "div.vo";// div.Xn";
-	this.gpPostBottomControlsStyle = 'c-C mk-show';// div.Xn";
+	this.gpPostBottomControls = "div.BE";
+	this.gpPostBottomControlsStyle = 'a-f-e Tj mk-show';
 	
 	/*
 	 * Toolbar
 	 */
-	this.gpToolbar = "div.oLO5kc.nH.c-wa-Da.pH";// div.ZW.zG.d-r-q";
+	this.gpToolbar = "div.i4a.wDb";// div.ZW.zG.d-r-q";
 
 	this.gpToolbarButton = 'c-C k-Qf-C-RySO6d Pb c-wa-Da xgINEf sH';
 	this.gpToolbarButtonInner = 'mZxz3d rH';

@@ -34,8 +34,8 @@
 		"https://accounts.google.com/o/oauth2/token",
 		"https://*/*",
 		"http://*/*"	
-	],
-	"page_action": {
+	]
+   , "page_action": {
 		"default_name": "__MSG_ext_page_action_badge__"
 		, "default_icon": "images/icon19.png"
 		, "default_popup": "popup.min.html"

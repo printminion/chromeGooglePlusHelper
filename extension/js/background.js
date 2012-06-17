@@ -125,21 +125,25 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	switch (request.action) {
 		case 'doActionViaApi':
 		
-		if (settings.apiKey == undefined || settings.apiKey == '') {
-			_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
-			//doOpenLink('options' + POSTFIX + '.html#api');
-			window.open('options' + POSTFIX + '.html#api', 'options');
-			return;
-		}
+		/*
+		 * use user api KEY
+		 */
+//		if (settings.apiKey == undefined || settings.apiKey == '') {
+//			_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
+//			//doOpenLink('options' + POSTFIX + '.html#api');
+//			window.open('options' + POSTFIX + '.html#api', 'options');
+//			return;
+//		}
+//		
+//		assets.googlePlusAPIKey = settings.apiKey;
 		
-		assets.googlePlusAPIKey = settings.apiKey;
 		
-		var request = 'https://www.googleapis.com/plus/v1/activities/'
+		var requestAPI = 'https://www.googleapis.com/plus/v1/activities/'
 						+ request.activityId
 						+ '?alt=json&pp=1&key=' + assets.googlePlusAPIKey;
 
 		
-		doApiCall(request, function(activity){
+		doApiCall(requestAPI, function(activity){
 			
 			sendResponse({
 				activity: activity
@@ -147,8 +151,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 			
 		});
 			
-		break;
-
 		break;
 	case 'doOpenLink':
 		_gaq.push([ '_trackPageview', '/openLink' ]);
@@ -296,7 +298,7 @@ function init() {
 		
 		
 		
-		window.open('options' + POSTFIX + '.html#api', 'options');
+		window.open('options' + POSTFIX + '.html#options', 'options');
 	}, function() {
 		/*
 		 * set default values

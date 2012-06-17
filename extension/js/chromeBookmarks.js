@@ -178,10 +178,21 @@ function search(url) {
 	});
 }
 
-// http://techcrunch.com/2011/07/11/the-techcrunch-redesign-a-copy-and-paste-hatemail-template/
 function searchBookmark(parentId, url, callback) {
 	console.log('searchBookmark', parentId, url);//, callback);
 
+	if (parentId == undefined) {
+		console.log('searchBookmark:Failure due no parentId is given');
+		callback(false);		
+	}
+	
+	if (url == undefined) {
+		console.log('searchBookmark:Failure due no url is given');
+		callback(false);		
+	}
+	
+	
+	
 	chrome.bookmarks.search(url, function(nodes) {
 
 		console.log('chrome.bookmarks.search', nodes);

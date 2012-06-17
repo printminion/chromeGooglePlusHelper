@@ -29,17 +29,17 @@
 		<link>
 			<name>README</name>
 			<type>1</type>
-			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/README</location>
+			<location>/home/cr/Desktop/F::/!Develop/chrome/mkChromeGooglePlusHelper/README</location>
 		</link>
 		<link>
 			<name>_prototypes</name>
 			<type>2</type>
-			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/_prototypes</location>
+			<location>/home/cr/Desktop/F::/!Develop/chrome/mkChromeGooglePlusHelper/_prototypes</location>
 		</link>
 		<link>
 			<name>build.xml</name>
 			<type>1</type>
-			<location>F:/!Develop/chrome/mkChromeGooglePlusHelper/build.xml</location>
+			<location>/home/cr/develop/chrome/mkChromeGooglePlusHelper/build.xml</location>
 		</link>
 	</linkedResources>
 	<filteredResources>

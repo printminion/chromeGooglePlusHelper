@@ -39,20 +39,6 @@
 <script src="js/mustache.js"></script>
 <script src="js/notification.min.js"></script>
 
-</head>
-
-<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
-
-<textarea class="template">
-	<button id="-mk-bookmark" class="mk-bookmarked"></button>
-	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
-	
-	<button id="-mk-tts" class="off"></button>
-	<button id="-mk-api" class="off"></button>
-	
-	
-	
-	
 	<style>
 	body {
 		height: {{cssBodyHeight}}}px;
@@ -89,7 +75,17 @@
 	
 	</style>
 	
+</head>
 
+<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
+
+<textarea class="template">
+	<button id="-mk-bookmark" class="mk-bookmarked"></button>
+	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
+	
+	<button id="-mk-tts" class="off"></button>
+	<button id="-mk-api" class="off"></button>
+	
 	<div id="update-{{id}}" class="md gi xi">
 		<div class="Ve jn">
 			<div class="jr">
@@ -118,8 +114,9 @@
 					</span>
 					<!-- 
 					&nbsp;-&nbsp;
-					<span class="a-j Rh Fo il" title="Sharing details">Public</span></span>
+					<span class="a-j Rh Fo il" title="Sharing details">Public</span>
 					 -->
+					 </span>
 				</div>
 			</div>
 			<div class="Bx">

@@ -237,7 +237,7 @@ GPlusActivityParser.prototype.parseActivityUrl = function(activityHTMLObj) {
 
 	var postUrlObj = activityHTMLObj.querySelector(this.assets.gpPostUrlSelector);
 	if (!postUrlObj) {
-		console.log('err:failed to parse post url');
+		console.log('err:failed to parse post url:' + this.assets.gpPostUrlSelector);
 		return;
 	}
 
