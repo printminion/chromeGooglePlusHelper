@@ -1,49 +1,22 @@
 <html>
 <head>
 
-<script type="text/javascript">
-	var POSTFIX = '';
-</script>
 
-<script src="js/assets.js"></script>
-
-<script type="text/javascript">
-	var assets = new Assets();
-</script>
-
-
-<script src="js/analytics.js"></script>
-<script src="js/app.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/omnibox.js"></script>
-<script src="js/chromeBookmarks.js"></script>
-<script src="js/background.js"></script>
-<script src="js/contextMenu.js"></script>
-<script src="oauth2/oauth2.js"></script>
-
-<script type="text/javascript">
-
-var googleAuth = new OAuth2('google', {
-	  client_id: assets.oauth2_client_id,
-	  client_secret: assets.oauth2_client_secret,
-	  api_scope: assets.oauth2_api_scope
-	});
-
-if (settings.apiKey == undefined || settings.apiKey == '') {
-	console.log('settings.apiKey', settings.apiKey);	
-}
-/* 	googleAuth.authorize(function() {
-		console.log('OAuth:', googleAuth.getAccessToken());
-	}); */
-	
-</script>
-
+<script type="text/javascript" src="lib/manifest.js"></script>
+<script type="text/javascript" src="js/postfix.js"></script>
+<script type="text/javascript" src="js/assets.js"></script>
+<script type="text/javascript" src="js/analytics.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="js/settings.js"></script>
+<script type="text/javascript" src="js/omnibox.js"></script>
+<script type="text/javascript" src="js/chromeBookmarks.js"></script>
+<script type="text/javascript" src="js/background.js"></script>
+<script type="text/javascript" src="js/contextMenu.js"></script>
 
 </head>
 
-<body onload="init();">
+<body>
 	<img id="icon" src="images/icon19.png">
 	<canvas id="canvas" width="19" height="19"></canvas>
-
 </body>
 </html>

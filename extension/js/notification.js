@@ -76,12 +76,12 @@ function Notify() {
 	
 	
 	this.startTimer = function() {
-		t = setTimeout("notify.beforeClose()", this.CONF_TIMEOUT);
+		t = setTimeout(notify.beforeClose, this.CONF_TIMEOUT);
 	};
 
 	this.startTimerAfterMouseOut = function() {
 		bMouseOverTimerOff = false;
-		t = setTimeout("notify.afterMouseOut()",
+		t = setTimeout(notify.afterMouseOut,
 				this.CONF_TIMEOUT_AFTER_MOUSEOUT);
 	};
 
@@ -96,7 +96,7 @@ function Notify() {
 		if (!bMouseOver && bMouseOverTimerOff) {
 			window.close();
 		} else {
-			t = setTimeout("notify.beforeClose()",
+			t = setTimeout(notify.beforeClose,
 					this.CONF_TIMEOUT_AFTER_MOUSEOUT);
 		}
 	};
@@ -444,3 +444,12 @@ function Notify() {
 }
 
 var notify = new Notify();
+
+document.addEventListener('DOMContentLoaded', function () {
+	notify.init();
+});
+
+document.addEventListener('unload', function () {
+	notify.unload();
+});
+

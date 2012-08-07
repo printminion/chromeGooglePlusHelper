@@ -3,16 +3,12 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" HREF="images/icon16.png">
 <title>Notification</title>
 
 <link rel="stylesheet" href="css/notification.css" type="text/css" />
 <link rel="stylesheet" href="css/bookmark.css" type="text/css" />
 <link rel="stylesheet" href="css/scrollbar.css" type="text/css" />
-
-<script type="text/javascript">
-	var POSTFIX = '.min';
-</script>
-
 
 <style type="text/css">
 
@@ -36,9 +32,27 @@
 
 </style>
 
-<script src="js/mustache.js"></script>
-<script src="js/notification.min.js"></script>
+<script type="text/javascript" src="js/postfix.min.js"></script>
+<script type="text/javascript" src="js/mustache.js"></script>
+<script type="text/javascript" src="js/notification.min.js"></script>
 
+</head>
+
+<!-- <body id="body" onload="notify.init();" class="cl" onunload="notify.unload();"> -->
+
+<body id="body" class="cl">
+
+
+<textarea class="template">
+	<button id="-mk-bookmark" class="mk-bookmarked"></button>
+	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
+	
+	<button id="-mk-tts" class="off"></button>
+	<button id="-mk-api" class="off"></button>
+	
+	
+	
+	
 	<style>
 	body {
 		height: {{cssBodyHeight}}}px;
@@ -75,17 +89,7 @@
 	
 	</style>
 	
-</head>
 
-<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
-
-<textarea class="template">
-	<button id="-mk-bookmark" class="mk-bookmarked"></button>
-	<button id="-mk-visibility" class="{{cssVisibility}}"></button>
-	
-	<button id="-mk-tts" class="off"></button>
-	<button id="-mk-api" class="off"></button>
-	
 	<div id="update-{{id}}" class="md gi xi">
 		<div class="Ve jn">
 			<div class="jr">

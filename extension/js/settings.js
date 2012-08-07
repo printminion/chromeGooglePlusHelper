@@ -203,3 +203,8 @@ var settings = {
 	}
 	
 };
+
+
+if (settings.apiKey == undefined || settings.apiKey == '') {
+	console.log('settings.apiKey', settings.apiKey);
+}

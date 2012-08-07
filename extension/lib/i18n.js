@@ -15,8 +15,8 @@ function __i18n(e, f) {
 	if (str == undefined || str == '') {
 		console.log('_i18n[' + e + ']:' + str);
 	}
-
-	document.write(str);
+	return str;
+//	document.write(str);
 }
 
 function _writeMessage(e, f) {

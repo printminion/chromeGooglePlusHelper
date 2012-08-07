@@ -1,6 +1,7 @@
 {
 	"name": "__MSG_ext_name__",
 	"version": "@VERSION@",
+	"manifest_version": 2,
 	"description": "__MSG_ext_description__",
 	"default_locale": "en",
 	"omnibox": { "keyword" : "plus" },
@@ -9,23 +10,26 @@
 		"128": "images/icon128.png",
 		"24": "images/icon24.png",
 		"19": "images/icon19.png"
-	},
-	"content_scripts": [
+	}
+, "content_scripts": [
     {
       "matches": ["http://plus.google.com/*", "https://plus.google.com/*"],
       "js": ["js/activityParser.min.js", "js/assets.min.js", "js/chromeExtensionsCode.min.js"],
       "css": ["css/inject.css"]
-},
-    {
+}
+, {
 	    "matches": ["http://www.google.com/robots.txt*"],
 	    "js": ["oauth2/oauth2_inject.js"],
 	    "css": ["css/empty.css"],
 	    "run_at": "document_start"
     }
-  ],
-	"background_page": "background.min.html",
-	"options_page": "options.min.html",
-	"permissions": [
+  ]
+  , "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+  , "background": {
+		"page": "background.min.html"
+		}
+	, "options_page": "options.min.html"
+	, "permissions": [
 		"tabs", 
 		"notifications", 
 		"bookmarks", 

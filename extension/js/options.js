@@ -112,3 +112,15 @@ function Options() {
 }
 
 var options = new Options();
+
+document.addEventListener('DOMContentLoaded', function () {
+	_initOptionsPage();
+	
+	$('h1[data-i18n], div[data-i18n], span[data-i18n], button[data-i18n], option[data-i18n], footer[data-i18n]').each(function(){
+		console.log('translate', $(this).attr('data-i18n'), $(this).attr('data-i18n-placeholder'));
+		$(this).text(__i18n($(this).attr('data-i18n'), $(this).attr('data-i18n-placeholder')));
+	});
+});
+
+
+

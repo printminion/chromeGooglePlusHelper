@@ -140,11 +140,14 @@ function getBookmarksNode(id, callback) {
 
 		for ( var node in nodes) {
 
-			if (nodes[node].title == folderName) {
-				console.log('gotParent', nodes[node].id);
-				callback(nodes[node].id);
-				return;
+			if (nodes[node].title != folderName) {
+				continue;
 			}
+			
+			console.log('gotParent', nodes[node].id);
+			callback(nodes[node].id);
+			
+			return;
 		}
 
 		console.log('create new folder');

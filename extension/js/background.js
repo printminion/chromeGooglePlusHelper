@@ -16,13 +16,26 @@ var requestFailureCount = 0; // used for exponential backoff
 var requestTimeout = 1000 * 2; // 5 seconds
 var rotation = 0;
 var bookmarks = undefined;
+var version = undefined;
+
+document.addEventListener('DOMContentLoaded', function () {
+	try {
+		version = chrome.manifest.version;
+	} catch(e) {
+		
+	}
+	
+	init();
+});
 
 chrome.extension.onConnect.addListener(function(port) {
 	// Only accept connections with a port.name we expect.
 	if (port.name != 'chrome-google-plus-helper')
 		return;
 
-	ports[port.tab.id] = port;
+	//ports[port.tab.id] = port;
+	ports[port.sender.tab.id] = port;
+	
 
 	port.onMessage.addListener(function(data) {
 
@@ -32,6 +45,9 @@ chrome.extension.onConnect.addListener(function(port) {
 		switch (data.message) {
 		case 'fetchTabInfo':
 			checkTab(data.callback, sender);
+			break;
+		case 'onException':
+			_gaq.push([ '_trackPageview', '/error/' + version + '/' + data.text ]);
 			break;
 		case 'doTweet':
 			_gaq.push([ '_trackPageview', '/tweet' ]);
@@ -56,9 +72,10 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 			break;
 		case 'onActivatePageAction':
-			chrome.pageAction.show(port.tab.id);
-			
+//			chrome.pageAction.show(port.tab.id);
+			chrome.pageAction.show(port.sender.tab.id);
 			break;
+
 		case 'onNewPost':
 			_gaq.push([ '_trackPageview', '/notify' ]);
 			doNotify(data.activity, true);
@@ -67,14 +84,16 @@ chrome.extension.onConnect.addListener(function(port) {
 		case 'onNewPostViaApi':
 			_gaq.push([ '_trackPageview', '/notifyViaApi' ]);
 
-			if (settings.apiKey == undefined || settings.apiKey == '') {
-				_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
-				//doOpenLink('options' + POSTFIX + '.html#api');
-				window.open('options' + POSTFIX + '.html#api', 'options');
-				return;
+//			if (settings.apiKey == undefined || settings.apiKey == '') {
+//				_gaq.push([ '_trackPageview', '/notifyViaApi/getApiKey' ]);
+//				//doOpenLink('options' + POSTFIX + '.html#api');
+//				window.open('options' + POSTFIX + '.html#api', 'options');
+//				return;
+//			}
+
+			if (settings.apiKey != undefined || settings.apiKey != '') {
+				assets.googlePlusAPIKey = settings.apiKey;
 			}
-			
-			assets.googlePlusAPIKey = settings.apiKey;
 			
 			var request = 'https://www.googleapis.com/plus/v1/activities/'
 							+ data.activity.id
@@ -152,6 +171,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		});
 			
 		break;
+		
 	case 'doOpenLink':
 		_gaq.push([ '_trackPageview', '/openLink' ]);
 		doOpenLink(request.values);
@@ -272,6 +292,7 @@ function init() {
 		var bkg = chrome.extension.getBackgroundPage();
 
 		bkg.settings.addTwitter = true;
+		bkg.settings.addFacebook = true;
 		bkg.settings.addTranslate = true;
 		bkg.settings.addHashtags = true;
 
@@ -279,7 +300,7 @@ function init() {
 		bkg.settings.addChromeBookmarks = true;
 		bkg.settings.addDelicious = true;
 
-		bkg.settings.addPlusOne = true;
+		bkg.settings.addPlusOne = false;
 		bkg.settings.addPlusOneCounter = true;
 
 		bkg.settings.addChromeBookmarksToolbar = true;
@@ -308,10 +329,10 @@ function init() {
 		bkg.settings.addDelicious = true;
 		bkg.settings.addChromeBookmarksToolbar = true;
 
-		if (bkg.settings.apiKey == undefined || bkg.settings.apiKey == '' || bkg.settings.apiKey == null) {
+//		if (bkg.settings.apiKey == undefined || bkg.settings.apiKey == '' || bkg.settings.apiKey == null) {
 			bkg.settings.apiKey = bkg.assets.googlePlusAPIKey;
 			bkg.settings.isApiEnabled = true;
-		}
+//		}
 		
 		
 		
@@ -625,6 +646,9 @@ function doNotify(activity, force) {
 	 */
 	notification.show();
 }
+
+
+
 
 var REFRESH_RATE = 5000;
 

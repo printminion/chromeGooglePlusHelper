@@ -3,16 +3,12 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" HREF="images/icon16.png">
 <title>Notification</title>
 
 <link rel="stylesheet" href="css/notification.css" type="text/css" />
 <link rel="stylesheet" href="css/bookmark.css" type="text/css" />
 <link rel="stylesheet" href="css/scrollbar.css" type="text/css" />
-
-<script type="text/javascript">
-	var POSTFIX = '';
-</script>
-
 
 <style type="text/css">
 
@@ -36,12 +32,16 @@
 
 </style>
 
-<script src="js/mustache.js"></script>
-<script src="js/notification.js"></script>
+<script type="text/javascript" src="js/postfix.js"></script>
+<script type="text/javascript" src="js/mustache.js"></script>
+<script type="text/javascript" src="js/notification.js"></script>
 
 </head>
 
-<body id="body" onload="notify.init();" class="cl" onunload="notify.unload();">
+<!-- <body id="body" onload="notify.init();" class="cl" onunload="notify.unload();"> -->
+
+<body id="body" class="cl">
+
 
 <textarea class="template">
 	<button id="-mk-bookmark" class="mk-bookmarked"></button>

@@ -4,7 +4,7 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="../build/compiler.jar" />
 
 	<!-- put your version here -->
-	<property name="VERSION" value="1.50" />
+	<property name="VERSION" value="1.61" />
 
 	<target name="createextension" depends="closure" description="Assemble the final build extension.zip">
 		<zip destfile="extension_v${VERSION}.zip">
@@ -27,11 +27,15 @@
 				, extension/js/notification.js
 				, extension/js/omnibox.js
 				, extension/js/options.js
-				, extension/\.settings/*
-				, extension/\.settings,
+				, extension/\.settings/,
 				, extension/bookmarks.html
 				, extension/.project
-				extension/**/*.bak" />
+				, extension/.buildpath
+								
+				, extension/oauth2/
+				, extension/prototypes/						
+				
+				, extension/**/*.bak" />
 		</zip>
 	</target>
 
@@ -106,6 +110,12 @@
 		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/options.min.js">
 			<sources dir="${basedir}/extension/js">
 				<file name="options.js" />
+			</sources>
+		</jscomp>
+
+		<jscomp compilationLevel="simple" warning="default" debug="false" output="extension/js/analytics.min.js">
+			<sources dir="${basedir}/extension/js">
+				<file name="analytics.js" />
 			</sources>
 		</jscomp>
 

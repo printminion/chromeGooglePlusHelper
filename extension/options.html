@@ -3,272 +3,25 @@
 <head>
 <title>Helper for Google+ Extension Options</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="shortcut icon" HREF="img/icon16.png">
+<link rel="shortcut icon" HREF="images/icon16.png">
 <link rel="stylesheet" type="text/css" href="css/options.css">
 
-<script src="js/assets.js"></script>
-
-<script type="text/javascript">
-	var assets = new Assets();
-</script>
-
+<script type="text/javascript" src="js/postfix.js"></script>
+<script type="text/javascript" src="js/assets.js"></script>
 <script type="text/javascript" src="lib/i18n.js"></script>
 <script type="text/javascript" src="js/options.js"></script>
 <script type="text/javascript" src="lib/3rdparty/jquery-1.4.2.min.js"></script>
-
-<!-- <script src="oauth2/oauth2.js"></script> -->
-
-<script type="text/javascript">
-
-/* var googleAuth = new OAuth2('google', {
-	  client_id: assets.oauth2_client_id,
-	  client_secret: assets.oauth2_client_secret,
-	  api_scope: assets.oauth2_api_scope
-}); */
-	
-//Restores select box state to saved value from localStorage.
-/* var tabs = { tabs: {
-					  {name: 'options'}
-					, {name: 'tts'}
-					, {name: 'api'}
-					, {name: 'privacy-policy'}
-			}}; */
-
-			
-	var optionsValues = {
-			 options: {
-			  option_add_twitter: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_facebook: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_translate: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_bookmark: { type: "attr", default: false, value: true, attr: "checked" }
-			, option_add_bookmark_delicious: { type: "attr", default: false, value: false, attr: "checked" }
-			, option_add_plusone_button: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_plusone_button_count: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_chrome_bookmark: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_chrome_bookmark_toolbar: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_add_translate_to: { type: "val", default: "en", value: "en"}
-			, option_notificationOn: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_notification_sound: { type: "val", default: "sound/01.mp3", value: "sound/01.mp3"}
-			, option_notification_time: {type: "val", default: 5000, value: 5000}
-			, option_ttsOn: { type: "attr", default: true, value: true, attr: "checked" }
-			, option_tts_language: { type: "val", default: "native", value: "native"}
-			, option_tts_gender: { type: "val", default: "female", value: "female"}
-			, option_tts_lang: { type: "val", default: "en-US", value: "en-US"}
-			, option_tts_rate: { type: "val", default: "1.0", value: "1.0"}
-			, option_tts_pitch: { type: "val", default: "1.0", value: "1.0"}
-			, option_tts_volume: { type: "val", default: "1.0", value: "1.0"}
-			, option_debug: { type: "attr", default: true, value: true, attr: "checked" }
-			}
-			};
-
-	
-	function selectTab(tab) {
-		if (tab == undefined || tab == '') {
-			tab = "options";
-		}
-		tab = tab.replace('#', '');
-		
-		$('.d-Aa').removeClass('d-Aa-Pa');
-		$('#-x-' + tab).addClass('d-Aa-Pa');
-		
-		$('#options_tab').hide();
-		$('#tts_tab').hide();
-		$('#api_tab').hide();
-		$('#privacy-policy_tab').hide();
-		$('#about_tab').hide();
-		
-
-		$('#' + tab + '_tab').show();
-		
-	}
-	
-	var lastApiKey = undefined;
-	$(document).ready(function() {
-		
-	   var currentTab = location.hash.replace('#', '');
-		
-	   selectTab(currentTab);
-		
-	   
-		chrome.tts.getVoices(
-			    function(voices) {
-			      for (var i = 0; i < voices.length; i++) {
-
-			    	  $('#option_tts_language')
-			          .append($("<option></option>")
-			          .attr("value", voices[i].voiceName)
-			          .text(voices[i].voiceName))
-			          
-			        console.log('Voice ' + i + ':');
-			        console.log('  name: ' + voices[i].voiceName);
-			        console.log('  lang: ' + voices[i].lang);
-			        console.log('  gender: ' + voices[i].gender);
-			        console.log('  extension id: ' + voices[i].extensionId);
-			        console.log('  event types: ' + voices[i].eventTypes);
-			      }
-		});
-		
-	   $('.d-Aa').click(function() {
-			selectTab($(this).attr('href'));
-		});
-	   
-	   $('#option_apiKey').focus(function() {
-		   lastApiKey = $('#option_apiKey').val();
-	   }).blur(function() {
-			 if (lastApiKey != $('#option_apiKey').val()) {
-				 $('#btnTestApi').addClass('d-ze-qc');
-			 }
-	   });
-	   
-	   $('#btnTestApi').click(function() {
-
-		   if ( $('#option_apiKey').val() == undefined ||  $('#option_apiKey').val() == '') {
-				console.log('settings.apiKey', bkg.settings.apiKey);
-				alert('Please put your simple api key in to textbox\nand hit the validate button');
-				return;
-			}
-		   
-		     var request = 'https://www.googleapis.com/plus/v1/people/104512463398531242371?fields=displayName%2Cid%2Cimage%2Cname&pp=1&key=' + $('#option_apiKey').val();
-
-		     $('#btnTestApi').text('Validating...');
-				bkg.doApiCall(request, function(result){
-					if (result.error) {
-						$('#btnTestApi').text('Validate');
-						
-						alert('wrong api key');
-						bkg.settings.apiKey = '';
-						bkg.settings.isApiEnabled = false;
-						assets.googlePlusAPIKey = '';
-						bkg.onSettingsChanged();
-						
-						$('#option_apiKey').val('');
-						$('#option_apiKey').focus();
-					} else {
-						$('#btnTestApi').text('Validate');
-						bkg.settings.apiKey = $('#option_apiKey').val();
-						bkg.settings.isApiEnabled = true;
-						assets.googlePlusAPIKey = bkg.settings.apiKey;
-						bkg.onSettingsChanged();
-						alert('Your Simply access Google+ API has been saved');
-						//markDirty(); 
-					}
-					
-					$('#btnTestApi').removeClass('d-ze-qc');
-
-					
-				});
-			
-	/* 	   googleAuth.authorize(function() {
-				console.log('OAuth:', googleAuth.getAccessToken());
-			});
-	 */	   
-	   });
-	   
-	   
-	   //d-Aa-qa-cq
-/* 		$('.d-Aa').hover(
-		  function () {
-		  	$('div', this).removeClass('d-Aa-qa').addClass('d-Aa-qa-cq');
-		  }, 
-		  function () {
-			$('div', this).removeClass('d-Aa-qa-cq').addClass('d-Aa-qa');
-		  }
-		); */
-		
-
-		if (bkg.settings.addTwitter == "true") {
-			$("#option_add_twitter").attr("checked", "true");
-		}
-
-		if (bkg.settings.addFacebook == "true") {
-			$("#option_add_facebook").attr("checked", "true");
-		}
-		
-		if (bkg.settings.addTranslate == "true") {
-			$("#option_add_translate").attr("checked", "true");
-		}
-		
-		/* if (bkg.settings.addHashtags == "true") {
-			$("#option_add_hashtags").attr("checked", "true");
-		} */
-		
-		
-		if (bkg.settings.addBookmarks == "true") {
-			$("#option_add_bookmark").attr("checked", "true");
-		}
-		
-		if (bkg.settings.addDelicious == "true") {
-			$("#option_add_bookmark_delicious").attr("checked", "true");
-		}
-		
-		
-		if (bkg.settings.addPlusOne == "true") {
-			$("#option_add_plusone_button").attr("checked", "true");
-		}
-		
-		if (bkg.settings.addPlusOneCounter == "true") {
-			$("#option_add_plusone_button_count").attr("checked", "true");
-		}
-		
-		if (bkg.settings.addChromeBookmarks == "true") {
-			$("#option_add_chrome_bookmark").attr("checked", "true");
-		}
-		
-		if (bkg.settings.addChromeBookmarksToolbar == "true") {
-			$("#option_add_chrome_bookmark_toolbar").attr("checked", "true");
-		}
-		
-
-		$("#option_add_translate_to").val(bkg.settings.addTranslateTo);
-
-		if (bkg.settings.notificationOn) {
-			$("#option_notificationOn").attr("checked", "true");
-		}
-
-		$("#option_notification_sound").val(bkg.settings.notificationSound);
-		$('#option_notification_time').val(bkg.settings.notificationTime);
-		$('#option_notification_time_value').text(bkg.settings.notificationTime/1000)
-		/*
-		 * TTS
-		 */
-		if (bkg.settings.ttsOn || bkg.settings.ttsOn == "true") {
-			$("#option_ttsOn").attr("checked", "true");
-		}
-	
-		$('#option_tts_lang').val(bkg.settings.ttsLang);
-		$('#option_tts_gender').val(bkg.settings.ttsGender);
-		$('#option_tts_pitch').val(bkg.settings.ttsPitch);
-		$('#option_tts_rate').val(bkg.settings.ttsRate);
-		$('#option_tts_volume').val(bkg.settings.ttsVolume);
-		
-		if (bkg.settings.isDebug == "true") {
-			$("#option_debug").attr("checked", "true");
-		}
-			
-		/*
-		 * KEY
-		 */
-		 if (bkg.assets.googlePlusAPIKey != bkg.settings.apiKey) {
-				$('#option_apiKey').val(bkg.settings.apiKey);
-		 }
-		
-	});
-	
-</script>
+<script type="text/javascript" src="js/optionsUI.js"></script>
 
 </head>
-<body onload="_initOptionsPage();">
+<body>
 
 	<div id="content" class="va-Q">
 
 		<!-- <div id="content" >
 -->
 		<div id="header">
-			<h1>
-				<script type="text/javascript">
-					_writeMessage('option_header_title');
-				</script>
-			</h1>
+			<h1 data-i18n="option_header_title">option_header_title</h1>
 		</div>
 
 		<div class="d-Aa-ua d-Aa-ua-Fa">
@@ -290,42 +43,48 @@
 			<a href="#about" id="-x-about" class="d-Aa d-s-r a-Aa-Zl">
 				<div class="d-Aa-qa">About</div>
 			</a>
+			
+			<a href="#donation" id="-x-donate" class="d-s-r a-Aa-Zl">
+				<div class="d-Aa-qa">
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="TPVZ3DYUQ6MZ4">
+<input type="image" src="images/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+				</div>
+			</a>
+			
+		
 			<div class="clear">
 				<!---->
 			</div>
 		</div>
 	
 <div id="options_tab">
-		<div style="display: none;">
-			<script type="text/javascript">
-				_writeMessage('description_body');
-			</script>
-
-		</div>
+		<div style="display: none;" data-i18n="description_body">description_body</div>
 		<div class="option_row">
 			<div class="option_name">Extend post area</div>
 			<div class="option_picker">
 				<table border="0">
 					<tr>
 						<td class="option">Twitter</td>
-						<td><input type="checkbox" id="option_add_twitter"
-							name="option_add_twitter" onchange="markDirty();" value="1" />
+						<td><input type="checkbox" id="option_add_twitter" name="option_add_twitter" class="-x-onchange-dirty" value="1" />
 						</td>
 					</tr>
 
 					<tr>
 						<td class="option">Facebook</td>
 						<td><input type="checkbox" id="option_add_facebook"
-							name="option_add_facebook" onchange="markDirty();" value="1" />
+							name="option_add_facebook" class="-x-onchange-dirty" value="1" />
 						</td>
 					</tr>
 
 					<tr>
 						<td class="option">Translate</td>
 						<td><input type="checkbox" id="option_add_translate"
-							name="option_add_translate" onchange="markDirty();" value="1" />
+							name="option_add_translate" class="-x-onchange-dirty" value="1" />
 							translate to <select id="option_add_translate_to"
-							onchange="markDirty();">
+							class="-x-onchange-dirty">
 								<option value="af">Afrikaans</option>
 <option value="sq">Albanian</option>
 <option value="ar">Arabic</option>
@@ -386,14 +145,14 @@
 					<tr>
 						<td class="option" title="We will add linked hashtags on the fly">Hashtags</td>
 						<td><input type="checkbox" id="option_add_hashtags"
-							name="option_add_hashtags" onchange="markDirty();" value="1" />
+							name="option_add_hashtags" class="-x-onchange-dirty" value="1" />
 						</td>
 					</tr>-->
 
 					<!-- <tr>
 						<td class="option" title="Bookmark in Google Lists">Bookmark</td>
 						<td><input type="checkbox" id="option_add_bookmark"
-							name="option_add_bookmark" onchange="markDirty();" value="1" />
+							name="option_add_bookmark"  class="-x-onchange-dirty" value="1" />
 						</td>
 					</tr>
 					 -->
@@ -401,7 +160,7 @@
 					<tr>
 						<td class="option" title="Bookmark on Delicious">Delicious</td>
 						<td><input type="checkbox" id="option_add_bookmark_delicious"
-							name="option_add_bookmark_delicious" onchange="markDirty();" value="1" />
+							name="option_add_bookmark_delicious"  class="-x-onchange-dirty" value="1" />
 						</td>
 					</tr>
 				</table>
@@ -428,53 +187,21 @@
 						<tr>
 							<td class="option">Enabled</td>
 							<td><input type="checkbox" id="option_notificationOn"
-							name="option_notificationOn" onchange="markDirty();" value="1" />
+							name="option_notificationOn"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 
 						<tr>
 							<td class="option">Sound</td>
-							<td><select id="option_notification_sound" onchange="markDirty();">
-									<option value="">
-										<script type="text/javascript">
-											_writeMessage('option_sound_alert_none');
-										</script>
-									</option>
-									<option value="sound/01.mp3">
-										<script type="text/javascript">
-											_writeMessage(
-													'option_sound_alert_value',
-													"1");
-										</script>
-									</option>
-									<option value="sound/02.mp3">
-										<script type="text/javascript">
-											_writeMessage(
-													'option_sound_alert_value',
-													"2");
-										</script>
-									</option>
-									<option value="sound/03.mp3">
-										<script type="text/javascript">
-											_writeMessage(
-													'option_sound_alert_value',
-													"3");
-										</script>
-									</option>
-									<option value="sound/04.mp3">
-										<script type="text/javascript">
-											_writeMessage(
-													'option_sound_alert_value',
-													"4");
-										</script>
-									</option>
+							<td><select id="option_notification_sound"  class="-x-onchange-dirty">
+									<option value="" data-i18n="option_sound_alert_none">option_sound_alert_none</option>
+									<option value="sound/01.mp3" data-i18n="option_sound_alert_value" data-i18n-placeholder="1">option_sound_alert_value 1</option>
+									<option value="sound/02.mp3" data-i18n="option_sound_alert_value" data-i18n-placeholder="2">option_sound_alert_value 2</option>
+									<option value="sound/03.mp3" data-i18n="option_sound_alert_value" data-i18n-placeholder="3">option_sound_alert_value 3</option>
+									<option value="sound/04.mp3" data-i18n="option_sound_alert_value" data-i18n-placeholder="4">option_sound_alert_value 4</option>
 
 								</select> <span class="va-Q-bb">
-									<button onclick="options.playSound();" style="float: none;">
-										<script type="text/javascript">
-											_writeMessage('button_play');
-										</script>
-									</button>
+									<button id="button_play" style="float: none;" data-i18n="button_play">button_play</button>
 								</span>
 							</td>
 						</tr>
@@ -482,13 +209,13 @@
 							<td class="option">Display</td>
 							<td>
 							<!-- <select id="option_notification_time"
-							onchange="markDirty();">
+							 class="-x-onchange-dirty">
 								<option value="3000">3</option>
 								<option value="5000">5</option>
 								<option value="10000">10</option>
 								<option value="15000">15</option>
 						</select>  -->
-							  <input id="option_notification_time" type="range" min="3000" max="15000" value="5000" step="1000" style="cursor: pointer;" onchange="markDirty();$('#option_notification_time_value').text(this.value/1000)">
+							  <input id="option_notification_time" type="range" min="3000" max="15000" value="5000" step="1000" style="cursor: pointer;">
 								<span id="option_notification_time_value"></span> seconds
 						
 							</td>
@@ -507,7 +234,7 @@
 						<tr>
 							<td class="option" title="Show bookmark star in each post">Enabled</td>
 							<td><input type="checkbox" id="option_add_chrome_bookmark"
-							name="option_add_chrome_bookmark" onchange="markDirty();" value="1" />
+							name="option_add_chrome_bookmark"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 
@@ -515,7 +242,7 @@
 							<td class="option" title="Add bookmark button to the Google Plus Toolbar">Toolbar</td>
 							<td>
 							<input type="checkbox" id="option_add_chrome_bookmark_toolbar"
-							name="option_add_chrome_bookmark_toolbar" onchange="markDirty();" value="1" />
+							name="option_add_chrome_bookmark_toolbar"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 				</table>
@@ -532,7 +259,7 @@
 						<tr>
 							<td class="option" title="Show plus one button">Enabled</td>
 							<td><input type="checkbox" id="option_add_plusone_button"
-							name="option_add_plusone_button" onchange="markDirty();" value="1" />
+							name="option_add_plusone_button"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 
@@ -540,7 +267,7 @@
 							<td class="option" title="Show aggregate counter">Counter</td>
 							<td>
 							<input type="checkbox" id="option_add_plusone_button_count"
-							name="option_add_plusone_button_count" onchange="markDirty();" value="1" />
+							name="option_add_plusone_button_count"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 				</table>
@@ -570,13 +297,13 @@
 						<tr>
 							<td class="option">Enabled</td>
 							<td><input type="checkbox" id="option_ttsOn"
-							name="option_ttsOn" onchange="markDirty();" value="1" />
+							name="option_ttsOn"  class="-x-onchange-dirty" value="1" />
 							</td>
 						</tr>
 
 						<tr>
 							<td class="option">Gender</td>
-							<td><select id="option_tts_gender" onchange="markDirty();">
+							<td><select id="option_tts_gender"  class="-x-onchange-dirty">
 									<option value="female">Female</option>
 									<option value="male">Male</option>
 								</select>
@@ -585,7 +312,7 @@
 						
 						<tr>
 							<td class="option">Voice</td>
-							<td><select id="option_tts_language" onchange="markDirty();">
+							<td><select id="option_tts_language"  class="-x-onchange-dirty">
 									<option value="">Unspecified</option>
 								</select>
 							</td>
@@ -594,7 +321,7 @@
 
 						<tr>
 							<td class="option">Language</td>
-							<td><select id="option_tts_lang"  onchange="markDirty();">
+							<td><select id="option_tts_lang"   class="-x-onchange-dirty">
  <option value="">Unspecified</option>
   <option value="af">Afrikaans</option>
   <option value="sq">shqipe</option>
@@ -738,12 +465,8 @@
 						   <span style="color: #999;">Enter text here and test</span>
  						 	<div id="ttsTextTest" contenteditable="true" style="padding: 4px; margin-top:10px; margin-right:20px; overflow:hidden">Enter text to read</div>
  						 		<span class="va-Q-bb">
-									<button onclick="options.doSpeakOption();" style="float: none;">
-										<script type="text/javascript">_writeMessage('button_tts_speak');</script>
-									</button>
-									<button onclick="options.doStopSpeakOption();" style="float: none;">
-										<script type="text/javascript">_writeMessage('button_tts_stop');</script>
-									</button>
+									<button id="speak" style="float: none;" data-i18="button_tts_speak">button_tts_speak</button>
+									<button id="stop" style="float: none;" data-i18n="button_tts_stop">button_tts_stop</button>
 								</span>
  						</td>
 					</tr>
@@ -758,19 +481,19 @@
 					<tr>
 						<td class="option">Rate</td>
 						<td>
-						    <input id="option_tts_rate" type="range" min="0.5" max="4.0" value="1.0" step="0.1" style="cursor: pointer;" onchange="markDirty();">
+						    <input id="option_tts_rate" type="range" min="0.5" max="4.0" value="1.0" step="0.1" style="cursor: pointer;"  class="-x-onchange-dirty">
 						</td>
 					</tr>
 					<tr>
 						<td class="option">Pitch</td>
 						<td>
-						     <input id="option_tts_pitch" type="range" min="0.0" max="2.0" value="1.0" step="0.2" style="cursor: pointer;" onchange="markDirty();">
+						     <input id="option_tts_pitch" type="range" min="0.0" max="2.0" value="1.0" step="0.2" style="cursor: pointer;" class="-x-onchange-dirty">
 						</td>
 					</tr>
 					<tr>
 						<td class="option">Volume</td>
 						<td>
-						     <input id="option_tts_volume" type="range" min="0.0" max="1.0" value="1.0" step="0.1" style="cursor: pointer;" onchange="markDirty();">
+						     <input id="option_tts_volume" type="range" min="0.0" max="1.0" value="1.0" step="0.1" style="cursor: pointer;" class="-x-onchange-dirty">
 							</td>
 						</tr>
 			</table>
@@ -783,7 +506,7 @@
 	<div class="option_row">
 		<div class="option_name"></div>
 		<div class="option_picker"  style="color: #999; width: 400px;">
-		You need to create your own API key due limited usage quota per API key (1000 requests per day).
+		If you want you can use your own Google+ API key.
 		</div>
 	</div>
 	
@@ -844,8 +567,7 @@
 	<div class="option_row">
 				<div class="option_name">Debug</div>
 				<div class="option_picker">
-				<input type="checkbox" id="option_debug"
-							name="option_debug" onchange="markDirty();" value="1" />
+				<input type="checkbox" id="option_debug" name="option_debug" class="-x-onchange-dirty" value="1" />
 				</div>
 	</div>
 
@@ -856,22 +578,11 @@
 		</div>
 
 <div class="buttons">
-			<span id="save_status"><script type="text/javascript">
-				_writeMessage('status_save');
-			</script> </span>
+			<span id="save_status" data-i18n="status_save">status_save</span>
 
 			<div class="va-Q-bb">
-				<button name="yes" id="save_button" onclick="saveOptions();">
-					<script type="text/javascript">
-						_writeMessage('button_save');
-					</script>
-				</button>
-				<button name="cancel" id="reset_button"
-					onclick="resetOptions();return false;">
-					<script type="text/javascript">
-						_writeMessage('button_reset');
-					</script>
-				</button>
+				<button name="yes" id="save_button" data-i18n="button_save">button_save</button>
+				<button name="cancel" id="reset_button" data-i18n="button_reset">button_reset</button>
 			</div>
 
 		</div>
@@ -881,118 +592,11 @@
 		</div>
 
 		<!-- 
-<div id="title_license" class="section-header first"><script type="text/javascript">_writeMessage('license_title');</script></div>
-<div id="body_license"><script type="text/javascript">_writeMessage('license_body');</script></div>
+<div id="title_license" class="section-header first" data-i18n="license_title">license_title</div>
+<div id="body_license"  data-i18n="license_body">license_body</div>
 -->
 	</div>
 
-	<footer>
-		<script type="text/javascript">
-			_writeMessage('footer_info');
-		</script>
-	</footer>
-
-
-	<script type="text/javascript">
-		var saveButton;
-
-		function _initOptionsPage() {
-			saveButton = document.getElementById("save_button");
-			if (bkg.settings.isFirstRun) {
-				markDirty();
-			} else {
-				markClean();
-			}
-
-		}
-
-		function saveOptions() {
-			markClean();
-
-			save_options();
-			return false;
-		}
-
-		function resetOptions() {
-			var option = undefined;
-			
-			for ( var option_name in optionsValues.options) {
-				option = optionsValues.options[option_name];
-				
-				switch (option.type) {
-				case 'attr':
-					console.log(option_name, option);
-					$("#" + option_name).attr(option.attr, option.default);
-					break;
-				case 'val':
-					console.log(option_name, option);
-					$("#" + option_name).val(option.default);
-					break;
-				default:
-					console.log('unknown type');
-					break;
-				}
-			}
-			saveOptions();
-			return false;
-		}
-		
-		function markDirty() {
-			saveButton.disabled = false;
-			$('#save_button').addClass('d-ze-qc');
-
-		}
-
-		function markClean() {
-			saveButton.disabled = true;
-			$('#save_button').removeClass('d-ze-qc');
-		}
-
-		//Saves options to localStorage.
-		function save_options() {
-
-			bkg.settings.addTwitter = $("#option_add_twitter").attr("checked");
-			bkg.settings.addFacebook = $("#option_add_facebook").attr("checked");
-			
-			bkg.settings.addTranslate = $("#option_add_translate").attr("checked");
-		
-			//bkg.settings.addHashtags = $("#option_add_hashtags").attr("checked");
-			
-			bkg.settings.addBookmarks = $("#option_add_bookmark").attr("checked");
-			bkg.settings.addDelicious = $("#option_add_bookmark_delicious").attr("checked");
-			
-			bkg.settings.addPlusOne = $("#option_add_plusone_button").attr("checked");
-			bkg.settings.addPlusOneCounter = $("#option_add_plusone_button_count").attr("checked");
-			
-			bkg.settings.addChromeBookmarks = $("#option_add_chrome_bookmark").attr("checked");
-			bkg.settings.addChromeBookmarksToolbar = $("#option_add_chrome_bookmark_toolbar").attr("checked");
-			
-			bkg.settings.addTranslateTo = $("#option_add_translate_to").val();
-
-			bkg.settings.notificationOn = $("#option_notificationOn").attr("checked");
-			bkg.settings.notificationSound = $("#option_notification_sound").val();
-			bkg.settings.notificationTime = $('#option_notification_time').val();
-
-			/*
-			 * tts
-			 */
-			bkg.settings.ttsOn = $("#option_ttsOn").attr("checked");
-			bkg.settings.ttsLang = $('#option_tts_lang').val();
-			bkg.settings.ttsGender = $('#option_tts_gender').val();
-			bkg.settings.ttsPitch = $('#option_tts_pitch').val();
-			bkg.settings.ttsRate = $('#option_tts_rate').val();
-			bkg.settings.ttsVolume = $('#option_tts_volume').val();
-		
-			bkg.settings.apiKey = $("#option_apiKey").val();
-			
-			bkg.settings.isDebug = $("#option_debug").attr("checked");
-			
-			//Refresh the extension by reseting timer.
-			bkg.onSettingsChanged();
-
-			$('#save_status').fadeIn('fast');
-			$('#save_status').fadeOut(3000);
-		}
-	</script>
+	<footer data-i18n="footer_info"></footer>
 </body>
 </html>

@@ -127,7 +127,8 @@ GPlusHelper.prototype.initHomePage = function() {
 
 	var container = document.querySelector(assets.gpContentPane);
 	if (container == undefined) {
-		console.log('[e]Failed to get the contain pane', assets.gpContentPane);
+		console.log('[e]failed to get the contain pane', assets.gpContentPane);
+		actions.onException('failed to get the contain pane - ' + assets.gpContentPane);
 		return;
 	}
 
@@ -153,6 +154,7 @@ GPlusHelper.prototype.initHomePage = function() {
 
 			if (e.target.getAttribute('class') != assets.gpPostClass) {
 				console.log('[w]failed to get assets.gpPostClass');
+				actions.onException('failed to get assets.gpPostClass');
 				return;
 			}
 
@@ -237,7 +239,8 @@ GPlusHelper.prototype.initHomePageToolbar = function() {
 	var miniToolbarObj = document.querySelector(assets.gpToolbar);// div.oLO5kc");
 
 	if (!miniToolbarObj) {
-		console.log('[w]Failed to get assets.gpToolbar');
+		console.log('[w]failed to get assets.gpToolbar');
+		actions.onException('failed to get assets.gpToolbar');
 		return;
 	}
 
@@ -418,7 +421,9 @@ function fetchTabInfo(selectedPacketName) {
 	}
 
 	if (!streamObj) {
-		console.log('failed to get stream for extension');
+		console.log('[w]failed to get stream for extension');
+		actions.onException('failed to get stream for extension');
+		
 		return;
 	}
 
@@ -473,7 +478,8 @@ function UIExtender() {
 		var placeholderObj = o.querySelector(assets.gpPostBottomControls);// div.a-f-i-bg
 
 		if (!placeholderObj) {
-			console.log('error: failed to get the placeholder for actions. set assets.gpPostBottomControls');
+			console.log('[e]failed to get the placeholder for actions. set assets.gpPostBottomControls');
+			actions.onException('failed to get the placeholder for actions. set assets.gpPostBottomControls');
 			return;
 		}
 
@@ -594,7 +600,8 @@ function UIExtender() {
 		// span.a-f-i-yj");
 
 		if (!placeholderIconsObj) {
-			console.log('error: failed to get the placeholder for icons - assets.gpPostUpperControls');
+			console.log('[e]failed to get the placeholder for icons - assets.gpPostUpperControls');
+			actions.onException('failed to get the placeholder for icons - assets.gpPostUpperControls');
 			return;
 		}
 
@@ -669,7 +676,7 @@ function UIExtender() {
 		
 		var spanObj = document.createElement("span");
 		var attrClass = document.createAttribute("class");
-		attrClass.nodeValue = 'iq mk-show mk-action mk-' + caption;
+		attrClass.nodeValue = assets.gpPostBottomControlsInnerStyle + ' mk-show mk-action mk-' + caption;
 		spanObj.setAttributeNode(attrClass);
 		
 		spanObj.onclick = callback;
@@ -722,7 +729,7 @@ function UIExtender() {
 			var ga = document.createElement('script');
 			ga.type = 'text/javascript';
 			ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			ga.src = 'https://ssl.google-analytics.com/ga.js';
 			var s = document.getElementsByTagName('script')[0];
 			s.parentNode.insertBefore(ga, s);
 		})();
@@ -898,10 +905,10 @@ function PageInfo() {
 		 */
 		url = this.getPathFromUrl(url);
 
-		var qRe = new RegExp("^https://plus.google.com/$");
+		var qRe = new RegExp("^https://plus.google.com/(u/[0-9]/|)$");
 		var urlTest = qRe.exec(url);
 
-		console.log('getPageType', "^https://plus.google.com/$", urlTest);
+		console.log('getPageType', "^https://plus.google.com/(u/[0-9]/|)$", urlTest);
 
 		if (urlTest) {
 			return this.PageTypeEnum.HOME;
@@ -910,7 +917,7 @@ function PageInfo() {
 		/*
 		 * check home
 		 */
-		qRe = new RegExp("^https://plus.google.com/stream$");
+		qRe = new RegExp("^https://plus.google.com/(u/[0-9]/|)stream$");
 		urlTest = qRe.exec(url);
 		// this.pageInfo.notificationOn = (urlTest &&
 		// this.pageInfo.notificationOn) ? true : false;
@@ -1026,6 +1033,17 @@ function Actions() {
 		// {"href": "http://www.example.com/", "state": "on"}
 	};
 
+	this.onException = function(message) {
+		try {
+			getPort().postMessage({
+				message : "onException",
+				text : message
+			});
+		} catch (e) {
+		}
+		;
+	};
+	
 	this.doTweet = function(activity) {
 		try {
 			getPort().postMessage({
