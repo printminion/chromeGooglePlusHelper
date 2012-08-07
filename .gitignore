@@ -8,4 +8,10 @@
 /extension/js/options.min.js
 *.zip
 *.rar
+/extension/js/chromeBookmarks.min.js/extension/js/assets.min.js
+/extension/js/contextMenu.min.js
+/extension/js/postfix.min.js
+/extension/js/activityParser.min.js
+/extension/js/assets.min.js
 /extension/js/chromeBookmarks.min.js
+/extension/popup.min.html
